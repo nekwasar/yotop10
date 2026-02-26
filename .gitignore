@@ -1,0 +1,29 @@
+# Environment — never commit real secrets
+.env
+.env.local
+.env.production
+docker/.env
+
+# Node
+node_modules/
+.next/
+out/
+dist/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+*.egg-info/
+
+# Docker volumes
+docker/volumes/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/

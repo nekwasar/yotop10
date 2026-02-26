@@ -1,0 +1,42 @@
+name: Lint & Test
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  frontend-lint:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pnpm
+        run: |
+          export PNPM_HOME="/home/nekwasar/.local/share/pnpm"
+          export PATH="$PNPM_HOME:$PATH"
+          pnpm --version
+
+      - name: Install dependencies
+        run: |
+          export PNPM_HOME="/home/nekwasar/.local/share/pnpm"
+          export PATH="$PNPM_HOME:$PATH"
+          cd frontend && pnpm install
+
+      - name: Lint
+        run: |
+          export PNPM_HOME="/home/nekwasar/.local/share/pnpm"
+          export PATH="$PNPM_HOME:$PATH"
+          cd frontend && pnpm lint
+
+  backend-lint:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install deps and lint
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          cd backend
+          uv venv .venv --clear
+          uv pip install ruff
+          .venv/bin/ruff check .

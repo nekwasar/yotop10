@@ -1,0 +1,126 @@
+services:
+
+  # ─── Frontend (Next.js) ──────────────────────────────────────────
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    container_name: yotop10_frontend
+    restart: unless-stopped
+    environment:
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+      - NEXTAUTH_URL=${NEXTAUTH_URL}
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+      - NEXT_PUBLIC_CDN_URL=${NEXT_PUBLIC_CDN_URL}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+    networks:
+      - yotop10_net
+      - traefik-public
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.yotop10-frontend.rule=Host(`yotop10.com`) && !PathPrefix(`/api`)"
+      - "traefik.http.routers.yotop10-frontend.entrypoints=websecure"
+      - "traefik.http.routers.yotop10-frontend.tls.certresolver=letsencrypt"
+      - "traefik.http.services.yotop10-frontend.loadbalancer.server.port=3000"
+    depends_on:
+      - backend
+
+  # ─── Backend (FastAPI) ───────────────────────────────────────────
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: yotop10_backend
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      - SECRET_KEY=${SECRET_KEY}
+      - ALGORITHM=${ALGORITHM}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES}
+      - CORS_ORIGINS=${CORS_ORIGINS}
+      - BREVO_API_KEY=${BREVO_API_KEY}
+      - EMAIL_FROM=${EMAIL_FROM}
+      - MINIO_ENDPOINT=${MINIO_ENDPOINT}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+      - MINIO_BUCKET=${MINIO_BUCKET}
+      - MINIO_SECURE=${MINIO_SECURE}
+    networks:
+      - yotop10_net
+      - traefik-public
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.yotop10-backend.rule=Host(`yotop10.com`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.yotop10-backend.entrypoints=websecure"
+      - "traefik.http.routers.yotop10-backend.tls.certresolver=letsencrypt"
+      - "traefik.http.middlewares.yotop10-strip-api.stripprefix.prefixes=/api"
+      - "traefik.http.routers.yotop10-backend.middlewares=yotop10-strip-api"
+      - "traefik.http.services.yotop10-backend.loadbalancer.server.port=8000"
+    depends_on:
+      - postgres
+      - redis
+
+  # ─── PostgreSQL ──────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: yotop10_postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=yotop10
+      - POSTGRES_USER=yotop10_user
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - yotop10_net
+    # Internal only — no host ports
+
+  # ─── Redis ───────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: yotop10_redis
+    restart: unless-stopped
+    command: redis-server --save 60 1 --loglevel warning
+    volumes:
+      - redis_data:/data
+    networks:
+      - yotop10_net
+    # Internal only — no host ports
+
+  # ─── MinIO (Image Storage → cdn.yotop10.com) ─────────────────────
+  minio:
+    image: minio/minio:latest
+    container_name: yotop10_minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ACCESS_KEY}
+      - MINIO_ROOT_PASSWORD=${MINIO_SECRET_KEY}
+      - MINIO_BROWSER_REDIRECT_URL=https://cdn.yotop10.com/minio-console
+    volumes:
+      - minio_data:/data
+    networks:
+      - yotop10_net
+      - traefik-public
+    labels:
+      - "traefik.enable=true"
+      # Public image serving on cdn.yotop10.com (S3 API port 9000)
+      - "traefik.http.routers.yotop10-cdn.rule=Host(`cdn.yotop10.com`)"
+      - "traefik.http.routers.yotop10-cdn.entrypoints=websecure"
+      - "traefik.http.routers.yotop10-cdn.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.yotop10-cdn.service=yotop10-cdn-svc"
+      - "traefik.http.services.yotop10-cdn-svc.loadbalancer.server.port=9000"
+    # Admin console: SSH tunnel only → ssh -L 9001:localhost:9001 user@server
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:
+
+networks:
+  yotop10_net:
+    internal: true        # Completely isolated — no outside access
+  traefik-public:
+    external: true        # Shared Traefik network — all apps connect here
