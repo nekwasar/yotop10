@@ -1,6 +1,3 @@
-# Root-level markdown files (planning docs — not for deployment)
-/*.md
-
 # Environment — never commit real secrets
 .env
 .env.local
