@@ -11,6 +11,8 @@ WORKDIR /app
 RUN npm install -g pnpm
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+# Cap Node heap to 800MB to avoid OOM kill on memory-constrained servers
+ENV NODE_OPTIONS="--max-old-space-size=800"
 RUN pnpm build
 
 # Stage 3: Production runner (minimal image)
