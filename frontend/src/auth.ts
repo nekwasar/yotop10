@@ -5,6 +5,10 @@ import Google from "next-auth/providers/google"
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://yotop10.com/api"
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+    // Use /nextauth/* instead of /api/auth/* to avoid conflict with
+    // Traefik which routes all /api/* requests to the FastAPI backend
+    basePath: "/nextauth",
+
     providers: [
         Credentials({
             name: "credentials",
@@ -50,7 +54,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
     callbacks: {
         async signIn({ user, account }) {
-            // For Google sign-in, send Google ID token to our backend
             if (account?.provider === "google" && account.id_token) {
                 try {
                     const res = await fetch(`${API_URL}/auth/google`, {
@@ -60,7 +63,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                     })
                     if (!res.ok) return false
                     const data = await res.json()
-                    // Store backend tokens in user object for jwt callback
                     user.accessToken = data.access_token
                     user.refreshToken = data.refresh_token
                     user.id = data.user.id
@@ -106,6 +108,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
     session: {
         strategy: "jwt",
-        maxAge: 30 * 24 * 60 * 60, // 30 days
+        maxAge: 30 * 24 * 60 * 60,
     },
 })
