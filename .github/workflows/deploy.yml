@@ -11,10 +11,20 @@ jobs:
       - name: Pull latest code
         run: git -C /home/nekwasar/yotop10 pull origin main
 
-      - name: Rebuild and restart only changed containers
+      - name: Build backend (sequential to avoid OOM)
         run: |
           cd /home/nekwasar/yotop10/docker
-          docker compose up -d --build
+          docker compose build backend
+
+      - name: Build frontend (sequential to avoid OOM)
+        run: |
+          cd /home/nekwasar/yotop10/docker
+          docker compose build frontend
+
+      - name: Start / restart containers
+        run: |
+          cd /home/nekwasar/yotop10/docker
+          docker compose up -d
 
       - name: Wait for containers to be healthy
         run: sleep 20
