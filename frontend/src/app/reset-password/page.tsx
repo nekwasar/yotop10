@@ -1,11 +1,11 @@
 "use client"
-import { useState } from "react"
+import { Suspense, useState } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import Link from "next/link"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "/api"
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
     const searchParams = useSearchParams()
     const router = useRouter()
     const token = searchParams.get("token") || ""
@@ -17,14 +17,8 @@ export default function ResetPasswordPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setError("")
-        if (password !== confirm) {
-            setError("Passwords don't match")
-            return
-        }
-        if (password.length < 8) {
-            setError("Password must be at least 8 characters")
-            return
-        }
+        if (password !== confirm) { setError("Passwords don't match"); return }
+        if (password.length < 8) { setError("Password must be at least 8 characters"); return }
         setLoading(true)
         try {
             const res = await fetch(`${API_URL}/auth/reset-password`, {
@@ -62,19 +56,23 @@ export default function ResetPasswordPage() {
                 <h1>Set a new password</h1>
                 <form onSubmit={handleSubmit} className="auth-form">
                     <label>New Password
-                        <input type="password" required minLength={8} value={password}
-                            onChange={e => setPassword(e.target.value)} />
+                        <input type="password" required minLength={8} value={password} onChange={e => setPassword(e.target.value)} />
                     </label>
                     <label>Confirm Password
-                        <input type="password" required minLength={8} value={confirm}
-                            onChange={e => setConfirm(e.target.value)} />
+                        <input type="password" required minLength={8} value={confirm} onChange={e => setConfirm(e.target.value)} />
                     </label>
                     {error && <p className="auth-error">{error}</p>}
-                    <button type="submit" className="auth-btn" disabled={loading}>
-                        {loading ? "Saving…" : "Reset Password"}
-                    </button>
+                    <button type="submit" className="auth-btn" disabled={loading}>{loading ? "Saving…" : "Reset Password"}</button>
                 </form>
             </div>
         </div>
+    )
+}
+
+export default function ResetPasswordPage() {
+    return (
+        <Suspense fallback={<div className="auth-container"><div className="auth-card">Loading…</div></div>}>
+            <ResetPasswordForm />
+        </Suspense>
     )
 }
