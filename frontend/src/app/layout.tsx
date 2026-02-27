@@ -31,3 +31,4 @@ export default function RootLayout({
     </html>
   );
 }
+// NextAuth v5 basePath: /nextauth — rebuild trigger Fri Feb 27 05:10:40 AM EST 2026

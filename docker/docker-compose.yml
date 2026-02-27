@@ -10,6 +10,9 @@ services:
     environment:
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
       - NEXTAUTH_URL=${NEXTAUTH_URL}
+      - AUTH_SECRET=${NEXTAUTH_SECRET}
+      - AUTH_URL=https://yotop10.com/nextauth
+      - AUTH_TRUST_HOST=1
       - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
       - NEXT_PUBLIC_CDN_URL=${NEXT_PUBLIC_CDN_URL}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
