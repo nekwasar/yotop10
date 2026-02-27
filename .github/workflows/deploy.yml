@@ -17,12 +17,12 @@ jobs:
           docker compose up -d --build
 
       - name: Wait for containers to be healthy
-        run: sleep 15
+        run: sleep 20
 
       - name: Run database migrations
         run: |
           docker compose -f /home/nekwasar/yotop10/docker/docker-compose.yml \
-            exec -T backend alembic upgrade head
+            run --rm backend alembic upgrade head
 
       - name: Clean up dangling images
         run: docker image prune -f
