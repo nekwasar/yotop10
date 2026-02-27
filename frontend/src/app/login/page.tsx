@@ -1,10 +1,10 @@
 "use client"
-import { useState } from "react"
+import { Suspense, useState } from "react"
 import { signIn } from "next-auth/react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 
-export default function LoginPage() {
+function LoginForm() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const callbackUrl = searchParams.get("callbackUrl") || "/"
@@ -64,5 +64,13 @@ export default function LoginPage() {
                 <p className="auth-footer">Don&apos;t have an account? <Link href="/signup">Sign up</Link></p>
             </div>
         </div>
+    )
+}
+
+export default function LoginPage() {
+    return (
+        <Suspense fallback={<div className="auth-container"><div className="auth-card">Loading…</div></div>}>
+            <LoginForm />
+        </Suspense>
     )
 }
