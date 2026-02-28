@@ -187,6 +187,7 @@
 - [ ] **Python** 3.11+ (`python --version`)
 - [ ] **pnpm** (`npm install -g pnpm`)
 - [ ] **uv** — fast Python package manager (`pip install uv`)
+- [ ] **Frontend Design Libraries** — `next-themes`, `framer-motion`, `lucide-react`, `canvas-confetti`, `clsx`, `tailwind-merge`
 - [ ] **Docker Desktop** — run PostgreSQL + Redis locally without installing them
 - [ ] **Git** configured
 - [ ] **VS Code** with: ESLint, Prettier, Pylance, GitLens
