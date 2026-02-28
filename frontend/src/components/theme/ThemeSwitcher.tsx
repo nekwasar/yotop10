@@ -40,13 +40,6 @@ export function ThemeSwitcher() {
             >
                 <Newspaper size={18} />
             </button>
-            <button
-                onClick={() => setTheme("system")}
-                className={`flex-1 flex justify-center py-2 rounded-md transition-colors ${theme === "system" ? "bg-[var(--brand-primary)] text-white" : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"}`}
-                title="System Default"
-            >
-                <Monitor size={18} />
-            </button>
         </div>
     );
 }

@@ -89,12 +89,12 @@ body {
 }
 
 a {
-  text-decoration: underline;
-  text-underline-offset: 4px;
-  text-decoration-color: var(--brand-secondary);
+  text-decoration: none;
 }
 
 a:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
   text-decoration-color: var(--brand-primary);
 }
 

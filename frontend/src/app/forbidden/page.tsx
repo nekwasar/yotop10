@@ -11,21 +11,21 @@ export default function Forbidden() {
                 </span>
             </div>
 
-            <h2 className="text-3xl font-bold tracking-[0.2em] uppercase mb-4 text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">Clearance Denied</h2>
+            <h2 className="text-3xl font-bold tracking-[0.2em] uppercase mb-4 text-[var(--text-primary)] drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">Access Denied</h2>
             <p className="text-[var(--text-muted)] max-w-md mx-auto mb-10 text-sm tracking-[0.1em] leading-relaxed">
-                You lack the necessary intel clearance to view this sector. The grid has locked you out.
+                You don't have permission to view this page.
             </p>
 
             <Link
                 href="/"
                 className="
           flex items-center gap-2 px-8 py-3 rounded-full font-mono text-sm tracking-[0.2em] font-bold uppercase
-          text-[#FFB800] bg-white/5 border border-[#FFB800]/30 backdrop-blur-xl
+          text-[var(--text-primary)] bg-[var(--bg-surface)] border border-(--border-accent) backdrop-blur-xl
           hover:shadow-[0_0_30px_rgba(255,184,0,0.4)] hover:border-[#FFB800] hover:bg-[#FFB800]/10
-          transition-all duration-300 hover:scale-[1.05] active:scale-95
+          transition-all duration-300 hover:scale-[1.05] active:scale-95 no-underline
         "
             >
-                Return to Security Desk
+                Go Back Home
             </Link>
         </div>
     )

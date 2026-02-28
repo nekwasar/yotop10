@@ -10,9 +10,9 @@ export default function Unavailable() {
                 </span>
             </div>
 
-            <h2 className="text-3xl font-bold tracking-[0.2em] uppercase mb-4 text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">Core Offline</h2>
+            <h2 className="text-3xl font-bold tracking-[0.2em] uppercase mb-4 text-[var(--text-primary)] drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">Be Right Back</h2>
             <p className="text-[var(--text-muted)] max-w-md mx-auto mb-10 text-sm tracking-[0.1em] leading-relaxed">
-                The debate engine is currently undergoing maintenance or capacity limits are exceeded. The grid will return shortly.
+                YoTop10 is currently undergoing maintenance. Please check back shortly.
             </p>
 
             <div className="flex items-center gap-3">
