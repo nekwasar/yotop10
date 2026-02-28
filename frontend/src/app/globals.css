@@ -1,42 +1,99 @@
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@import "tailwindcss";
+@plugin "tailwindcss-animate";
+
+@theme {
+  --color-bg-base: var(--bg-base);
+  --color-bg-surface: var(--bg-surface);
+  --color-text-primary: var(--text-primary);
+  --color-text-muted: var(--text-muted);
+  --color-brand-primary: var(--brand-primary);
+  --color-brand-secondary: var(--brand-secondary);
+  --color-border-accent: var(--border-accent);
+
+  --font-body: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-logo-yo: var(--font-logo-yo), ui-sans-serif, system-ui, sans-serif;
+  --font-logo-top10: var(--font-logo-top10), ui-sans-serif, system-ui, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* ==========================================================
+       THEME A: FUTURISTIC (Light Mode)
+       ========================================================== */
+    --bg-base: #F8F9FA;
+    /* Off-white paper color */
+    --bg-surface: #FFFFFF;
+    --text-primary: #0A0A0A;
+    --text-muted: #6B7280;
+
+    --brand-primary: #FF4500;
+    /* Orange-Red Neon */
+    --brand-secondary: #FF0080;
+    /* Hot Pink */
+
+    --radius-ui: 9999px;
+    /* Pill-shaped */
+    --card-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
+    --border-accent: transparent;
+    --transition-speed: 0s;
+    /* Flash quick */
+  }
+
+  [data-theme="dark"] {
+    /* ==========================================================
+       THEME A: FUTURISTIC (Dark Mode)
+       ========================================================== */
+    --bg-base: #050B14;
+    /* Extremely dark blue/black */
+    --bg-surface: #0A1120;
+    --text-primary: #FFFFFF;
+    --text-muted: #9CA3AF;
+
+    --card-shadow: 0 0 30px rgba(255, 69, 0, 0.05);
+    /* Subtle ambient glow */
+    --border-accent: rgba(255, 69, 0, 0.1);
+  }
+
+  [data-theme="retro"] {
+    /* ==========================================================
+       THEME B: RETRO NEWSPAPER (Overrides dark/light)
+       ========================================================== */
+    --bg-base: #EFECE6;
+    /* Sepia/Dirty Newspaper white */
+    --bg-surface: #FFFFFF;
+    --text-primary: #111111;
+    --text-muted: #444444;
+
+    --brand-primary: #CC0000;
+    /* Classic harsh red */
+    --brand-secondary: #000000;
+
+    --radius-ui: 0px;
+    /* Brutalist, sharp */
+    --card-shadow: none;
+    /* Flat */
+    --border-accent: #000000;
+    /* Harsh visible borders */
+
+    /* Force typography override */
+    --font-body: 'Times New Roman', Times, serif !important;
   }
 }
 
-html,
+/* Base element styling tied strictly to variables */
 body {
-  max-width: 100vw;
-  overflow-x: hidden;
-}
-
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  /* Ensures immediate, lag-free transitions */
+  transition: background-color var(--transition-speed), color var(--transition-speed);
 }
 
 a {
-  color: inherit;
-  text-decoration: none;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-color: var(--brand-secondary);
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
+a:hover {
+  text-decoration-color: var(--brand-primary);
 }
