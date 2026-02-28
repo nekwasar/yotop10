@@ -5,10 +5,12 @@ import { Topbar } from "@/components/layout/Topbar";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ThemeSwitcher } from "@/components/theme/ThemeSwitcher";
+import { useUIStore } from "@/lib/store";
 
 export function ThemeLayoutWrapper({ children }: { children: React.ReactNode }) {
     const [mounted, setMounted] = useState(false);
     const { theme } = useTheme();
+    const navLayout = useUIStore(state => state.navLayout);
 
     useEffect(() => {
         setMounted(true);
@@ -67,17 +69,26 @@ export function ThemeLayoutWrapper({ children }: { children: React.ReactNode }) 
 
     // ============================================================================
     // THEME A: FUTURISTIC (NEON GLASSMORPHISM)
-    // NextGen layout. Fixed left Sidebar + Fixed Topbar. Single feed column.
+    // NextGen layout. Full-width topbar + Sidebar. Extreme Sci-Fi Glass styling.
     // ============================================================================
     return (
-        <div className="flex h-screen overflow-hidden">
-            <Sidebar />
-            <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
-                <Topbar />
-                {/* Ultra-airy single column constraint */}
-                <main className="w-full max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-                    {children}
-                </main>
+        <div className="flex flex-col h-screen overflow-hidden bg-[var(--bg-base)] text-[var(--text-primary)] transition-colors duration-500 relative">
+            {/* Deep ambient glow layer so background color feels cohesive everywhere */}
+            <div className="absolute inset-0 bg-gradient-to-br from-[var(--brand-primary)]/5 via-[var(--bg-base)] to-[var(--brand-secondary)]/10 pointer-events-none z-0" />
+
+            {/* Topbar spans full 100vw width */}
+            <div className="relative z-50">
+                {(navLayout === 'both' || navLayout === 'top') && <Topbar />}
+            </div>
+
+            <div className="relative flex flex-1 overflow-hidden z-10 w-full">
+                {(navLayout === 'both' || navLayout === 'side') && <Sidebar />}
+                <div className="flex-1 overflow-y-auto overflow-x-hidden">
+                    {/* Ultra-airy single column constraint */}
+                    <main className="w-full max-w-5xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
+                        {children}
+                    </main>
+                </div>
             </div>
         </div>
     );
