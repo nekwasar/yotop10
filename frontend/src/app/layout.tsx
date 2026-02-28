@@ -3,8 +3,7 @@ import { Roboto, Monoton, Anton } from "next/font/google";
 import { ThemeProvider } from "@/lib/theme-context";
 import "./globals.css";
 import AuthProvider from "@/components/auth-provider";
-import { Sidebar } from "@/components/layout/Sidebar";
-import { Topbar } from "@/components/layout/Topbar";
+import { ThemeLayoutWrapper } from "@/components/layout/theme-layout-wrapper";
 
 const roboto = Roboto({
   weight: ["300", "400", "500", "700"],
@@ -29,7 +28,7 @@ export const metadata: Metadata = {
   description: "A futuristic platform for top lists, debates, and facts. Argue, counter, and rank everything.",
   openGraph: {
     title: "YoTop10",
-    description: "Fact Mine. Debate Ground. Your list vs the world.",
+    description: "Fact Mine. Debate Ground.",
     url: "https://yotop10.com",
     siteName: "YoTop10",
     type: "website",
@@ -43,18 +42,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${roboto.variable} ${monoton.variable} ${anton.variable} font-body bg-[var(--bg-base)] text-[var(--text-primary)] antialiased`}>
+      <body className={`${roboto.variable} ${monoton.variable} ${anton.variable} bg-[var(--bg-base)] text-[var(--text-primary)] antialiased transition-colors duration-200`}>
         <ThemeProvider>
           <AuthProvider>
-            <div className="flex h-screen overflow-hidden">
-              <Sidebar />
-              <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
-                <Topbar />
-                <main className="w-full max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-                  {children}
-                </main>
-              </div>
-            </div>
+            <ThemeLayoutWrapper>
+              {children}
+            </ThemeLayoutWrapper>
           </AuthProvider>
         </ThemeProvider>
       </body>
