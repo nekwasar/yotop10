@@ -76,13 +76,13 @@ export function ThemeLayoutWrapper({ children }: { children: React.ReactNode }) 
             {/* Deep ambient glow layer so background color feels cohesive everywhere */}
             <div className="absolute inset-0 bg-gradient-to-br from-[var(--brand-primary)]/5 via-[var(--bg-base)] to-[var(--brand-secondary)]/10 pointer-events-none z-0" />
 
-            {/* Topbar spans full 100vw width */}
+            {/* Topbar spans full 100vw width and is always visible in Futuristic mode */}
             <div className="relative z-50">
-                {(navLayout === 'both' || navLayout === 'top') && <Topbar />}
+                <Topbar />
             </div>
 
             <div className="relative flex flex-1 overflow-hidden z-10 w-full">
-                {(navLayout === 'both' || navLayout === 'side') && <Sidebar />}
+                {navLayout === 'both' && <Sidebar />}
                 <div className="flex-1 overflow-y-auto overflow-x-hidden">
                     {/* Ultra-airy single column constraint */}
                     <main className="w-full max-w-5xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
