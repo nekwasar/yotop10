@@ -1,6 +1,7 @@
 "use client"
 import { useState } from "react"
 import Link from "next/link"
+import { AuthContainer, AuthInput, AuthButton } from "@/components/ui/auth/AuthUI"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "/api"
 
@@ -23,31 +24,35 @@ export default function ForgotPasswordPage() {
 
     if (sent) {
         return (
-            <div className="auth-container">
-                <div className="auth-card">
-                    <h1>Check your inbox 📬</h1>
-                    <p>If <strong>{email}</strong> is registered, a reset link has been sent. It expires in 1 hour.</p>
-                    <p><Link href="/login">Back to login</Link></p>
+            <AuthContainer title="Signal Broadcasted 📬" subtitle="If your identity exists, a transmission was sent.">
+                <p className="text-[var(--text-muted)] text-sm font-mono tracking-widest text-center leading-relaxed">
+                    Check the inbound logs for {email}. The reset protocol expires in 1 hour.
+                </p>
+                <div className="flex justify-center mt-6">
+                    <Link href="/login" className="text-[var(--brand-primary)] hover:underline font-bold font-mono tracking-widest text-sm uppercase">Abort / Return</Link>
                 </div>
-            </div>
+            </AuthContainer>
         )
     }
 
     return (
-        <div className="auth-container">
-            <div className="auth-card">
-                <h1>Forgot your password?</h1>
-                <p className="auth-subtitle">Enter your email and we&apos;ll send you a reset link.</p>
-                <form onSubmit={handleSubmit} className="auth-form">
-                    <label>Email
-                        <input type="email" required value={email} onChange={e => setEmail(e.target.value)} />
-                    </label>
-                    <button type="submit" className="auth-btn" disabled={loading}>
-                        {loading ? "Sending…" : "Send Reset Link"}
-                    </button>
-                </form>
-                <p className="auth-footer"><Link href="/login">Back to login</Link></p>
-            </div>
-        </div>
+        <AuthContainer
+            title="Memory Wipe"
+            subtitle="Request an identity reset link to your uplink."
+            footer={<Link href="/login" className="text-[var(--brand-primary)] hover:underline font-bold transition-colors">Abort / Return</Link>}
+        >
+            <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+                <AuthInput
+                    label="Grid Identity (Email)"
+                    type="email"
+                    required
+                    value={email} onChange={e => setEmail(e.target.value)}
+                />
+
+                <AuthButton type="submit" disabled={loading}>
+                    {loading ? "Transmitting..." : "Broadcast Signal"}
+                </AuthButton>
+            </form>
+        </AuthContainer>
     )
 }
