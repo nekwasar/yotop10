@@ -82,7 +82,7 @@ export function ThemeLayoutWrapper({ children }: { children: React.ReactNode }) 
             </div>
 
             <div className="relative flex flex-1 overflow-hidden z-10 w-full">
-                {navLayout === 'both' && <Sidebar />}
+                <Sidebar />
                 <div className="flex-1 overflow-y-auto overflow-x-hidden">
                     {/* Ultra-airy single column constraint */}
                     <main className="w-full max-w-5xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
