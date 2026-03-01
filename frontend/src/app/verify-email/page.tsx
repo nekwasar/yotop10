@@ -2,6 +2,7 @@
 import { Suspense, useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
+import { AuthContainer, AuthButton } from "@/components/ui/auth/AuthUI"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "/api"
 
@@ -14,7 +15,7 @@ function VerifyEmailContent() {
     useEffect(() => {
         if (!token) {
             setState("error")
-            setMessage("No verification token found in the URL.")
+            setMessage("No verification token found in the payload.")
             return
         }
         const verify = async () => {
@@ -29,42 +30,57 @@ function VerifyEmailContent() {
                 } else {
                     const data = await res.json()
                     setState("error")
-                    setMessage(data.detail || "Verification failed.")
+                    setMessage(data.detail || "Handshake rejected.")
                 }
             } catch {
                 setState("error")
-                setMessage("Something went wrong. Please try again.")
+                setMessage("Network fracture. Retain position.")
             }
         }
         verify()
     }, [token])
 
+    if (state === "loading") {
+        return (
+            <AuthContainer title="Verifying Uplink..." subtitle="Please wait while your identity is hashed.">
+                <div className="flex justify-center my-10">
+                    <div className="w-10 h-10 border-4 border-[var(--brand-primary)] border-t-transparent rounded-full animate-spin shadow-[0_0_15px_rgba(255,69,0,0.5)]"></div>
+                </div>
+            </AuthContainer>
+        )
+    }
+
+    if (state === "success") {
+        return (
+            <AuthContainer title="Grid Access Granted ✅" subtitle="Your identity is now securely registered.">
+                <p className="text-[var(--text-muted)] text-sm font-mono tracking-widest text-center leading-relaxed mb-6">
+                    You have clearance to mount operations, engage in intel gathering, and forge connections.
+                </p>
+                <Link href="/login" className="w-full">
+                    <AuthButton type="button">Initiate Sign In</AuthButton>
+                </Link>
+            </AuthContainer>
+        )
+    }
+
     return (
-        <div className="auth-container">
-            <div className="auth-card">
-                {state === "loading" && <><h1>Verifying your email…</h1><p>Please wait a moment.</p></>}
-                {state === "success" && (
-                    <>
-                        <h1>Email verified! ✅</h1>
-                        <p>Your account is now active. You can now post, comment, and react.</p>
-                        <Link href="/login" className="auth-btn" style={{ display: "inline-block", textAlign: "center", margin: "1rem 0" }}>Log In</Link>
-                    </>
-                )}
-                {state === "error" && (
-                    <>
-                        <h1>Verification failed ❌</h1>
-                        <p>{message}</p>
-                        <p>Your link may have expired. <Link href="/login">Log in</Link> to request a new one.</p>
-                    </>
-                )}
-            </div>
-        </div>
+        <AuthContainer title="Access Denied ❌" subtitle="Verification protocol failed.">
+            <p className="text-red-500 text-xs font-mono font-bold tracking-widest uppercase text-center bg-red-500/10 p-3 rounded-md border border-red-500/20 mb-6">
+                {message}
+            </p>
+            <p className="text-[var(--text-muted)] text-sm font-mono tracking-widest text-center leading-relaxed mb-6">
+                Your payload might have expired.
+            </p>
+            <Link href="/login" className="w-full text-center">
+                <span className="text-[var(--brand-primary)] hover:underline font-bold font-mono tracking-widest text-sm uppercase">Return to Gateway</span>
+            </Link>
+        </AuthContainer>
     )
 }
 
 export default function VerifyEmailPage() {
     return (
-        <Suspense fallback={<div className="auth-container"><div className="auth-card">Verifying…</div></div>}>
+        <Suspense fallback={<div className="min-h-[70vh] flex items-center justify-center font-mono animate-pulse text-[var(--brand-primary)]">Loading Uplink...</div>}>
             <VerifyEmailContent />
         </Suspense>
     )
