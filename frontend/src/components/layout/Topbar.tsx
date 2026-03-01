@@ -4,33 +4,43 @@ import Link from "next/link";
 import { ThemeSwitcher } from "@/components/theme/ThemeSwitcher";
 import { useUIStore } from "@/lib/store";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export function Topbar() {
     const { navLayout, setNavLayout } = useUIStore();
     const pathname = usePathname();
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    const isAuthPage = mounted && ['/login', '/signup', '/forgot-password', '/reset-password', '/verify-email'].some(p => pathname?.startsWith(p));
 
     return (
         <div className="sticky top-0 z-50 flex flex-col w-full">
             <header className="w-full h-[88px] flex items-center justify-between px-6 lg:px-10 border-b border-(--border-accent) bg-[var(--bg-surface)]/60 backdrop-blur-2xl shadow-[0_4px_30px_rgba(0,0,0,0.1)] relative z-20">
 
                 <div className="flex items-center gap-6">
-                    {/* Toggle navigation layout for Futuristic Mode */}
-                    <div className="hidden lg:flex items-center gap-1 bg-[var(--bg-base)] p-1 rounded-full border border-(--border-accent) shadow-sm">
-                        <button
-                            onClick={() => setNavLayout('top')}
-                            className={`p-1.5 rounded-full transition-all ${navLayout === 'top' ? 'bg-[var(--brand-primary)] text-white shadow-[0_0_10px_rgba(255,69,0,0.5)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}
-                            title="Topbar Only"
-                        >
-                            <Menu size={14} />
-                        </button>
-                        <button
-                            onClick={() => setNavLayout('both')}
-                            className={`p-1.5 rounded-full transition-all ${navLayout === 'both' ? 'bg-[var(--brand-primary)] text-white shadow-[0_0_10px_rgba(255,69,0,0.5)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}
-                            title="Both Navigations"
-                        >
-                            <Menu size={14} className="transform -rotate-45" />
-                        </button>
-                    </div>
+                    {/* Toggle navigation layout for Futuristic Mode (Hide on Auth pages) */}
+                    {!isAuthPage && (
+                        <div className="hidden lg:flex items-center gap-1 bg-[var(--bg-base)] p-1 rounded-full border border-(--border-accent) shadow-sm">
+                            <button
+                                onClick={() => setNavLayout('top')}
+                                className={`p-1.5 rounded-full transition-all ${navLayout === 'top' ? 'bg-[var(--brand-primary)] text-white shadow-[0_0_10px_rgba(255,69,0,0.5)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}
+                                title="Topbar Only"
+                            >
+                                <Menu size={14} />
+                            </button>
+                            <button
+                                onClick={() => setNavLayout('both')}
+                                className={`p-1.5 rounded-full transition-all ${navLayout === 'both' ? 'bg-[var(--brand-primary)] text-white shadow-[0_0_10px_rgba(255,69,0,0.5)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}
+                                title="Both Navigations"
+                            >
+                                <Menu size={14} className="transform -rotate-45" />
+                            </button>
+                        </div>
+                    )}
 
                     <Link href="/" className="flex items-center gap-1 hover:scale-105 transition-transform duration-300">
                         <span className="font-logo-yo text-[56px] text-[var(--brand-primary)] drop-shadow-[0_0_15px_rgba(255,69,0,0.8)] leading-none italic">Yo</span>
@@ -65,19 +75,21 @@ export function Topbar() {
                         <ThemeSwitcher />
                     </div>
 
-                    <Link
-                        href="/login"
-                        className="
-                hidden sm:flex items-center gap-2 px-6 py-2.5 rounded-full font-mono text-sm tracking-[0.2em] font-bold uppercase
-                text-[var(--text-primary)] bg-[var(--bg-surface)] border border-(--border-accent) backdrop-blur-xl
-                shadow-[0_0_15px_rgba(255,69,0,0)] hover:shadow-[0_0_25px_rgba(255,69,0,0.5)]
-                hover:border-[var(--brand-primary)] hover:bg-[var(--brand-primary)]/10
-                transition-all duration-300 hover:scale-[1.05] active:scale-95 no-underline
-            "
-                    >
-                        <User size={16} className="text-[var(--brand-primary)] drop-shadow-[0_0_8px_rgba(255,69,0,1)]" />
-                        <span>Sign in</span>
-                    </Link>
+                    {!isAuthPage && (
+                        <Link
+                            href="/login"
+                            className="
+                    hidden sm:flex items-center gap-2 px-6 py-2.5 rounded-full font-mono text-sm tracking-[0.2em] font-bold uppercase
+                    text-[var(--text-primary)] bg-[var(--bg-surface)] border border-(--border-accent) backdrop-blur-xl
+                    shadow-[0_0_15px_rgba(255,69,0,0)] hover:shadow-[0_0_25px_rgba(255,69,0,0.5)]
+                    hover:border-[var(--brand-primary)] hover:bg-[var(--brand-primary)]/10
+                    transition-all duration-300 hover:scale-[1.05] active:scale-95 no-underline
+                "
+                        >
+                            <User size={16} className="text-[var(--brand-primary)] drop-shadow-[0_0_8px_rgba(255,69,0,1)]" />
+                            <span>Sign in</span>
+                        </Link>
+                    )}
 
                     <button className="lg:hidden p-2 text-[var(--text-primary)] hover:text-[var(--brand-primary)] transition-colors hover:scale-110 duration-200" aria-label="Open Menu">
                         <Menu size={28} />
@@ -85,8 +97,8 @@ export function Topbar() {
                 </div>
             </header>
 
-            {/* Secondary Nav Bar when Topbar Only is selected */}
-            {navLayout === 'top' && (
+            {/* Secondary Nav Bar when Topbar Only is selected (Disabled on Auth Pages) */}
+            {navLayout === 'top' && !isAuthPage && (
                 <nav className="w-full border-b border-(--border-accent) bg-[var(--bg-surface)]/40 backdrop-blur-2xl px-6 lg:px-10 py-3 flex items-center justify-center gap-8 relative z-10 animate-in slide-in-from-top-12 duration-300">
                     <Link href="/" className={`no-underline flex items-center gap-2 px-4 py-2 rounded-full font-mono text-xs tracking-widest font-bold uppercase transition-all duration-300 ${pathname === '/' ? 'bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] border border-[var(--brand-primary)]/30' : 'bg-transparent text-[var(--text-muted)] hover:bg-black/20 hover:text-[var(--text-primary)] border border-transparent'}`}>
                         <Home size={14} className={pathname === '/' ? '' : 'opacity-70'} />
