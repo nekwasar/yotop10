@@ -2,8 +2,8 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
 interface UIState {
-    navLayout: 'both' | 'top' | 'side';
-    setNavLayout: (layout: 'both' | 'top' | 'side') => void;
+    navLayout: 'both' | 'top';
+    setNavLayout: (layout: 'both' | 'top') => void;
 }
 
 export const useUIStore = create<UIState>()(

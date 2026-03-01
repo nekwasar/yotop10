@@ -1,5 +1,5 @@
 "use client";
-import { Menu, Search, Zap } from "lucide-react";
+import { Menu, Search, User } from "lucide-react";
 import Link from "next/link";
 import { ThemeSwitcher } from "@/components/theme/ThemeSwitcher";
 import { useUIStore } from "@/lib/store";
@@ -13,13 +13,6 @@ export function Topbar() {
             <div className="flex items-center gap-6">
                 {/* Toggle navigation layout for Futuristic Mode */}
                 <div className="hidden lg:flex items-center gap-1 bg-[var(--bg-base)] p-1 rounded-full border border-(--border-accent) shadow-sm">
-                    <button
-                        onClick={() => setNavLayout('side')}
-                        className={`p-1.5 rounded-full transition-all ${navLayout === 'side' ? 'bg-[var(--brand-primary)] text-white shadow-[0_0_10px_rgba(255,69,0,0.5)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}
-                        title="Sidebar Only"
-                    >
-                        <Menu size={14} className="transform rotate-90" />
-                    </button>
                     <button
                         onClick={() => setNavLayout('top')}
                         className={`p-1.5 rounded-full transition-all ${navLayout === 'top' ? 'bg-[var(--brand-primary)] text-white shadow-[0_0_10px_rgba(255,69,0,0.5)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}
@@ -79,8 +72,8 @@ export function Topbar() {
             transition-all duration-300 hover:scale-[1.05] active:scale-95 no-underline
           "
                 >
-                    <Zap size={16} className="text-[var(--brand-primary)] drop-shadow-[0_0_8px_rgba(255,69,0,1)]" />
-                    <span>Intel</span>
+                    <User size={16} className="text-[var(--brand-primary)] drop-shadow-[0_0_8px_rgba(255,69,0,1)]" />
+                    <span>Sign in</span>
                 </Link>
 
                 <button className="lg:hidden p-2 text-[var(--text-primary)] hover:text-[var(--brand-primary)] transition-colors hover:scale-110 duration-200" aria-label="Open Menu">
