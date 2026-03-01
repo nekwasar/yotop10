@@ -9,7 +9,7 @@ export function Sidebar() {
     const navLayout = useUIStore(state => state.navLayout);
 
     return (
-        <aside className="hidden lg:flex flex-col w-[300px] h-full z-40 relative py-8 gap-8 pr-4 overflow-y-auto">
+        <aside className="hidden lg:flex flex-col w-[300px] h-full z-40 relative py-8 gap-8 pr-4">
 
             {/* Top Block: Primary Navigation */}
             {navLayout === 'both' && (

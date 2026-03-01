@@ -15,7 +15,7 @@ function VerifyEmailContent() {
     useEffect(() => {
         if (!token) {
             setState("error")
-            setMessage("No verification token found in the payload.")
+            setMessage("No verification token found in the url.")
             return
         }
         const verify = async () => {
@@ -30,11 +30,11 @@ function VerifyEmailContent() {
                 } else {
                     const data = await res.json()
                     setState("error")
-                    setMessage(data.detail || "Handshake rejected.")
+                    setMessage(data.detail || "Verification failed.")
                 }
             } catch {
                 setState("error")
-                setMessage("Network fracture. Retain position.")
+                setMessage("Something went wrong. Please try again.")
             }
         }
         verify()
@@ -42,7 +42,7 @@ function VerifyEmailContent() {
 
     if (state === "loading") {
         return (
-            <AuthContainer title="Verifying Uplink..." subtitle="Please wait while your identity is hashed.">
+            <AuthContainer title="Verifying Email..." subtitle="Please wait while we check your verification link.">
                 <div className="flex justify-center my-10">
                     <div className="w-10 h-10 border-4 border-[var(--brand-primary)] border-t-transparent rounded-full animate-spin shadow-[0_0_15px_rgba(255,69,0,0.5)]"></div>
                 </div>
@@ -52,27 +52,27 @@ function VerifyEmailContent() {
 
     if (state === "success") {
         return (
-            <AuthContainer title="Grid Access Granted ✅" subtitle="Your identity is now securely registered.">
+            <AuthContainer title="Email Verified ✅" subtitle="Your account is now fully active.">
                 <p className="text-[var(--text-muted)] text-sm font-mono tracking-widest text-center leading-relaxed mb-6">
-                    You have clearance to mount operations, engage in intel gathering, and forge connections.
+                    You can now post lists, leave comments, and interact with the community.
                 </p>
                 <Link href="/login" className="w-full">
-                    <AuthButton type="button">Initiate Sign In</AuthButton>
+                    <AuthButton type="button">Log In Now</AuthButton>
                 </Link>
             </AuthContainer>
         )
     }
 
     return (
-        <AuthContainer title="Access Denied ❌" subtitle="Verification protocol failed.">
-            <p className="text-red-500 text-xs font-mono font-bold tracking-widest uppercase text-center bg-red-500/10 p-3 rounded-md border border-red-500/20 mb-6">
+        <AuthContainer title="Verification Failed ❌" subtitle="We couldn't verify your email.">
+            <p className="text-red-500 text-xs font-mono font-bold tracking-widest uppercase text-center bg-red-500/10 p-3 rounded-xl border border-red-500/20 mb-6">
                 {message}
             </p>
             <p className="text-[var(--text-muted)] text-sm font-mono tracking-widest text-center leading-relaxed mb-6">
-                Your payload might have expired.
+                Your link may have expired. Please try logging in to trigger a new email.
             </p>
             <Link href="/login" className="w-full text-center">
-                <span className="text-[var(--brand-primary)] hover:underline font-bold font-mono tracking-widest text-sm uppercase">Return to Gateway</span>
+                <span className="text-[var(--brand-primary)] hover:underline font-bold font-mono tracking-widest text-sm uppercase">Return to Login</span>
             </Link>
         </AuthContainer>
     )
@@ -80,7 +80,7 @@ function VerifyEmailContent() {
 
 export default function VerifyEmailPage() {
     return (
-        <Suspense fallback={<div className="min-h-[70vh] flex items-center justify-center font-mono animate-pulse text-[var(--brand-primary)]">Loading Uplink...</div>}>
+        <Suspense fallback={<div className="min-h-[70vh] flex items-center justify-center font-mono animate-pulse text-[var(--brand-primary)]">Loading...</div>}>
             <VerifyEmailContent />
         </Suspense>
     )

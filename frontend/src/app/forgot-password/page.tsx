@@ -24,12 +24,12 @@ export default function ForgotPasswordPage() {
 
     if (sent) {
         return (
-            <AuthContainer title="Signal Broadcasted 📬" subtitle="If your identity exists, a transmission was sent.">
+            <AuthContainer title="Check your email 📬" subtitle="If your account exists, a reset link was sent.">
                 <p className="text-[var(--text-muted)] text-sm font-mono tracking-widest text-center leading-relaxed">
-                    Check the inbound logs for {email}. The reset protocol expires in 1 hour.
+                    Check your inbox and spam folder for {email}. The reset link expires in 1 hour.
                 </p>
                 <div className="flex justify-center mt-6">
-                    <Link href="/login" className="text-[var(--brand-primary)] hover:underline font-bold font-mono tracking-widest text-sm uppercase">Abort / Return</Link>
+                    <Link href="/login" className="text-[var(--brand-primary)] hover:underline font-bold font-mono tracking-widest text-sm uppercase">Back to Login</Link>
                 </div>
             </AuthContainer>
         )
@@ -37,20 +37,20 @@ export default function ForgotPasswordPage() {
 
     return (
         <AuthContainer
-            title="Memory Wipe"
-            subtitle="Request an identity reset link to your uplink."
-            footer={<Link href="/login" className="text-[var(--brand-primary)] hover:underline font-bold transition-colors">Abort / Return</Link>}
+            title="Reset Password"
+            subtitle="Enter your email to get a password reset link."
+            footer={<Link href="/login" className="text-[var(--brand-primary)] hover:underline font-bold transition-colors">Back to Login</Link>}
         >
             <form onSubmit={handleSubmit} className="flex flex-col gap-6">
                 <AuthInput
-                    label="Grid Identity (Email)"
+                    label="Email Address"
                     type="email"
                     required
                     value={email} onChange={e => setEmail(e.target.value)}
                 />
 
                 <AuthButton type="submit" disabled={loading}>
-                    {loading ? "Transmitting..." : "Broadcast Signal"}
+                    {loading ? "Sending..." : "Send Reset Link"}
                 </AuthButton>
             </form>
         </AuthContainer>
