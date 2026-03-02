@@ -105,7 +105,7 @@ export function ThemeLayoutWrapper({ children }: { children: React.ReactNode }) 
                         <div className="relative w-full aspect-[4/5] rounded-[30px] overflow-hidden shadow-[0_0_40px_rgba(255,255,255,0.05)] border border-white/10 group">
                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10 pointer-events-none" />
                             <img
-                                src={isSignup ? "/images/auth/signup.jpg" : "/images/auth/login.jpg"}
+                                src="/images/auth/login.jpg"
                                 alt="Welcome to YoTop10"
                                 className="w-full h-full object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-105"
                             />

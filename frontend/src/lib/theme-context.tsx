@@ -7,10 +7,10 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
     return (
         <NextThemesProvider
             attribute="data-theme"
-            defaultTheme="system"
-            enableSystem
+            defaultTheme="retro"
+            enableSystem={false}
             disableTransitionOnChange
-            themes={["light", "dark", "retro"]} // Add retro array
+            themes={["light", "dark", "retro"]}
             {...props}
         >
             {children}

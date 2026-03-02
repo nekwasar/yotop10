@@ -33,7 +33,6 @@ def register(payload: RegisterRequest, db: Session = Depends(get_db)):
             email=payload.email,
             password=payload.password,
             username=payload.username,
-            display_name=payload.display_name,
         )
         return _auth_response(result)
     except auth_service.AuthError as e:
