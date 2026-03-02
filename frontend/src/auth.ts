@@ -49,6 +49,38 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         Google({
             clientId: process.env.GOOGLE_CLIENT_ID!,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+            authorization: { params: { prompt: "select_account" } },
+        }),
+        Credentials({
+            id: "switch",
+            name: "switch",
+            credentials: {
+                refreshToken: { label: "Refresh Token", type: "text" },
+            },
+            async authorize(credentials) {
+                if (!credentials?.refreshToken) return null;
+                try {
+                    const res = await fetch(`${API_URL}/auth/refresh`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ refresh_token: credentials.refreshToken })
+                    });
+                    if (!res.ok) return null;
+                    const data = await res.json();
+                    return {
+                        id: data.user.id,
+                        name: data.user.display_name,
+                        email: data.user.email,
+                        image: data.user.avatar_url,
+                        accessToken: data.access_token,
+                        refreshToken: data.refresh_token,
+                        isVerified: data.user.is_verified,
+                        isAdmin: data.user.is_admin,
+                        isAuthor: data.user.is_author,
+                        username: data.user.username,
+                    }
+                } catch { return null; }
+            }
         }),
     ],
 
@@ -92,6 +124,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         async session({ session, token }) {
             session.accessToken = token.accessToken as string
+            // @ts-ignore
+            session.refreshToken = token.refreshToken as string
             session.user.id = token.id as string
             session.user.username = token.username as string
             session.user.isVerified = token.isVerified as boolean

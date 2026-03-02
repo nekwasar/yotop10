@@ -5,7 +5,16 @@ import { ThemeSwitcher } from "@/components/theme/ThemeSwitcher";
 import { useUIStore } from "@/lib/store";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { useSession, signOut } from "next-auth/react";
+import { useSession, signIn, signOut } from "next-auth/react";
+
+interface SavedAccount {
+    id: string;
+    email: string;
+    username?: string;
+    name?: string;
+    image?: string;
+    refreshToken?: string;
+}
 
 export function Topbar() {
     const { navLayout, setNavLayout } = useUIStore();
@@ -15,8 +24,16 @@ export function Topbar() {
     const [mounted, setMounted] = useState(false);
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
+    const [savedAccounts, setSavedAccounts] = useState<SavedAccount[]>([]);
 
-    useEffect(() => { setMounted(true); }, []);
+    useEffect(() => {
+        setMounted(true);
+        // Load saved accounts initially
+        const stored = localStorage.getItem('yotop10-accounts');
+        if (stored) {
+            try { setSavedAccounts(JSON.parse(stored)); } catch (e) { }
+        }
+    }, []);
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -32,6 +49,25 @@ export function Topbar() {
     const isAuthPage = mounted && ['/login', '/signup', '/forgot-password', '/reset-password', '/verify-email'].some(p => pathname?.startsWith(p));
     const isLoggedIn = status === "authenticated";
     const user = (session as any)?.user;
+
+    // Sync current session to local saved accounts
+    useEffect(() => {
+        if (!mounted || !isLoggedIn || !user) return;
+        setSavedAccounts(prev => {
+            const current: SavedAccount = {
+                id: user.id,
+                email: user.email,
+                username: user.username,
+                name: user.name,
+                image: user.image,
+                refreshToken: (session as any)?.refreshToken,
+            };
+            const others = prev.filter(a => a.id !== user.id);
+            const updated = [current, ...others];
+            localStorage.setItem('yotop10-accounts', JSON.stringify(updated));
+            return updated;
+        });
+    }, [mounted, isLoggedIn, user, session]);
 
     return (
         <div className="sticky top-0 z-50 flex flex-col w-full">
@@ -138,12 +174,67 @@ export function Topbar() {
                                             <Settings size={15} /> Settings
                                         </Link>
                                         <div className="border-t border-(--border-accent) my-1" />
+
+                                        {/* Multi-Account List */}
+                                        {savedAccounts.filter(a => a.id !== user?.id).length > 0 && (
+                                            <div className="py-2 px-4 space-y-3">
+                                                <p className="text-[10px] text-[var(--text-muted)] font-mono font-bold uppercase tracking-wider">Switch Account</p>
+                                                {savedAccounts.filter(a => a.id !== user?.id).map(acc => (
+                                                    <button
+                                                        key={acc.id}
+                                                        onClick={() => {
+                                                            setDropdownOpen(false);
+                                                            if (acc.refreshToken) {
+                                                                signIn('switch', { refreshToken: acc.refreshToken, redirect: true, callbackUrl: pathname === '/' ? '/' : pathname });
+                                                            } else {
+                                                                router.push('/login');
+                                                            }
+                                                        }}
+                                                        className="flex items-center gap-3 w-full text-left font-mono text-[var(--text-primary)] hover:text-[var(--brand-primary)] transition-colors"
+                                                    >
+                                                        <div className="w-7 h-7 rounded-full overflow-hidden bg-[var(--brand-primary)] flex-shrink-0 flex items-center justify-center text-white text-[10px] font-black shadow-inner border border-[var(--brand-primary)]/50">
+                                                            {acc.image ? <img src={acc.image} alt={acc.name} className="w-full h-full object-cover" /> : acc.name?.[0]?.toUpperCase() || acc.email[0].toUpperCase()}
+                                                        </div>
+                                                        <div className="flex flex-col truncate flex-1">
+                                                            <span className="text-sm font-bold leading-tight">{acc.name || acc.email?.split("@")[0]}</span>
+                                                            <span className="text-[10px] text-[var(--text-muted)] truncate">{acc.email}</span>
+                                                        </div>
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        )}
+
+                                        <button
+                                            onClick={() => { setDropdownOpen(false); router.push('/login'); }}
+                                            className="flex items-center gap-3 px-4 py-2.5 text-sm font-mono text-[var(--text-primary)] hover:bg-[var(--brand-primary)]/10 hover:text-[var(--brand-primary)] transition-colors w-full text-left group"
+                                        >
+                                            <div className="w-7 h-7 border border-dashed border-(--border-accent) rounded-full flex items-center justify-center flex-shrink-0 group-hover:border-[var(--brand-primary)] transition-colors text-lg text-[var(--text-muted)] group-hover:text-[var(--brand-primary)]">
+                                                +
+                                            </div>
+                                            Add an account
+                                        </button>
+
+                                        <div className="border-t border-(--border-accent) my-1" />
+
                                         <button
                                             onClick={() => { setDropdownOpen(false); signOut({ callbackUrl: "/" }); }}
-                                            className="w-full flex items-center gap-3 px-4 py-3 text-sm font-mono text-red-400 hover:bg-red-500/10 transition-colors"
+                                            className="flex items-center gap-3 w-full px-4 py-3 text-sm font-mono text-[var(--text-primary)] hover:bg-[var(--brand-primary)]/10 hover:text-[var(--brand-primary)] transition-colors text-left"
                                         >
-                                            <LogOut size={15} /> Sign Out
+                                            <LogOut size={15} /> Sign Out (Current)
                                         </button>
+
+                                        {savedAccounts.length > 1 && (
+                                            <button
+                                                onClick={() => {
+                                                    setDropdownOpen(false);
+                                                    localStorage.removeItem('yotop10-accounts');
+                                                    signOut({ callbackUrl: "/" });
+                                                }}
+                                                className="flex items-center gap-3 w-full px-4 py-3 text-sm font-mono text-red-500/80 hover:text-red-500 hover:bg-red-500/10 transition-colors text-left"
+                                            >
+                                                <LogOut size={15} /> Sign Out All Accounts
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                             )}
