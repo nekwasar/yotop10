@@ -124,7 +124,7 @@ export function Topbar() {
                                     </div>
                                     <div className="py-1">
                                         <Link
-                                            href={`/${user?.username || 'me'}`}
+                                            href={`/${user?.username || user?.name || 'me'}`}
                                             onClick={() => setDropdownOpen(false)}
                                             className="flex items-center gap-3 px-4 py-3 text-sm font-mono text-[var(--text-primary)] hover:bg-[var(--brand-primary)]/10 hover:text-[var(--brand-primary)] transition-colors no-underline"
                                         >

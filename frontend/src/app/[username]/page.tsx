@@ -10,7 +10,7 @@ import { Calendar, Users, FileText, ShieldCheck } from "lucide-react";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
 
-type Params = { params: { username: string } };
+type Params = { params: Promise<{ username: string }> };
 
 // ─── Data Fetching ────────────────────────────────────────────────────────────
 
@@ -42,7 +42,8 @@ async function fetchUserPosts(username: string) {
 // ─── OG / SEO Meta ────────────────────────────────────────────────────────────
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
-    const profile = await fetchProfile(params.username);
+    const { username } = await params;
+    const profile = await fetchProfile(username);
     if (!profile) return { title: "Profile not found — YoTop10" };
     return {
         title: `${profile.display_name} (@${profile.username}) — YoTop10`,
@@ -113,9 +114,10 @@ function PostCard({ post }: { post: { id: string; title: string; post_type: stri
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default async function UserProfilePage({ params }: Params) {
+    const { username } = await params;
     const [profile, posts] = await Promise.all([
-        fetchProfile(params.username),
-        fetchUserPosts(params.username),
+        fetchProfile(username),
+        fetchUserPosts(username),
     ]);
 
     if (!profile) notFound();
@@ -135,8 +137,8 @@ export default async function UserProfilePage({ params }: Params) {
             {/* ── Profile Card ── */}
             <section
                 className={`relative p-8 rounded-3xl border backdrop-blur-md mb-8 overflow-hidden ${isAuthor
-                        ? "border-amber-500/60 bg-amber-500/5 shadow-[0_0_40px_rgba(245,158,11,0.15)]"
-                        : "border-(--border-accent) bg-[var(--bg-surface)]/60"
+                    ? "border-amber-500/60 bg-amber-500/5 shadow-[0_0_40px_rgba(245,158,11,0.15)]"
+                    : "border-(--border-accent) bg-[var(--bg-surface)]/60"
                     }`}
             >
                 {isAuthor && (
