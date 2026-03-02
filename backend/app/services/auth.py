@@ -4,11 +4,14 @@ from sqlalchemy.orm import Session
 import httpx
 import random
 import string
+import logging
 
 from app.core.security import hash_password, verify_password, create_access_token, create_refresh_token
 from app.core.email import send_verification_email, send_password_reset_email
 from app.crud import user as user_crud
 from app.models.user import User
+
+logger = logging.getLogger(__name__)
 
 
 def _generate_otp() -> str:
@@ -34,25 +37,37 @@ def _make_tokens(user: User) -> dict:
 
 
 def register(db: Session, email: str, password: str, username: str) -> dict:
-    if user_crud.get_user_by_email(db, email):
+    existing = user_crud.get_user_by_email(db, email)
+
+    if existing:
+        if not existing.is_verified:
+            # User started signup but never verified — resend a fresh OTP
+            code = _generate_otp()
+            user_crud.set_verify_code(db, existing, code)
+            ok = send_verification_email(email, existing.username, code)
+            if not ok:
+                logger.error("Brevo: failed to send verification email to %s", email)
+            return _make_tokens(existing)
         raise AuthError("Email already registered", 409)
+
     if user_crud.get_user_by_username(db, username):
         raise AuthError("Username already taken", 409)
 
     hashed = hash_password(password)
-    # display_name defaults to username — user can update it later in profile settings
+    # display_name defaults to username — editable later in /settings/profile
     user = user_crud.create_user(
         db, email=email, hashed_password=hashed,
         username=username, display_name=username,
         auth_provider="email", is_verified=False,
     )
 
-    # Generate 6-digit OTP, store it with a 5-minute expiry
+    # Generate 6-digit OTP with 5-minute expiry
     code = _generate_otp()
     user_crud.set_verify_code(db, user, code)
 
-    # Send OTP via Brevo (non-blocking — failure doesn't break registration)
-    send_verification_email(email, username, code)
+    ok = send_verification_email(email, username, code)
+    if not ok:
+        logger.error("Brevo: failed to send verification email to %s", email)
 
     return _make_tokens(user)
 

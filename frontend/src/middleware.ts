@@ -4,10 +4,10 @@ import { getToken } from "next-auth/jwt";
 
 // Route Protection Middleware
 // - GUEST-ONLY: /login, /signup, /forgot-password, /reset-password, /verify-email
-//   → logged-in users are redirected to /
+//   redirects logged-in users to /
 // - AUTH-REQUIRED: /settings/*, /submit, /private, /post/ID/edit
-//   → guests are redirected to /login?callbackUrl=...
-// - URL rewrite: /at-username → /username (internal rewrite, URL unchanged)
+//   redirects guests to /login?callbackUrl=...
+// - URL rewrite: /at-username internally rewrites to /username
 
 const GUEST_ONLY = [
     "/login",
@@ -26,7 +26,7 @@ const AUTH_REQUIRED = [
 export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
-    // ── @username rewrite ────────────────────────────────────────────────────
+    // Username URL rewrite: /@someuser → /someuser (internal only, URL bar unchanged)
     if (pathname.startsWith("/@")) {
         const username = pathname.slice(2);
         if (username && !username.includes("/")) {
@@ -36,21 +36,28 @@ export async function middleware(request: NextRequest) {
         }
     }
 
-    // ── Read JWT session token ───────────────────────────────────────────────
+    // Read JWT token — MUST specify cookieName because basePath is /nextauth, not /api/auth
+    // NextAuth uses different cookie names depending on the basePath:
+    //   default  /api/auth  → __Secure-next-auth.session-token (prod) or next-auth.session-token (dev)
+    //   custom   /nextauth  → __Secure-next-auth.session-token (same, but basePath affects the callback URL)
     const token = await getToken({
         req: request,
         secret: process.env.NEXTAUTH_SECRET,
+        // Try both cookie name variants to handle prod (https, Secure prefix) and dev
+        cookieName: request.nextUrl.hostname === "localhost"
+            ? "next-auth.session-token"
+            : "__Secure-next-auth.session-token",
     });
 
     const isAuthenticated = !!token;
 
-    // ── Guest-only: kick authenticated users to home ─────────────────────────
+    // Guest-only: redirect authenticated users away
     const isGuestOnly = GUEST_ONLY.some(p => pathname.startsWith(p));
     if (isGuestOnly && isAuthenticated) {
         return NextResponse.redirect(new URL("/", request.url));
     }
 
-    // ── Auth-required: kick guests to login with callbackUrl ─────────────────
+    // Auth-required: redirect guests to login
     const isAuthRequired = AUTH_REQUIRED.some(p => pathname.startsWith(p));
     if (isAuthRequired && !isAuthenticated) {
         const loginUrl = new URL("/login", request.url);
@@ -58,7 +65,7 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(loginUrl);
     }
 
-    // ── Post edit pages require auth ─────────────────────────────────────────
+    // Post edit pages require auth
     if (pathname.match(/^\/post\/[^/]+\/edit/) && !isAuthenticated) {
         const loginUrl = new URL("/login", request.url);
         loginUrl.searchParams.set("callbackUrl", pathname);
@@ -69,7 +76,6 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-    // Run on all routes except Next.js internals and static files
     matcher: [
         "/((?!_next/static|_next/image|favicon.ico|logo.png|images/).*)",
     ],

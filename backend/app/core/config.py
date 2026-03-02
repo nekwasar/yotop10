@@ -22,7 +22,8 @@ class Settings(BaseSettings):
     # CORS — stored as JSON string e.g. '["https://yotop10.com"]'
     CORS_ORIGINS: str = '["https://yotop10.com"]'
 
-    # Email (Brevo)
+    # Email (Brevo REST API v3)
+    # API key from Brevo → SMTP & API → API Keys → Create key (xkeysib-...)
     BREVO_API_KEY: str = ""
     EMAIL_FROM: str = "noreply@yotop10.com"
 

@@ -105,3 +105,20 @@ def refresh_token(payload: RefreshTokenRequest, db: Session = Depends(get_db)):
 @router.get("/me", response_model=UserPublic)
 def get_me(current_user: User = Depends(get_current_user)):
     return UserPublic.model_validate(current_user)
+
+
+@router.post("/test-email")
+def test_email(current_user: User = Depends(get_current_user)):
+    """
+    Admin diagnostic: send a test email via Brevo to the current user's address.
+    Useful for verifying BREVO_API_KEY and EMAIL_FROM are correctly set on the server.
+    """
+    from app.core.email import send_verification_email
+    from app.core.config import settings
+    ok = send_verification_email(current_user.email, current_user.username, "123456")
+    return {
+        "sent": ok,
+        "to": current_user.email,
+        "from": settings.EMAIL_FROM,
+        "brevo_key_set": bool(settings.BREVO_API_KEY),
+    }
