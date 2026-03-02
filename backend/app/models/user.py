@@ -47,8 +47,11 @@ class User(Base):
     is_anonymous = Column(Boolean, default=False, nullable=False)
     device_fingerprint = Column(String(255), nullable=True)
 
-    # Email verification
+    # Email verification — 6-digit OTP system
     is_verified = Column(Boolean, default=False, nullable=False)
+    email_verify_code = Column(String(6), nullable=True)             # 6-digit numeric OTP
+    email_verify_code_expires = Column(DateTime, nullable=True)      # OTP valid 5 min
+    # Legacy token fields kept for migration compatibility (unused in new flow)
     email_verify_token = Column(String(255), nullable=True)
     email_verify_token_expires = Column(DateTime, nullable=True)
 

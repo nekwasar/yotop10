@@ -9,19 +9,32 @@ def _get_api():
     return sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
 
 
-def send_verification_email(to_email: str, to_name: str, token: str) -> bool:
-    verify_url = f"https://yotop10.com/verify-email?token={token}"
+def send_verification_email(to_email: str, to_name: str, code: str) -> bool:
     api = _get_api()
     send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
         to=[{"email": to_email, "name": to_name}],
         sender={"email": settings.EMAIL_FROM, "name": "YoTop10"},
-        subject="Verify your YoTop10 account",
+        subject="Your YoTop10 verification code",
         html_content=f"""
-        <h2>Welcome to YoTop10, {to_name}!</h2>
-        <p>Click the link below to verify your email address. This link expires in 24 hours.</p>
-        <p><a href="{verify_url}" style="background:#ff4500;color:#fff;padding:12px 24px;text-decoration:none;border-radius:6px;">Verify Email</a></p>
-        <p>Or copy this link: {verify_url}</p>
-        <p>If you didn't sign up, ignore this email.</p>
+        <div style="font-family:Arial,sans-serif;max-width:480px;margin:auto;padding:32px;background:#0a0a0a;border-radius:16px;border:1px solid #333;">
+          <h1 style="color:#ff4500;font-size:28px;margin:0 0 8px;">YoTop10</h1>
+          <p style="color:#aaa;font-size:13px;margin:0 0 32px;">Fact Mine. Debate Ground.</p>
+
+          <p style="color:#fff;font-size:16px;">Hey <strong>{to_name}</strong>,</p>
+          <p style="color:#ccc;font-size:15px;line-height:1.6;">
+            Use the code below to verify your email. It expires in <strong>5 minutes</strong>.
+          </p>
+
+          <div style="text-align:center;margin:32px 0;padding:24px;background:#111;border:2px solid #ff4500;border-radius:12px;">
+            <p style="color:#888;font-size:12px;letter-spacing:3px;text-transform:uppercase;margin:0 0 12px;">Verification Code</p>
+            <span style="font-size:52px;font-weight:900;letter-spacing:12px;color:#ff4500;font-family:monospace;">{code}</span>
+          </div>
+
+          <p style="color:#888;font-size:13px;line-height:1.6;">
+            Enter this code on the verification page to activate your account.<br/>
+            If you didn't create a YoTop10 account, you can safely ignore this email.
+          </p>
+        </div>
         """,
     )
     try:
@@ -29,6 +42,7 @@ def send_verification_email(to_email: str, to_name: str, token: str) -> bool:
         return True
     except ApiException:
         return False
+
 
 
 def send_password_reset_email(to_email: str, to_name: str, token: str) -> bool:

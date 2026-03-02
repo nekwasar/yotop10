@@ -43,7 +43,6 @@ def create_user(
     google_id: Optional[str] = None,
     is_verified: bool = False,
 ) -> User:
-    verify_token = secrets.token_urlsafe(32) if not is_verified else None
     user = User(
         id=uuid.uuid4(),
         email=email,
@@ -53,10 +52,6 @@ def create_user(
         auth_provider=auth_provider,
         google_id=google_id,
         is_verified=is_verified,
-        email_verify_token=verify_token,
-        email_verify_token_expires=(
-            datetime.utcnow() + timedelta(hours=24) if verify_token else None
-        ),
     )
     db.add(user)
     db.commit()
@@ -64,10 +59,17 @@ def create_user(
     return user
 
 
+def set_verify_code(db: Session, user: User, code: str) -> None:
+    """Store a 6-digit OTP and a 5-minute expiry on the user row."""
+    user.email_verify_code = code
+    user.email_verify_code_expires = datetime.utcnow() + timedelta(minutes=5)
+    db.commit()
+
+
 def set_email_verified(db: Session, user: User) -> User:
     user.is_verified = True
-    user.email_verify_token = None
-    user.email_verify_token_expires = None
+    user.email_verify_code = None
+    user.email_verify_code_expires = None
     db.commit()
     db.refresh(user)
     return user

@@ -9,9 +9,9 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "/api"
 
 export default function SignupPage() {
     const router = useRouter()
-    const [form, setForm] = useState({ email: "", password: "", username: "", display_name: "" })
+    const [form, setForm] = useState({ email: "", password: "", username: "" })
     const [error, setError] = useState("")
-    const [success, setSuccess] = useState(false)
+    const [codeSent, setCodeSent] = useState(false)
     const [loading, setLoading] = useState(false)
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -29,22 +29,13 @@ export default function SignupPage() {
                 setError(data.detail || "Registration failed")
                 return
             }
-            setSuccess(true)
+            // Registration succeeded — redirect to verify-email page with the email pre-filled
+            router.push(`/verify-email?email=${encodeURIComponent(form.email)}`)
         } catch {
             setError("Something went wrong. Please try again.")
         } finally {
             setLoading(false)
         }
-    }
-
-    if (success) {
-        return (
-            <AuthContainer title="Check your email 📬" subtitle={`We sent a verification link to ${form.email}.`}>
-                <p className="text-[var(--text-muted)] text-sm font-mono tracking-widest text-center leading-relaxed">
-                    Click the link in the email to activate your account. Once verified, you can <Link href="/login" className="text-[var(--brand-primary)] hover:underline font-bold">Sign In</Link>.
-                </p>
-            </AuthContainer>
-        )
     }
 
     return (
@@ -70,13 +61,6 @@ export default function SignupPage() {
                     required
                     value={form.email}
                     onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-                />
-                <AuthInput
-                    label="Display Name"
-                    type="text"
-                    required minLength={1} maxLength={50}
-                    value={form.display_name}
-                    onChange={e => setForm(f => ({ ...f, display_name: e.target.value }))}
                 />
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <AuthInput

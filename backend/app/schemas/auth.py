@@ -10,7 +10,7 @@ class RegisterRequest(BaseModel):
     email: EmailStr
     password: str
     username: str
-    display_name: str
+    # display_name is intentionally NOT collected at signup; it defaults to username
 
     @field_validator("password")
     @classmethod
@@ -38,7 +38,8 @@ class GoogleAuthRequest(BaseModel):
 
 
 class VerifyEmailRequest(BaseModel):
-    token: str
+    email: EmailStr
+    code: str      # 6-digit numeric code
 
 
 class ForgotPasswordRequest(BaseModel):

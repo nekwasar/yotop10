@@ -1,12 +1,19 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional
 from sqlalchemy.orm import Session
 import httpx
+import random
+import string
 
 from app.core.security import hash_password, verify_password, create_access_token, create_refresh_token
 from app.core.email import send_verification_email, send_password_reset_email
 from app.crud import user as user_crud
 from app.models.user import User
+
+
+def _generate_otp() -> str:
+    """Generate a 6-digit numeric verification code."""
+    return ''.join(random.choices(string.digits, k=6))
 
 
 class AuthError(Exception):
@@ -26,21 +33,26 @@ def _make_tokens(user: User) -> dict:
     }
 
 
-def register(db: Session, email: str, password: str, username: str, display_name: str) -> dict:
+def register(db: Session, email: str, password: str, username: str) -> dict:
     if user_crud.get_user_by_email(db, email):
         raise AuthError("Email already registered", 409)
     if user_crud.get_user_by_username(db, username):
         raise AuthError("Username already taken", 409)
 
     hashed = hash_password(password)
+    # display_name defaults to username — user can update it later in profile settings
     user = user_crud.create_user(
         db, email=email, hashed_password=hashed,
-        username=username, display_name=display_name,
+        username=username, display_name=username,
         auth_provider="email", is_verified=False,
     )
 
-    # Send verification email (non-blocking — failure doesn't break registration)
-    send_verification_email(email, display_name, user.email_verify_token)
+    # Generate 6-digit OTP, store it with a 5-minute expiry
+    code = _generate_otp()
+    user_crud.set_verify_code(db, user, code)
+
+    # Send OTP via Brevo (non-blocking — failure doesn't break registration)
+    send_verification_email(email, username, code)
 
     return _make_tokens(user)
 
@@ -103,13 +115,19 @@ async def google_auth(db: Session, id_token: str) -> dict:
     return _make_tokens(user)
 
 
-def verify_email(db: Session, token: str) -> dict:
-    user = user_crud.get_user_by_verify_token(db, token)
+def verify_email(db: Session, email: str, code: str) -> dict:
+    user = user_crud.get_user_by_email(db, email)
     if not user:
-        raise AuthError("Invalid or expired verification link", 400)
+        raise AuthError("Account not found.", 404)
 
-    if user.email_verify_token_expires and user.email_verify_token_expires < datetime.utcnow():
-        raise AuthError("Verification link has expired. Request a new one.", 400)
+    if user.is_verified:
+        return _make_tokens(user)  # Already verified — just log them in
+
+    if not user.email_verify_code or user.email_verify_code != code:
+        raise AuthError("Incorrect verification code.", 400)
+
+    if user.email_verify_code_expires and user.email_verify_code_expires < datetime.utcnow():
+        raise AuthError("Code expired. A new code has been sent to your email.", 400)
 
     user_crud.set_email_verified(db, user)
     return _make_tokens(user)

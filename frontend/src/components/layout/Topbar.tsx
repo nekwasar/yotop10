@@ -42,7 +42,12 @@ export function Topbar() {
                         </div>
                     )}
 
-                    <Link href="/" className="flex items-center gap-1 hover:scale-105 transition-transform duration-300">
+                    <Link href="/" className="flex items-center gap-2.5 hover:scale-105 transition-transform duration-300">
+                        <img
+                            src="/logo.png"
+                            alt="YoTop10 Logo"
+                            className="h-10 w-auto object-contain drop-shadow-[0_0_10px_rgba(255,69,0,0.6)] hover:drop-shadow-[0_0_20px_rgba(255,69,0,0.9)] transition-all duration-300"
+                        />
                         <span className="font-logo-yo text-[56px] text-[var(--brand-primary)] drop-shadow-[0_0_15px_rgba(255,69,0,0.8)] leading-none italic">Yo</span>
                         <span className="font-logo-top10 text-lg tracking-[0.2em] text-[var(--text-primary)] mt-3 opacity-90">TOP10</span>
                     </Link>

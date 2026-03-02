@@ -26,11 +26,16 @@ const anton = Anton({
 export const metadata: Metadata = {
   title: "YoTop10 — Fact Mine. Debate Ground.",
   description: "A futuristic platform for top lists, debates, and facts. Argue, counter, and rank everything.",
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
   openGraph: {
     title: "YoTop10",
     description: "Fact Mine. Debate Ground.",
     url: "https://yotop10.com",
     siteName: "YoTop10",
+    images: [{ url: "https://yotop10.com/logo.png" }],
     type: "website",
   },
 };

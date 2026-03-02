@@ -61,7 +61,7 @@ async def google_login(payload: GoogleAuthRequest, db: Session = Depends(get_db)
 @router.post("/verify-email", response_model=AuthResponse)
 def verify_email(payload: VerifyEmailRequest, db: Session = Depends(get_db)):
     try:
-        result = auth_service.verify_email(db, token=payload.token)
+        result = auth_service.verify_email(db, email=payload.email, code=payload.code)
         return _auth_response(result)
     except auth_service.AuthError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)

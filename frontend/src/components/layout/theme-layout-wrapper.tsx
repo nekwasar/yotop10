@@ -35,16 +35,18 @@ export function ThemeLayoutWrapper({ children }: { children: React.ReactNode }) 
                 {/* Retro Header / Nav */}
                 <header className="border-4 border-black bg-white p-4 mb-8 flex flex-col md:flex-row justify-between items-center gap-4">
                     <div className="text-center md:text-left">
-                        <Link href="/" className="hover:underline text-black"><h1 className="text-5xl font-black tracking-tighter uppercase mb-1 drop-shadow-[2px_2px_0px_rgba(0,0,0,0.3)]">The Daily Debate</h1></Link>
+                        <Link href="/" className="no-underline text-black" style={{ textDecoration: 'none' }}>
+                            <h1 className="text-5xl font-black tracking-tighter uppercase mb-1 drop-shadow-[2px_2px_0px_rgba(0,0,0,0.3)] hover:opacity-80 transition-opacity duration-200" style={{ textDecoration: 'none' }}>The Daily Debate</h1>
+                        </Link>
                         <p className="text-sm font-bold border-t-2 border-black pt-1">YoTop10 • {new Date().toLocaleDateString()}</p>
                     </div>
 
                     <div className="flex flex-col gap-2 items-end">
-                        <nav className="flex flex-wrap gap-4 font-bold text-base uppercase tracking-widest underline decoration-2 underline-offset-4 text-black">
-                            <Link href="/">Home</Link>
-                            <Link href="/private">Connections</Link>
-                            <Link href="/hot">Hot Takes</Link>
-                            <Link href="/communities">Communities</Link>
+                        <nav className="flex flex-wrap gap-4 font-bold text-base uppercase tracking-widest text-black">
+                            <Link href="/" className="hover:opacity-70 transition-opacity duration-150">Home</Link>
+                            <Link href="/private" className="hover:opacity-70 transition-opacity duration-150">Connections</Link>
+                            <Link href="/hot" className="hover:opacity-70 transition-opacity duration-150">Hot Takes</Link>
+                            <Link href="/communities" className="hover:opacity-70 transition-opacity duration-150">Communities</Link>
                         </nav>
                         <div className="flex items-center gap-2 mt-2">
                             <Link href="/login" title="Sign In" className="w-10 h-10 border-4 border-black bg-white flex items-center justify-center text-black shadow-[4px_4px_0px_#000]">
@@ -58,8 +60,8 @@ export function ThemeLayoutWrapper({ children }: { children: React.ReactNode }) 
                 </header>
 
                 {/* Retro Main Content Wrapper */}
-                <main className={`grid gap-8 ${isAuthPage ? 'grid-cols-1 max-w-3xl mx-auto' : 'grid-cols-1 md:grid-cols-[1fr_250px]'}`}>
-                    <div className="border-4 border-black p-6 bg-white shadow-[8px_8px_0px_#000] text-black">
+                <main className={`grid gap-8 ${isAuthPage ? 'grid-cols-1 max-w-3xl mx-auto w-full' : 'grid-cols-1 md:grid-cols-[1fr_250px]'}`}>
+                    <div className="border-4 border-black p-8 bg-white shadow-[8px_8px_0px_#000] text-black min-h-[600px]">
                         <h2 className="text-3xl font-black mb-6 pb-2 border-b-4 border-black uppercase tracking-widest text-black">
                             {isAuthPage ? "Authentication" : "Main terminal"}
                         </h2>
