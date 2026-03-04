@@ -170,3 +170,73 @@ def logout_all(
     
     count = session_crud.revoke_all_user_sessions(db, current_user.id)
     return {"message": f"Logged out from {count} device(s)"}
+
+
+@router.post("/login-cookies")
+@limiter.limit("5/minute")
+def login_with_cookies(
+    request: Request,
+    payload: LoginRequest,
+    db: Session = Depends(get_db),
+):
+    """
+    Login and set tokens as HttpOnly cookies (XSS protection).
+    Tokens are stored in cookies that cannot be accessed by JavaScript.
+    """
+    from fastapi.responses import JSONResponse
+    
+    # Rate limited version of login
+    try:
+        result = auth_service.login(db, email=payload.email, password=payload.password)
+    except auth_service.AuthError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+    
+    access_token = result["access_token"]
+    refresh_token = result["refresh_token"]
+    
+    # Create response with HttpOnly cookies
+    response = JSONResponse({
+        "user": result["user"],
+        "message": "Logged in successfully"
+    })
+    
+    # Set HttpOnly, Secure cookies
+    # Access token - short lived (15 min)
+    response.set_cookie(
+        key="yotop10_access",
+        value=access_token,
+        httponly=True,
+        secure=True,
+        samesite="strict",
+        max_age=15 * 60,
+        path="/",
+    )
+    
+    # Refresh token - longer lived (7 days for cookie)
+    response.set_cookie(
+        key="yotop10_refresh",
+        value=refresh_token,
+        httponly=True,
+        secure=True,
+        samesite="strict",
+        max_age=7 * 24 * 60 * 60,
+        path="/",
+    )
+    
+    return response
+
+
+@router.post("/logout-cookies")
+def logout_cookies(request: Request):
+    """
+    Logout by clearing HttpOnly cookies.
+    """
+    from fastapi.responses import JSONResponse
+    
+    response = JSONResponse({"message": "Logged out successfully"})
+    
+    # Clear the cookies
+    response.delete_cookie(key="yotop10_access", path="/")
+    response.delete_cookie(key="yotop10_refresh", path="/")
+    
+    return response
