@@ -11,7 +11,7 @@ jobs:
       - name: Pull latest code
         run: |
           git -C /home/nekwasar/yotop10 config pull.rebase false
-          git -C /home/nekwasar/yotop10 pull origin main
+          git -C /home/nekwasar/yotop10 pull origin main --allow-unrelated-histories
 
       - name: Build backend (sequential to avoid OOM)
         run: |
