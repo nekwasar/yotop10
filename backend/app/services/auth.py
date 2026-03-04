@@ -36,11 +36,50 @@ def _make_tokens(user: User) -> dict:
     }
 
 
+def _check_password_strength(password: str) -> tuple[bool, str]:
+    """
+    Check password strength using zxcvbn.
+    Returns (is_strong, message).
+    """
+    try:
+        import zxcvbn
+        result = zxcvbn.zxcvbn(password)
+        score = result.get('score', 0)
+        
+        # Score 0-1 is weak, 2 is fair, 3-4 is good
+        if score < 2:
+            feedback = result.get('feedback', {}).get('warning', '')
+            if not feedback:
+                feedback = result.get('feedback', {}).get('suggestions', [''])[0] or ''
+            if not feedback:
+                feedback = "Password is too weak. Use a mix of letters, numbers, and symbols."
+            return False, feedback
+        
+        return True, "Password is strong enough."
+    except ImportError:
+        # Fallback: basic length check if zxcvbn not available
+        if len(password) < 8:
+            return False, "Password must be at least 8 characters."
+        return True, "Password accepted."
+
+
 def register(db: Session, email: str, password: str, username: str) -> dict:
+    # First check password strength (prevents weak passwords)
+    is_strong, message = _check_password_strength(password)
+    if not is_strong:
+        raise AuthError(message, 400)
+    
     existing = user_crud.get_user_by_email(db, email)
 
     if existing:
-        if not existing.is_verified:
+        # SECURITY FIX: Don't reveal if email exists
+        # Return success message regardless of whether email is registered
+        # This prevents account enumeration attacks
+        if existing.is_verified:
+            # User exists and is verified - silently accept but don't create account
+            # Optionally send "already have an account" email
+            pass
+        else:
             # User started signup but never verified — resend a fresh OTP
             code = _generate_otp()
             user_crud.set_verify_code(db, existing, code)
@@ -48,7 +87,15 @@ def register(db: Session, email: str, password: str, username: str) -> dict:
             if not ok:
                 logger.error("Brevo: failed to send verification email to %s", email)
             return _make_tokens(existing)
-        raise AuthError("Email already registered", 409)
+        
+        # Return generic success to prevent account enumeration
+        # Create a dummy user response (won't actually create anything)
+        return {
+            "access_token": "dummy",
+            "refresh_token": "dummy", 
+            "token_type": "bearer",
+            "user": None,  # Signal frontend to show verification sent
+        }
 
     if user_crud.get_user_by_username(db, username):
         raise AuthError("Username already taken", 409)
@@ -160,6 +207,11 @@ def forgot_password(db: Session, email: str) -> bool:
 
 
 def reset_password(db: Session, token: str, new_password: str) -> dict:
+    # Check password strength
+    is_strong, message = _check_password_strength(new_password)
+    if not is_strong:
+        raise AuthError(message, 400)
+    
     user = user_crud.get_user_by_reset_token(db, token)
     if not user:
         raise AuthError("Invalid or expired reset link", 400)

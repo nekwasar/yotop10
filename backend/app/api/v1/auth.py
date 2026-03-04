@@ -1,6 +1,8 @@
 import uuid
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from app.core.database import get_db
 from app.core.deps import get_current_user
 from app.core.security import decode_token
@@ -15,6 +17,8 @@ from app.models.user import User
 
 router = APIRouter()
 
+limiter = Limiter(key_func=get_remote_address)
+
 
 def _auth_response(result: dict) -> AuthResponse:
     return AuthResponse(
@@ -26,7 +30,8 @@ def _auth_response(result: dict) -> AuthResponse:
 
 
 @router.post("/register", response_model=AuthResponse, status_code=201)
-def register(payload: RegisterRequest, db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+def register(request: Request, payload: RegisterRequest, db: Session = Depends(get_db)):
     try:
         result = auth_service.register(
             db,
@@ -40,7 +45,8 @@ def register(payload: RegisterRequest, db: Session = Depends(get_db)):
 
 
 @router.post("/login", response_model=AuthResponse)
-def login(payload: LoginRequest, db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+def login(request: Request, payload: LoginRequest, db: Session = Depends(get_db)):
     try:
         result = auth_service.login(db, email=payload.email, password=payload.password)
         return _auth_response(result)
@@ -58,7 +64,8 @@ async def google_login(payload: GoogleAuthRequest, db: Session = Depends(get_db)
 
 
 @router.post("/verify-email", response_model=AuthResponse)
-def verify_email(payload: VerifyEmailRequest, db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+def verify_email(request: Request, payload: VerifyEmailRequest, db: Session = Depends(get_db)):
     try:
         result = auth_service.verify_email(db, email=payload.email, code=payload.code)
         return _auth_response(result)

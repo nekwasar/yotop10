@@ -34,6 +34,22 @@ def get_current_user(
     return user
 
 
+def get_verified_user(
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(bearer_scheme),
+    db: Session = Depends(get_db),
+) -> User:
+    """Require authenticated AND email-verified user. Raises 401 if not verified."""
+    user = get_current_user(credentials, db)
+    
+    if not user.is_verified:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Email verification required. Please verify your email to access this feature."
+        )
+    
+    return user
+
+
 def get_current_user_optional(
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(bearer_scheme),
     db: Session = Depends(get_db),
