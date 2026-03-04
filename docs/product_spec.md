@@ -80,8 +80,17 @@ The mission: **build the internet's best fact mine and debate ground** — where
 
 > **Core principle: No algorithm. Chronological by default. No filter bubbles.**
 
-### Public Feed (Global)
-- Shows all **editorially approved** posts, newest first
+### Timeline Feed Options (No Algorithm)
+Users can choose what they see in their timeline:
+- **Global**: All approved posts from all categories
+- **Newest**: Chronologically sorted (newest first)
+- **Random**: Randomly shuffled posts for discovery
+- **Specific Category**: Posts filtered by selected category only
+
+> **Note**: Users must select a category when creating a post (required), and users can filter their timeline by category.
+
+### Public Feed (Homefeed)
+- Shows all **editorially approved** posts based on user's timeline preference
 - Anyone can see it, logged in or not
 - Paginated, no infinite scroll rage-bait tricks
 
@@ -90,10 +99,20 @@ The mission: **build the internet's best fact mine and debate ground** — where
 - Includes posts that didn't pass editorial review (private-quality posts)
 - Can be set to **private mode** (only YOU see your own posts, others can't see them unless approved)
 
-### Hot Takes Page (separate)
+### Arguments Page (Hot Takes / Debates)
 - The most **controversial and debated** posts right now
 - Separate page — doesn't pollute the main feed
 - Ranked by debate activity (replies, counter-lists, per-item challenges)
+
+### Rankings Page
+- Leaderboard of top-performing lists
+- Ranked by engagement, reactions, and community verdict
+- Shows top lists across all categories or filtered by category
+
+### Trending Page
+- Posts gaining traction quickly
+- Based on velocity of engagement (reactions, comments, views)
+- Updated in real-time
 
 ### Weekly / Monthly Best Pages
 - Editorial + community-voted best lists of the week/month
@@ -278,20 +297,23 @@ Film & TV · Music · Sports · Science & Tech · History · Politics · Food & 
 
 ## 16. Design System
 
-### Theme 1: Futuristic (Default)
-- **Palette**: Orange-Red Neon `#FF4500` · Hot Pink `#FF0080` · Pure White `#FFFFFF` · Deep Black `#0A0A0A`
-- **Feel**: Premium, clean, minimal but electric
-- **Dark/Light toggle**: Yes
-- **Typography**: Modern geometric sans (e.g., Space Grotesk, Outfit, or Sora)
-- **Micro-animations**: Glow effects, smooth transitions, reaction burst animations
-- **Card style**: Glassmorphism with neon border accents
-
-### Theme 2: Retro (Optional, user-selectable)
-- **Palette**: Classic Myspace palette — hot pink, teal, lime, dark navy
+### Theme 1: Retro (CLASSIC 2000s MYSPACE) - DEFAULT
+- **Palette**: Classic Myspace palette — hot pink `#FF00FF`, teal `#00CCCC`, lime `#00FF00`, dark navy `#000080`
 - **Feel**: Nostalgic, raw, expressive — like early 2000s internet
-- **Dark/Light toggle**: None — retro mode has one fixed look
+- **Dark/Light toggle**: NO — Retro has one fixed look
 - **Typography**: Old-school web fonts (Comic Sans as Easter egg? Impact, Verdana, etc.)
 - **Custom profiles**: Even more expressive in retro mode
+- **Mobile Navigation**: Classic 2000s website style — horizontal navigation links at top, no bottom navigation bar
+- **This is the DEFAULT theme** — loads automatically on first visit
+
+### Theme 2: Futuristic (Optional, user-selectable)
+- **Palette**: Orange-Red `#FF4500` · Hot Pink `#FF0080` · Pure White `#FFFFFF` · Deep Black `#0A0A0A` · Light Gray `#F5F5F5`
+- **Feel**: Premium, clean, minimal, futuristic
+- **Dark/Light toggle**: Yes
+- **Typography**: Modern geometric sans (e.g., Space Grotesk, Outfit, or Sora)
+- **Micro-animations**: Smooth transitions, subtle hover effects (NO neon glow effects)
+- **Card style**: Clean cards with subtle borders, flat design
+- **Mobile Navigation**: Bottom navigation bar (Rankings, Home, Arguments, Notifications) + Top navigation
 
 ---
 
@@ -315,8 +337,13 @@ Film & TV · Music · Sports · Science & Tech · History · Politics · Food & 
 ## 18. Page Structure (Routes)
 
 ```
-/                        → Homepage (Public Feed, newest first)
-/hot                     → Hot Takes Page
+/                        → Homepage (Homefeed with timeline options)
+/rankings                → Rankings Page (leaderboard)
+/arguments               → Arguments Page (Hot Takes/Debates)
+/trending                → Trending Page (fast-moving posts)
+/categories              → Browse Categories
+/c/[slug]                → Single Category feed (filtered posts)
+/hot                     → Hot Takes Page (alias for Arguments)
 /weekly                  → Weekly Best
 /monthly                 → Monthly Best
 /year                    → List of the Year
@@ -324,7 +351,6 @@ Film & TV · Music · Sports · Science & Tech · History · Politics · Food & 
 /post/[id]/battle        → Battle View (rival lists)
 /post/[id]/community     → Community Version of a list
 /communities             → Browse Communities
-/c/[slug]                → Single Community feed
 /profile/[username]      → Author Profile
 /profile/[username]/edit → Profile editor (HTML/CSS)
 /submit                  → New Post composer
@@ -332,6 +358,14 @@ Film & TV · Music · Sports · Science & Tech · History · Politics · Food & 
 /auth/signup             → Signup (anon, email, Google)
 /settings                → Account/privacy settings
 /admin                   → Editorial review queue (admin only)
+```
+
+### Timeline Filter Options
+Users can switch between:
+- `/?feed=global` - All posts from all categories
+- `/?feed=newest` - Chronologically sorted (newest first)
+- `/?feed=random` - Randomly shuffled posts
+- `/?feed=category&category=[slug]` - Specific category filter
 ```
 
 ---

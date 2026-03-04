@@ -1,5 +1,7 @@
 # YoTop10 — Build Milestones
 
+> **Note**: All styling (themes, design system) is deferred to M30. The platform will function with minimal/default styling until then.
+
 ## M1 — Project Foundation
 - Monorepo structure setup
 - Next.js frontend scaffold
@@ -47,7 +49,7 @@
 ## M5 — Post Submission
 - Post composer (all post types: Top List, This vs That, Fact Drop, Best Of, Worst Of, Hidden Gems)
 - List item builder (title + justification + optional image per item)
-- Category tagging
+- Category tagging (required for all posts)
 - Source citation fields
 - Post privacy selection
 - Draft saving
@@ -62,10 +64,14 @@
 - Unapproved post stays in personal feed
 - Priority queue for Author-tier users
 
-## M7 — Public Feed
+## M7 — Public Feed (Homefeed) with Timeline Options
 - Newest-first chronological feed
+- Timeline filter options:
+  - Global (all categories)
+  - Newest (chronological)
+  - Random (shuffled)
+  - Specific category filter
 - Pagination (no infinite scroll)
-- Post cards with verdict meter placeholder
 - Category filter
 - Guest access (no login required)
 
@@ -86,21 +92,42 @@
 - Verdict Meter display
 - Edit window indicator (2-hour countdown after approval)
 
-## M10 — Follow & Connection System
+## M10 — Rankings Page
+- Leaderboard of top-performing lists
+- Ranked by engagement, reactions, and community verdict
+- Filter by category
+
+## M11 — Arguments Page (Hot Takes / Debates)
+- Separate page for most debated content
+- Ranked by debate activity (replies, challenges, counter lists)
+- Jury's Out spotlight for highest-engagement posts
+
+## M12 — Trending Page
+- Posts gaining traction quickly
+- Based on velocity of engagement (reactions, comments, views)
+- Real-time updates
+
+## M13 — Categories System
+- Browse all categories page
+- Single category feed (/c/[slug])
+- User can filter timeline by specific category
+- Categories required for all posts
+
+## M14 — Follow & Connection System
 - Follow an author
 - Follow a category/topic
 - Send / accept / decline connection requests
 - Connection feed visibility rules
 - Manage following / connections in settings
 
-## M11 — Reactions
+## M15 — Reactions
 - 🔥 Fire reaction on posts
 - Fire reaction on list items
 - Fire reaction on comments
 - Reaction count display
 - Reaction toggle (react / unreact)
 
-## M12 — Comment System
+## M16 — Comment System
 - Full post comment thread
 - Item-anchored comment (highlights specific list item)
 - Nested replies (max 3 levels)
@@ -108,43 +135,43 @@
 - Comment pagination
 - Comment count on post card
 
-## M13 — Per-Item Challenge System
+## M17 — Per-Item Challenge System
 - Challenge button on each list item
 - Challenge opens a debate thread anchored to that item
 - ⚡ indicator on challenged items
 - Author can reply to defend ranking
 - Challenge thread nested under item
 
-## M14 — Counter List (Rival List) System
+## M18 — Counter List (Rival List) System
 - Counter List post type linked to an original list
 - Instant publish (no review required)
 - Rivals button appears on original post
 - Original list always prominently displayed alongside counter lists
 
-## M15 — Verdict Meter
+## M19 — Verdict Meter
 - Community verdict calculation (based on reactions + engagement)
 - Verdict states: CONFIRMED / CONTESTED / HOT TAKE / DEBUNKED / UNDECIDED
-- Animated meter display on post card and post detail page
+- Meter display on post card and post detail page
 - Verdict updates in real time as engagement changes
 
-## M16 — Battle View
+## M20 — Battle View
 - Side-by-side view of original list vs all counter lists
 - Community vote on which list is better
 - Battle score display per list
 
-## M17 — Community Version of a List
+## M21 — Community Version of a List
 - Auto-generate community version when post hits engagement threshold
 - Readers vote to reorder items
 - Community ranking displayed alongside author's original ranking
 
-## M18 — Strike System
+## M22 — Strike System
 - Manual strike issuance (admin + community moderators)
 - Strike history per user
 - Auto-consequence enforcement (1=warning, 2=7-day suspension, 3=ban)
 - Editable thresholds in admin dashboard
 - User notification on strike received
 
-## M19 — Auto-Hide Rules Engine
+## M23 — Auto-Hide Rules Engine
 - Report threshold trigger
 - Keyword filter (configurable banned word list)
 - Anonymous spam detection
@@ -153,14 +180,14 @@
 - Auto-hidden posts queue in admin
 - All thresholds configurable from admin dashboard
 
-## M20 — Report System
+## M24 — Report System
 - Report button on posts and comments
 - Report reason selection
 - Reports routed to admin + community moderator simultaneously
 - Report queue in admin dashboard
 - Resolve actions: Dismiss / Warn / Remove Content / Strike User
 
-## M21 — Badge & Rank System
+## M25 — Badge & Rank System
 - Author badge (20 approved posts)
 - Hot Lister badge
 - Fact Master badge
@@ -171,23 +198,17 @@
 - Badge display on profile and post cards
 - Admin manual grant/revoke Author status
 
-## M22 — Hot Takes Page
-- Separate page for most debated content
-- Ranked by debate activity (replies, challenges, counter lists)
-- Jury's Out spotlight for highest-engagement posts
-- Does not appear on main feed
-
-## M23 — Weekly / Monthly Best Pages
+## M26 — Weekly / Monthly Best Pages
 - Editorially curated best lists per week / month
 - Admin schedules picks from dashboard
 - Static display pages
 
-## M24 — List of the Year
+## M27 — List of the Year
 - Annual community + editorial award
 - Nomination and voting system
 - Winner badge awarded
 
-## M25 — Discussion Communities
+## M28 — Discussion Communities
 - Community creation (admin only)
 - Community feed (post/comment style)
 - Join / follow a community
@@ -195,14 +216,14 @@
 - Community rules display
 - Browse communities page
 
-## M26 — Community Moderation & Permissions
+## M29 — Community Moderation & Permissions
 - Moderator appointment via admin dashboard
 - Internal appointment via Ephemeral Thread tag-invite
 - External appointment via 10-minute expiry email invite link
 - 14-permission granular system (pin, remove, approve, warn, kick, ban, review reports, dismiss reports, issue strike, edit info, announcements, invite, analytics, manage threads)
 - Moderator scoped to their community only
 
-## M27 — Ephemeral Thread System
+## M30 — Ephemeral Thread System
 - Private thread creation inside a community
 - Tag/invite users by username
 - Burn timer settings (expire after response / auto-burn before seen)
@@ -210,14 +231,13 @@
 - Admin can appoint moderators via thread
 - Text-only for MVP
 
-## M28 — Custom HTML/CSS Profile Editor
+## M31 — Custom HTML/CSS Profile Editor
 - Profile editor with HTML + CSS input
 - Sandboxed iframe rendering (CSS allowlist, no JS)
 - Live preview before applying
 - Reset to default option
-- Retro theme profiles especially expressive
 
-## M29 — Admin Dashboard — Full Build
+## M32 — Admin Dashboard — Full Build
 - Review queue (accept/reject, pin, feature post)
 - User management (profiles, post history, strike records, Author grant/revoke)
 - Community management (create/edit/rename/archive, pin, moderator appointment)
@@ -228,29 +248,33 @@
 - Weekly/Monthly Best scheduling
 - Real-time analytics dashboard (live users, top posts, top authors, approval rate, share volume, ban log, feed health)
 
-## M30 — Futuristic Theme (Design System)
-- Design tokens (orange-red neon, hot pink, white, deep black)
+## M33 — Futuristic Theme (Design System) — STYLING
+- Design tokens (orange-red, hot pink, white, deep black)
 - Typography (Space Grotesk / Outfit / Sora)
 - Component library (cards, buttons, inputs, modals, verdict meter, feed items)
-- Glassmorphism card style with neon border accents
-- Micro-animations (glow, transitions, reaction bursts)
+- Glassmorphism card style
+- Micro-animations (transitions, reaction bursts)
 - Dark mode
 - Light mode
 - Dark/light toggle
+- Mobile-first responsive design
+- Bottom navigation bar (Rankings, Home, Arguments, Notifications)
+- Top navigation (logo, search, theme toggle, hamburger menu)
 
-## M31 — Retro Theme
+## M34 — Retro Theme — STYLING
 - Myspace-inspired palette and layout
 - Fixed single appearance (no dark/light toggle)
 - Retro typography
+- Classic 2000s website navigation (horizontal links at top, no bottom nav)
 - Enhanced compatibility with custom HTML/CSS profiles
 
-## M32 — Shareable OG Cards
+## M35 — Shareable OG Cards
 - Auto-generated OG image for each list post
 - Battle card (original vs rival side by side)
 - Verdict card (community verdict + reaction breakdown)
 - Optimized for Twitter/X, WhatsApp, Instagram
 
-## M33 — Email System
+## M36 — Email System
 - Email verification (signup)
 - Weekly "Most Argued" digest
 - Strike / suspension notifications
@@ -258,20 +282,19 @@
 - Moderator invite email (10-min expiry link)
 - Opt-in / opt-out preferences
 
-## M34 — Localization & Language Detection
+## M37 — Localization & Language Detection
 - Browser Accept-Language header detection
 - Manual language override in settings
 - i18n setup (next-i18next)
 - English first; framework ready for future languages
 
-## M35 — PWA & Mobile Optimization
-- Responsive design across all pages
+## M38 — PWA & Mobile Optimization
 - Progressive Web App manifest
 - Offline fallback page
 - Mobile-optimized feed, post, and comment UX
 - App installable from browser (Add to Home Screen)
 
-## M36 — Help Center & Documentation
+## M39 — Help Center & Documentation
 - /help page with full-text search
 - All user doc sections (account, content, engagement, feeds, communities, threads, safety, badges, settings, themes)
 - FAQ (pre-written, expandable)
@@ -279,7 +302,7 @@
 - Strike/ban appeal form
 - Bug report → GitHub Issues link
 
-## M37 — Launch Preparation
+## M40 — Launch Preparation
 - End-to-end QA across all features
 - Performance audit
 - Security audit (auth, sandbox, fingerprinting, API)
@@ -288,7 +311,7 @@
 - README and contributing guide finalized
 - Open source repository published
 
-## M38 — Post-Launch
+## M41 — Post-Launch
 - Monitor real-time analytics
 - First editorial review wave
 - FAQ updated from real user questions
