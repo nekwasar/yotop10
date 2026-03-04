@@ -6,12 +6,12 @@ export default function Forbidden() {
         <div className="min-h-[70vh] flex flex-col items-center justify-center font-mono text-center px-4 animate-in slide-in-from-bottom-10 fade-in duration-700">
             <div className="relative mb-8">
                 <Lock size={120} className="text-[#FFB800] opacity-20" />
-                <span className="absolute inset-0 flex items-center justify-center text-6xl font-black text-transparent bg-clip-text bg-gradient-to-br from-[#FFB800] to-[#FF4500] drop-shadow-[0_0_25px_rgba(255,184,0,0.5)]">
+                <span className="absolute inset-0 flex items-center justify-center text-6xl font-black text-transparent bg-clip-text bg-gradient-to-br from-[#FFB800] to-[#FF4500] ">
                     403
                 </span>
             </div>
 
-            <h2 className="text-3xl font-bold tracking-[0.2em] uppercase mb-4 text-[var(--text-primary)] drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">Access Denied</h2>
+            <h2 className="text-3xl font-bold tracking-[0.2em] uppercase mb-4 text-[var(--text-primary)] ">Access Denied</h2>
             <p className="text-[var(--text-muted)] max-w-md mx-auto mb-10 text-sm tracking-[0.1em] leading-relaxed">
                 You don't have permission to view this page.
             </p>

@@ -5,12 +5,12 @@ export default function Unavailable() {
         <div className="min-h-[70vh] flex flex-col items-center justify-center font-mono text-center px-4 animate-in zoom-in-95 duration-700">
             <div className="relative mb-8">
                 <ServerCrash size={120} className="text-[#00FFFF] opacity-20 animate-pulse" />
-                <span className="absolute inset-0 flex items-center justify-center text-6xl font-black text-transparent bg-clip-text bg-gradient-to-br from-[#00FFFF] to-[#FF0080] drop-shadow-[0_0_25px_rgba(0,255,255,0.5)]">
+                <span className="absolute inset-0 flex items-center justify-center text-6xl font-black text-transparent bg-clip-text bg-gradient-to-br from-[#00FFFF] to-[#FF0080] ">
                     503
                 </span>
             </div>
 
-            <h2 className="text-3xl font-bold tracking-[0.2em] uppercase mb-4 text-[var(--text-primary)] drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">Be Right Back</h2>
+            <h2 className="text-3xl font-bold tracking-[0.2em] uppercase mb-4 text-[var(--text-primary)] ">Be Right Back</h2>
             <p className="text-[var(--text-muted)] max-w-md mx-auto mb-10 text-sm tracking-[0.1em] leading-relaxed">
                 YoTop10 is currently undergoing maintenance. Please check back shortly.
             </p>

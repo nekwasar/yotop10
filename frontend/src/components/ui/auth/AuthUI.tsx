@@ -64,7 +64,7 @@ export function AuthContainer({ children, title, subtitle, rightContent, footer 
                         {/* Left Side: Title & Form */}
                         <div className="flex flex-col justify-center">
                             <div className="flex items-center gap-4 mb-3">
-                                <ShieldCheck className="text-[var(--brand-primary)] drop-shadow-[0_0_8px_rgba(255,69,0,0.8)]" size={32} />
+                                <ShieldCheck className="text-[var(--brand-primary)]" size={32} />
                                 <h1 className="text-3xl sm:text-4xl font-mono tracking-widest font-bold uppercase text-[var(--text-primary)]">{title}</h1>
                             </div>
 
@@ -130,14 +130,13 @@ export function AuthInput(props: React.InputHTMLAttributes<HTMLInputElement> & {
 
     return (
         <div className="flex flex-col gap-2 relative">
-            <label className="text-sm font-mono tracking-widest uppercase text-[var(--brand-primary)] drop-shadow-[0_0_5px_rgba(255,69,0,0.5)] pl-1">{props.label}</label>
+            <label className="text-sm font-mono tracking-widest uppercase text-[var(--brand-primary)] pl-1">{props.label}</label>
             <input
                 {...props}
                 className="
           w-full bg-[var(--bg-base)]/50 text-[var(--text-primary)] rounded-xl px-5 py-4 text-base sm:text-lg
           border border-(--border-accent) outline-none transition-all duration-300
           focus:border-[var(--brand-primary)] focus:bg-[var(--bg-surface)]
-          focus:shadow-[0_0_20px_rgba(255,69,0,0.15),inset_0_0_10px_rgba(255,69,0,0.1)]
           placeholder-[var(--text-muted)] font-mono tracking-wide backdrop-blur-md
         "
             />
@@ -165,7 +164,7 @@ export function AuthButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>)
             className="
         w-full mt-4 flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-mono text-base tracking-widest font-bold uppercase
         text-white bg-gradient-to-r from-[var(--brand-primary)] to-[var(--brand-secondary)]
-        shadow-[0_0_15px_rgba(255,69,0,0.4)] hover:shadow-[0_0_30px_rgba(255,0,128,0.4)] hover:scale-[1.01]
+        hover:scale-[1.01]
         transition-all duration-300 active:scale-95 disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed
       "
         >
@@ -197,7 +196,7 @@ export function GoogleAuthButton({ onClick, text }: { onClick: () => void, text:
             className="
         w-full flex items-center justify-center gap-3 px-6 py-4 rounded-xl font-mono text-base tracking-widest font-bold uppercase
         text-[var(--text-primary)] bg-[var(--bg-base)]/50 border border-(--border-accent) backdrop-blur-xl
-        hover:shadow-[0_0_20px_rgba(255,255,255,0.05)] hover:bg-[var(--bg-surface)]
+        hover:bg-[var(--bg-surface)]
         transition-all duration-300 hover:scale-[1.01] active:scale-95
       "
         >

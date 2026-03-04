@@ -6,12 +6,12 @@ export default function NotFound() {
         <div className="min-h-[70vh] flex flex-col items-center justify-center font-mono text-center px-4 animate-in zoom-in-95 duration-700">
             <div className="relative mb-8">
                 <AlertCircle size={120} className="text-[var(--brand-primary)] opacity-20 animate-pulse" />
-                <span className="absolute inset-0 flex items-center justify-center text-6xl font-black text-transparent bg-clip-text bg-gradient-to-br from-[var(--brand-primary)] to-[var(--brand-secondary)] drop-shadow-[0_0_25px_rgba(255,0,128,0.5)]">
+                <span className="absolute inset-0 flex items-center justify-center text-6xl font-black text-transparent bg-clip-text bg-gradient-to-br from-[var(--brand-primary)] to-[var(--brand-secondary)] ">
                     404
                 </span>
             </div>
 
-            <h2 className="text-3xl font-bold tracking-[0.2em] uppercase mb-4 text-[var(--text-primary)] drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">Page Not Found</h2>
+            <h2 className="text-3xl font-bold tracking-[0.2em] uppercase mb-4 text-[var(--text-primary)] ">Page Not Found</h2>
             <p className="text-[var(--text-muted)] max-w-md mx-auto mb-10 text-sm tracking-[0.1em] leading-relaxed">
                 We couldn't find the page you're looking for. It might have been deleted or the link is broken.
             </p>

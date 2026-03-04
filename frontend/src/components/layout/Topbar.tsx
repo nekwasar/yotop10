@@ -79,14 +79,14 @@ export function Topbar() {
                         <div className="hidden lg:flex items-center gap-1 bg-[var(--bg-base)] p-1 rounded-full border border-(--border-accent) shadow-sm">
                             <button
                                 onClick={() => setNavLayout('top')}
-                                className={`p-1.5 rounded-full transition-all ${navLayout === 'top' ? 'bg-[var(--brand-primary)] text-white shadow-[0_0_10px_rgba(255,69,0,0.5)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}
+                                className={`p-1.5 rounded-full transition-all ${navLayout === 'top' ? 'bg-[var(--brand-primary)] text-white' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}
                                 title="Topbar Only"
                             >
                                 <Menu size={14} />
                             </button>
                             <button
                                 onClick={() => setNavLayout('both')}
-                                className={`p-1.5 rounded-full transition-all ${navLayout === 'both' ? 'bg-[var(--brand-primary)] text-white shadow-[0_0_10px_rgba(255,69,0,0.5)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}
+                                className={`p-1.5 rounded-full transition-all ${navLayout === 'both' ? 'bg-[var(--brand-primary)] text-white' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}
                                 title="Both Navigations"
                             >
                                 <Menu size={14} className="transform -rotate-45" />
@@ -96,7 +96,7 @@ export function Topbar() {
 
                     {/* Logo text only — no image here */}
                     <Link href="/" className="flex items-center gap-1 hover:scale-105 transition-transform duration-300">
-                        <span className="font-logo-yo text-[56px] text-[var(--brand-primary)] drop-shadow-[0_0_15px_rgba(255,69,0,0.8)] leading-none italic">Yo</span>
+                        <span className="font-logo-yo text-[56px] text-[var(--brand-primary)] leading-none italic">Yo</span>
                         <span className="font-logo-top10 text-lg tracking-[0.2em] text-[var(--text-primary)] mt-3 opacity-90">TOP10</span>
                     </Link>
                 </div>
@@ -125,7 +125,7 @@ export function Topbar() {
                             href="/login"
                             className="hidden sm:flex items-center gap-2 px-6 py-2.5 rounded-full font-mono text-sm tracking-[0.2em] font-bold uppercase text-[var(--text-primary)] bg-[var(--bg-surface)] border border-(--border-accent) backdrop-blur-xl shadow-[0_0_15px_rgba(255,69,0,0)] hover:shadow-[0_0_25px_rgba(255,69,0,0.5)] hover:border-[var(--brand-primary)] hover:bg-[var(--brand-primary)]/10 transition-all duration-300 hover:scale-[1.05] active:scale-95 no-underline"
                         >
-                            <User size={16} className="text-[var(--brand-primary)] drop-shadow-[0_0_8px_rgba(255,69,0,1)]" />
+                            <User size={16} className="text-[var(--brand-primary)] " />
                             <span>Sign in</span>
                         </Link>
                     )}

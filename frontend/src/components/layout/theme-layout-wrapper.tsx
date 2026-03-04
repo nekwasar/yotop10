@@ -36,7 +36,7 @@ export function ThemeLayoutWrapper({ children }: { children: React.ReactNode }) 
                 <header className="border-4 border-black bg-white p-4 mb-8 flex flex-col md:flex-row justify-between items-center gap-4">
                     <div className="text-center md:text-left">
                         <Link href="/" className="no-underline text-black" style={{ textDecoration: 'none' }}>
-                            <h1 className="text-5xl font-black tracking-tighter uppercase mb-1 drop-shadow-[2px_2px_0px_rgba(0,0,0,0.3)] hover:opacity-80 transition-opacity duration-200" style={{ textDecoration: 'none' }}>The Daily Debate</h1>
+                            <h1 className="text-5xl font-black tracking-tighter uppercase mb-1 hover:opacity-80 transition-opacity duration-200" style={{ textDecoration: 'none' }}>The Daily Debate</h1>
                         </Link>
                         <p className="text-sm font-bold border-t-2 border-black pt-1">YoTop10 • {new Date().toLocaleDateString()}</p>
                     </div>
@@ -102,7 +102,7 @@ export function ThemeLayoutWrapper({ children }: { children: React.ReactNode }) 
                     <Sidebar />
                 ) : (
                     <aside className="hidden lg:flex flex-col w-[350px] xl:w-[450px] h-full z-40 py-16 pl-12 pr-6 justify-center shrink-0 animate-in slide-in-from-left-8 duration-700">
-                        <div className="relative w-full aspect-[4/5] rounded-[30px] overflow-hidden shadow-[0_0_40px_rgba(255,255,255,0.05)] border border-white/10 group">
+                        <div className="relative w-full aspect-[4/5] rounded-[30px] overflow-hidden border border-white/10 group">
                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10 pointer-events-none" />
                             <img
                                 src="/images/auth/login.jpg"
@@ -110,10 +110,10 @@ export function ThemeLayoutWrapper({ children }: { children: React.ReactNode }) 
                                 className="w-full h-full object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-105"
                             />
                             <div className="absolute bottom-8 left-8 right-8 z-20 transition-transform duration-700 group-hover:translate-y-[-5px]">
-                                <h2 className="text-3xl font-black tracking-widest uppercase text-white drop-shadow-[0_4px_10px_rgba(0,0,0,0.8)]">
+                                <h2 className="text-3xl font-black tracking-widest uppercase text-white">
                                     {isSignup ? "Join the Grid." : "Welcome Back."}
                                 </h2>
-                                <p className="font-mono text-sm text-white/90 mt-3 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                                <p className="font-mono text-sm text-white/90 mt-3">
                                     Authenticate your identity to proceed safely.
                                 </p>
                             </div>

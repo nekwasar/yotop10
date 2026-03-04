@@ -40,7 +40,7 @@ function LoginForm() {
 
                     <div className="flex flex-col gap-5 text-center mt-6 p-6 border border-(--border-accent) bg-[var(--bg-base)]/20 rounded-2xl">
                         <span className="text-base text-[var(--text-primary)] font-bold">Having trouble?</span>
-                        <Link href="/forgot-password" className="text-sm font-mono tracking-widest uppercase text-[var(--brand-primary)] hover:underline drop-shadow-[0_0_5px_rgba(255,69,0,0.5)]">Memory Wipe? (Reset)</Link>
+                        <Link href="/forgot-password" className="text-sm font-mono tracking-widest uppercase text-[var(--brand-primary)] hover:underline ">Memory Wipe? (Reset)</Link>
                         <div className="h-px bg-white/10 w-full my-2" />
                         <span className="text-[var(--text-muted)] text-sm">Don't have an account? <br /><Link href="/signup" className="text-[var(--text-primary)] hover:text-[var(--brand-primary)] font-bold transition-colors inline-block mt-2">Sign up here</Link></span>
                     </div>
