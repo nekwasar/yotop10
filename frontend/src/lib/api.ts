@@ -4,7 +4,6 @@
  */
 
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
-import { auth } from '@/auth';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://yotop10.com/api';
 
@@ -20,7 +19,9 @@ const apiClient = axios.create({
 // Request interceptor - adds auth token
 apiClient.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
-    const session = await auth();
+    // Dynamic import to avoid issues
+    const { auth } = await import('@/auth');
+    const session = await auth() as any;
     
     if (session?.accessToken) {
       config.headers.Authorization = `Bearer ${session.accessToken}`;
@@ -39,7 +40,8 @@ apiClient.interceptors.response.use(
 
     // If 401 and we haven't tried to refresh yet
     if (error.response?.status === 401 && originalRequest) {
-      const session = await auth();
+      const { auth } = await import('@/auth');
+      const session = await auth() as any;
       
       if (session?.refreshToken) {
         try {
@@ -73,6 +75,13 @@ apiClient.interceptors.response.use(
 export const authApi = {
   login: (email: string, password: string) =>
     apiClient.post('/auth/login', { email, password }),
+  
+  // Login with HttpOnly cookies (XSS safe)
+  loginWithCookies: (email: string, password: string) =>
+    apiClient.post('/auth/login-cookies', { email, password }, { withCredentials: true }),
+  
+  // Logout and clear cookies
+  logoutCookies: () => apiClient.post('/auth/logout-cookies'),
   
   register: (email: string, password: string, username: string) =>
     apiClient.post('/auth/register', { email, password, username }),
