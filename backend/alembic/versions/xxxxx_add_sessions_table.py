@@ -19,11 +19,11 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    # Create sessions table
+    # Create sessions table (without index=True, we'll create indexes manually)
     op.create_table(
         'sessions',
         sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True, server_default=sa.text('gen_random_uuid()')),
-        sa.Column('user_id', postgresql.UUID(as_uuid=True), sa.ForeignKey('users.id'), nullable=False, index=True),
+        sa.Column('user_id', postgresql.UUID(as_uuid=True), sa.ForeignKey('users.id'), nullable=False),
         sa.Column('device_name', sa.String(255), nullable=True),
         sa.Column('ip_address', sa.String(45), nullable=True),
         sa.Column('user_agent', sa.String(500), nullable=True),
