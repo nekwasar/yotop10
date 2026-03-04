@@ -44,7 +44,18 @@
 - Badges display
 - Author tier display
 - Follow / connect buttons
-- Profile privacy enforcement
+- Profile privacy enforcement ✅ IMPLEMENTED
+
+## M4.5 — Multi-Account Device Management
+- Device fingerprint generation & storage
+- HttpOnly cookie-based sessions
+- 90-day session with 30-day inactivity timeout
+- Max 5 accounts per device
+- Max 3 devices per account
+- Account switcher UI (hamburger menu, dropdown, retro mode)
+- Settings/Account management page
+- Per-account session revocation
+- See docs/milestones/multi-account.md for full spec
 
 ## M5 — Post Submission
 - Post composer (all post types: Top List, This vs That, Fact Drop, Best Of, Worst Of, Hidden Gems)
