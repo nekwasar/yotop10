@@ -129,3 +129,44 @@ def test_email(current_user: User = Depends(get_current_user)):
         "from": settings.EMAIL_FROM,
         "brevo_key_set": bool(settings.BREVO_API_KEY),
     }
+
+
+@router.post("/logout")
+def logout(
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Logout - revoke the current session (if token contains session_id).
+    """
+    from app.core.security import decode_token
+    from app.crud import session as session_crud
+    
+    auth_header = request.headers.get("authorization", "")
+    if auth_header.startswith("Bearer "):
+        token = auth_header[7:]
+        payload = decode_token(token)
+        session_id = payload.get("session_id") if payload else None
+        
+        if session_id:
+            try:
+                session_crud.revoke_session(db, uuid.UUID(session_id))
+            except Exception:
+                pass
+    
+    return {"message": "Logged out successfully"}
+
+
+@router.post("/logout-all")
+def logout_all(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Logout of all devices - revoke all sessions for the current user.
+    """
+    from app.crud import session as session_crud
+    
+    count = session_crud.revoke_all_user_sessions(db, current_user.id)
+    return {"message": f"Logged out from {count} device(s)"}

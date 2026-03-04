@@ -99,3 +99,4 @@ class User(Base):
     badges = relationship("UserBadge", back_populates="user", foreign_keys="UserBadge.user_id")
     strikes = relationship("Strike", back_populates="user", foreign_keys="Strike.user_id")
     community_memberships = relationship("CommunityMember", back_populates="user")
+    sessions = relationship("Session", back_populates="user", cascade="all, delete-orphan")

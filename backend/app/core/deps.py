@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional
 from uuid import UUID
 from fastapi import Depends, HTTPException, status
@@ -6,6 +7,7 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.core.security import decode_token
 from app.crud import user as user_crud
+from app.crud import session as session_crud
 from app.models.user import User
 
 bearer_scheme = HTTPBearer(auto_error=False)
@@ -26,6 +28,13 @@ def get_current_user(
     user_id = payload.get("sub")
     if not user_id:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token payload")
+
+    # Validate session if session_id is present in token
+    session_id = payload.get("session_id")
+    if session_id:
+        session = session_crud.get_session_by_id(db, UUID(session_id))
+        if not session or session.is_revoked or session.expires_at.strftime('%Y-%m-%d %H:%M:%S') < datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'):
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Session revoked or expired")
 
     user = user_crud.get_user_by_id(db, UUID(user_id))
     if not user or not user.is_active or user.is_banned:

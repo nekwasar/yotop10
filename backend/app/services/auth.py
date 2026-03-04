@@ -221,4 +221,9 @@ def reset_password(db: Session, token: str, new_password: str) -> dict:
 
     hashed = hash_password(new_password)
     user_crud.update_password(db, user, hashed)
+    
+    # SECURITY: Revoke all sessions when password is changed
+    from app.crud import session as session_crud
+    session_crud.revoke_all_user_sessions(db, user.id)
+    
     return _make_tokens(user)
