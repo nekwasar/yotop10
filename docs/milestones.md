@@ -37,6 +37,14 @@
 - Password reset flow
 - Account privacy settings (public / connections-only / private)
 
+## M3.6 — User Onboarding
+- Profile setup (display name, avatar)
+- Category selection for default feed filter
+- Privacy preference
+- Theme selection
+- Skip option for each step
+- Settings integration for completing later
+
 ## M4 — Core User Profiles
 - Public profile page
 - Display name, bio, avatar

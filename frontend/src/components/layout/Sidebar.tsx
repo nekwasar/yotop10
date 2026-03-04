@@ -84,47 +84,41 @@ export function Sidebar() {
 
                 <div className="h-px w-full bg-gradient-to-r from-transparent via-(--border-accent) to-transparent opacity-30" />
 
-                {/* Top Creators (Who to follow style) */}
+                {/* Popular Categories */}
                 <div className="flex flex-col">
                     <div className="px-4 mb-2">
-                        <h2 className="text-xl font-bold tracking-tight text-[var(--text-primary)]">Top Creators</h2>
+                        <h2 className="text-xl font-bold tracking-tight text-[var(--text-primary)]">Popular Categories</h2>
                     </div>
 
                     <div className="flex flex-col gap-1">
-                        <div className="flex items-center justify-between px-4 py-2 hover:bg-[var(--bg-base)] transition-colors cursor-pointer rounded-xl">
+                        <Link href="/c/technology" className="no-underline flex items-center justify-between px-4 py-2 hover:bg-[var(--bg-base)] transition-colors cursor-pointer rounded-xl">
                             <div className="flex items-center gap-3">
                                 <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[var(--brand-primary)] flex items-center justify-center text-white font-bold shrink-0">
-                                    N
+                                    T
                                 </div>
                                 <div className="flex flex-col">
-                                    <span className="text-[14px] sm:text-[15px] font-bold text-[var(--text-primary)] hover:underline truncate max-w-[100px]">Neo Matrix</span>
-                                    <span className="text-[12px] sm:text-[14px] text-[var(--text-muted)] truncate max-w-[100px]">@the_one</span>
+                                    <span className="text-[14px] sm:text-[15px] font-bold text-[var(--text-primary)]">Technology</span>
+                                    <span className="text-[12px] sm:text-[14px] text-[var(--text-muted)]">12.4K posts</span>
                                 </div>
                             </div>
-                            <button className="bg-[var(--text-primary)] text-[var(--bg-base)] font-bold text-[13px] px-3 sm:px-4 py-1.5 rounded-full hover:opacity-90 transition-opacity">
-                                Follow
-                            </button>
-                        </div>
+                        </Link>
 
-                        {!isBoth && ( // Hides 2nd creator if nav is "both" to save space
-                            <div className="flex items-center justify-between px-4 py-2 hover:bg-[var(--bg-base)] transition-colors cursor-pointer rounded-xl">
+                        {!isBoth && (
+                            <Link href="/c/entertainment" className="no-underline flex items-center justify-between px-4 py-2 hover:bg-[var(--bg-base)] transition-colors cursor-pointer rounded-xl">
                                 <div className="flex items-center gap-3">
                                     <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[var(--brand-secondary)] flex items-center justify-center text-white font-bold shrink-0">
-                                        T
+                                        E
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className="text-[14px] sm:text-[15px] font-bold text-[var(--text-primary)] hover:underline truncate max-w-[100px]">Trinity</span>
-                                        <span className="text-[12px] sm:text-[14px] text-[var(--text-muted)] truncate max-w-[100px]">@trinity_core</span>
+                                        <span className="text-[14px] sm:text-[15px] font-bold text-[var(--text-primary)]">Entertainment</span>
+                                        <span className="text-[12px] sm:text-[14px] text-[var(--text-muted)]">8.2K posts</span>
                                     </div>
                                 </div>
-                                <button className="bg-[var(--text-primary)] text-[var(--bg-base)] font-bold text-[13px] px-3 sm:px-4 py-1.5 rounded-full hover:opacity-90 transition-opacity">
-                                    Follow
-                                </button>
-                            </div>
+                            </Link>
                         )}
                     </div>
-                    <Link href="/creators" className="px-4 py-2 text-[14px] text-[var(--brand-primary)] hover:bg-[var(--bg-base)] transition-colors rounded-xl font-bold mt-1">
-                        Show more
+                    <Link href="/categories" className="px-4 py-2 text-[14px] text-[var(--brand-primary)] hover:bg-[var(--bg-base)] transition-colors rounded-xl font-bold mt-1">
+                        Browse all
                     </Link>
                 </div>
 
