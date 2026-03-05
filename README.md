@@ -50,6 +50,9 @@ cd ../backend && pip install -r requirements.txt && uvicorn main:app --reload
 - [Product Specification](./docs/product_spec.md)
 - [Build Milestones](./docs/milestones.md)
 - [User Onboarding](./docs/milestones/m3.6.md)
+- [Categories System](./docs/milestones/categories.md)
+- [Trust Score](./docs/milestones/trust-score.md)
+- [Admin Dashboard](./docs/milestones/admin-dashboard.md)
 
 ## License
 
