@@ -182,23 +182,25 @@ export default async function Home() {
       </div>
 
       {/* ─── Desktop sections (hidden below md) ─── */}
-      <div className="hidden md:block px-4 lg:px-6 pb-12">
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
-          {/* Row 1: Debates Arena (2/3 width) + Articles (1/3 width) */}
-          <DesktopDebates className="col-span-2 lg:col-span-2" debates={debates} />
-          <DesktopArticles className="col-span-2 lg:col-span-1" articles={articles} />
+      <div className="hidden md:block px-4 lg:px-8 xl:px-12 pb-16 ed-section-gap">
+        <div className="ed-grid grid grid-cols-1 lg:grid-cols-12">
+          {/* Row 1: Debates (8 cols) + Articles (4 cols) */}
+          <DesktopDebates className="lg:col-span-8 ed-section-gap" debates={debates} />
+          <DesktopArticles className="lg:col-span-4 ed-section-gap" articles={articles} />
 
-          {/* Row 2: Categories + Did You Know */}
-          <DesktopCategories className="col-span-2 lg:col-span-1" categories={categories} />
-          <DesktopFacts className="col-span-2 lg:col-span-1" facts={facts} />
+          {/* Row 2: Trending (8 cols) + Categories (4 cols) */}
+          <DesktopTrending className="lg:col-span-8 ed-section-gap" />
+          <DesktopCategories className="lg:col-span-4 ed-section-gap" categories={categories} />
 
-          {/* Row 3: Trending + Hall of Fame + Stats */}
-          <DesktopTrending className="col-span-2 lg:col-span-1" />
-          <DesktopHallOfFame className="col-span-2 lg:col-span-1" />
-          <DesktopStats className="col-span-2 lg:col-span-1" />
+          {/* Row 3: Hall of Fame (full width) */}
+          <DesktopHallOfFame className="lg:col-span-12 ed-section-gap" />
 
-          {/* Row 4: CTA */}
-          <DesktopCta className="col-span-2 lg:col-span-3" />
+          {/* Row 4: Facts (8 cols) + Stats (4 cols) */}
+          <DesktopFacts className="lg:col-span-8 ed-section-gap" facts={facts} />
+          <DesktopStats className="lg:col-span-4 ed-section-gap" />
+
+          {/* Row 5: CTA (full width) */}
+          <DesktopCta className="lg:col-span-12" />
         </div>
       </div>
     </>

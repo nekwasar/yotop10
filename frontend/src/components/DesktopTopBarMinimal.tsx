@@ -20,7 +20,7 @@ export default function DesktopTopBarMinimal() {
   };
 
   return (
-    <header className="fixed top-0 left-64 lg:left-72 right-0 z-30 h-14 bg-[var(--color-bg)]/70 backdrop-blur-xl border-b border-white/5">
+    <header className="ed-topbar fixed top-0 left-64 lg:left-72 right-0 z-30 h-14 bg-[#000] border-b border-white/10">
       <div className="flex h-full items-center justify-between px-4 lg:px-6">
         <div className="flex-1 flex justify-center">
           <input
@@ -28,8 +28,8 @@ export default function DesktopTopBarMinimal() {
             value={query}
             onChange={e => setQuery(e.target.value)}
             onKeyDown={handleSearch}
-            placeholder="Fact mine. Debate ground. Search rankings..."
-            className="w-full max-w-2xl bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm text-white placeholder:text-zinc-600 focus:border-orange-500/50 focus:outline-none backdrop-blur-md transition"
+            placeholder="Search rankings..."
+            className="w-full max-w-2xl bg-transparent border border-white/10 rounded-none px-6 py-2.5 text-sm text-white placeholder:text-zinc-500 focus:border-white/30 focus:outline-none transition"
           />
         </div>
         <div className="flex items-center gap-3 ml-3 shrink-0">
@@ -37,7 +37,7 @@ export default function DesktopTopBarMinimal() {
           {cleanUsername && (
             <Link
               href={`/a/${cleanUsername}`}
-              className="flex items-center justify-center w-9 h-9 rounded-full bg-white/5 border border-white/10 text-zinc-400 hover:text-white hover:bg-white/10 transition"
+              className="flex items-center justify-center w-9 h-9 rounded-full bg-transparent border border-white/10 text-zinc-400 hover:text-white hover:bg-white/10 transition"
               aria-label="Profile"
             >
               <Icon name="User" size={18} />

@@ -36,28 +36,26 @@ export function DesktopHallOfFame({ className = '' }: { className?: string }) {
 
   return (
     <section className={className}>
-      <div className="flex items-center gap-2 mb-4">
-        <Icon name="Crown" size={16} className="text-orange-400" />
-        <h2 className="text-sm font-bold text-white uppercase tracking-wider">Hall of Fame</h2>
-      </div>
+      <h2 className="ed-section-title flex items-center gap-2 mb-4">
+        <Icon name="Crown" size={16} />
+        Hall of Fame
+      </h2>
       <div className="space-y-3">
         {entries.map((entry, i) => (
           <Link
             key={entry.id}
             href={`/${entry.post.slug}`}
-            className="block rounded-xl border border-white/5 bg-white/[0.02] p-4 transition hover:border-orange-500/20 hover:bg-white/[0.05]"
+            className={`block ${i < 3 ? 'ed-card-featured' : 'ed-card'} group`}
           >
             <div className="flex items-center gap-2 mb-2">
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-yellow-500/15 text-2xs font-bold text-yellow-400">
-                {i + 1}
-              </span>
-              <span className="text-3xs text-yellow-500/60 uppercase tracking-wider font-semibold">Featured</span>
+              <span className="ed-number-sm">{String(i + 1).padStart(2, '0')}</span>
+              <span className="ed-label text-white/40 uppercase">Featured</span>
             </div>
-            <h3 className="text-sm font-semibold text-zinc-200 leading-snug line-clamp-2 mb-1">{entry.post.title}</h3>
+            <h3 className="ed-headline-sm group-hover:text-white transition line-clamp-2 mb-1">{entry.post.title}</h3>
             {entry.editorial_note && (
-              <p className="text-2xs text-zinc-500 line-clamp-2 leading-relaxed mb-2">{entry.editorial_note}</p>
+              <p className="ed-body text-white/40 line-clamp-2 leading-relaxed mb-2">{entry.editorial_note}</p>
             )}
-            <div className="flex items-center gap-3 text-3xs text-zinc-600">
+            <div className="flex items-center gap-3 ed-meta text-white/30">
               <span>{entry.post.author_display_name || entry.post.author_username}</span>
               <span>{entry.post.view_count.toLocaleString()} views</span>
               <span>{entry.post.comment_count} comments</span>

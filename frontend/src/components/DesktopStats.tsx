@@ -34,16 +34,16 @@ export function DesktopStats({ className = '' }: { className?: string }) {
 
   return (
     <section className={className}>
-      <div className="flex items-center gap-2 mb-4">
-        <Icon name="ChartColumn" size={16} className="text-orange-400" />
-        <h2 className="text-sm font-bold text-white uppercase tracking-wider">Platform</h2>
-      </div>
+      <h2 className="ed-section-title flex items-center gap-2 mb-4">
+        <Icon name="ChartColumn" size={16} />
+        Platform
+      </h2>
       <div className="grid grid-cols-2 gap-3">
         {items.map(item => (
-          <div key={item.label} className="rounded-xl border border-white/5 bg-white/[0.02] p-4 text-center">
-            <Icon name={item.icon} size={18} className="text-orange-400/60 mx-auto mb-1" />
+          <div key={item.label} className="ed-card text-center">
+            <Icon name={item.icon} size={18} className="text-white/30 mx-auto mb-1" />
             <p className="text-lg font-bold font-mono text-white">{item.value}</p>
-            <p className="text-3xs text-zinc-600 mt-0.5">{item.label}</p>
+            <p className="ed-meta mt-0.5">{item.label}</p>
           </div>
         ))}
       </div>

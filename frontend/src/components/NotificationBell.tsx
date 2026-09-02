@@ -31,7 +31,7 @@ const TYPE_ICON: Record<string, string> = {
 
 const PRIORITY_CLASSES: Record<string, string> = {
   info: 'bg-blue-500/10 border-blue-500/30',
-  important: 'bg-orange-500/10 border-orange-500/30',
+  important: 'bg-white/10 border-white/20',
   urgent: 'bg-red-500/10 border-red-500/30',
 };
 
@@ -125,7 +125,7 @@ export default function NotificationBell() {
               {notifications.length > 0 && (
                 <button
                   onClick={handleMarkAllRead}
-                  className="bg-transparent border-none text-orange-400 cursor-pointer text-sm2 font-medium"
+                  className="bg-transparent border-none text-white/40 cursor-pointer text-sm2 font-medium hover:text-white/60"
                 >
                   Mark all as read
                 </button>
@@ -153,7 +153,7 @@ export default function NotificationBell() {
                           <>
                             <strong className="text-sm2 text-white">{n.title}</strong>
                             {n.priority && n.priority !== 'info' && (
-                              <span className="ml-1.5 rounded-full px-1.5 py-px text-2xs font-bold uppercase tracking-wider text-white bg-orange-500 border border-orange-500/30">
+                              <span className="ml-1.5 rounded-full px-1.5 py-px text-2xs font-bold uppercase tracking-wider text-white bg-white/20 border border-white/30">
                                 {n.priority.toUpperCase()}
                               </span>
                             )}
@@ -184,7 +184,7 @@ export default function NotificationBell() {
             )}
 
             <div className="px-4 py-2 border-t border-white/5 text-center">
-              <Link href="/notifications" className="text-sm2 text-orange-400 no-underline hover:text-orange-300" onClick={() => setOpen(false)}>
+              <Link href="/notifications" className="text-sm2 text-white/40 no-underline hover:text-white/60" onClick={() => setOpen(false)}>
                 See all notifications <Icon name="ArrowRight" size={14} className="inline" />
               </Link>
             </div>

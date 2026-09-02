@@ -25,17 +25,17 @@ export function DesktopSidebar() {
   const cleanUsername = rawUsername.replace(/^a_/, '');
 
   return (
-    <aside className="fixed top-0 left-0 z-50 h-full w-64 lg:w-72 bg-[var(--color-bg)]/95 backdrop-blur-2xl border-r border-white/5 flex flex-col overflow-y-auto -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-out">
+    <aside className="ed-sidebar fixed top-0 left-0 z-50 h-full w-64 lg:w-72 flex flex-col overflow-y-auto -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-out">
       {/* Logo */}
       <Link href="/" className="flex flex-col px-6 pt-6 pb-4 shrink-0">
         <div className="flex items-baseline gap-0">
           <span className="font-accent gradient-text text-3xl lg:text-4xl tracking-normal">YO</span>
           <span className="font-display text-3xl lg:text-4xl tracking-tight text-white">Top10</span>
         </div>
-        <p className="text-2xs text-zinc-600 mt-1 leading-relaxed">Fact Mine. Debate Ground.</p>
+        <p className="ed-meta mt-1">Fact Mine. Debate Ground.</p>
       </Link>
 
-      <hr className="border-white/5 mx-4 mb-4" />
+      <hr className="ed-divider mx-4 mb-4" />
 
       {/* Navigation */}
       <nav className="flex-1 px-3 space-y-0.5">
@@ -47,13 +47,9 @@ export function DesktopSidebar() {
             <Link
               key={item.label}
               href={item.href}
-              className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition text-sm ${
-                isActive
-                  ? 'text-orange-400 bg-orange-500/10 font-semibold'
-                  : 'text-zinc-400 hover:text-white hover:bg-white/5'
-              }`}
+              className={`ed-sidebar-link ${isActive ? 'ed-sidebar-link-active' : ''}`}
             >
-              <Icon name={item.icon} size={18} />
+              <Icon name={item.icon} size={16} />
               <span>{item.label}</span>
             </Link>
           );
@@ -62,36 +58,36 @@ export function DesktopSidebar() {
 
       {/* Bottom section */}
       <div className="mt-auto pt-4 pb-4 px-3 space-y-3 shrink-0">
-        <hr className="border-white/5 mx-1" />
+        <hr className="ed-divider mx-1" />
 
         {/* User section */}
         {user ? (
           <Link
             href={`/a/${cleanUsername}`}
-            className="flex items-center gap-3 px-4 py-2.5 rounded-xl transition text-sm text-zinc-400 hover:text-white hover:bg-white/5"
+            className="ed-sidebar-link"
           >
             {user.profile_image_url ? (
               <Image src={user.profile_image_url} alt="" width={32} height={32} className="w-8 h-8 rounded-full object-cover shrink-0" unoptimized />
             ) : (
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-orange-500 to-red-600 text-white font-bold text-xs shrink-0">
+              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-white text-black font-bold text-xs shrink-0">
                 {displayName[0].toUpperCase()}
               </span>
             )}
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1">
-                <span className="text-sm font-semibold text-zinc-300 truncate">{displayName}</span>
-                {user.posts_approved >= 3 && <Icon name="BadgeCheck" size={12} className="text-orange-400 shrink-0" />}
+                <span className="ed-headline-sm text-sm truncate">{displayName}</span>
+                {user.posts_approved >= 3 && <Icon name="BadgeCheck" size={12} className="text-white shrink-0" />}
               </div>
-              <p className="text-3xs text-zinc-600 font-mono truncate">@{cleanUsername}</p>
+              <p className="ed-meta truncate">@{cleanUsername}</p>
             </div>
           </Link>
         ) : (
-          <div className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-zinc-600">
+          <div className="ed-sidebar-link">
             <span className="flex items-center justify-center w-8 h-8 rounded-full bg-white/5 shrink-0">
               <Icon name="User" size={16} />
             </span>
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold text-zinc-600">Guest</p>
+              <p className="ed-headline-sm text-sm">Guest</p>
             </div>
           </div>
         )}
@@ -100,7 +96,7 @@ export function DesktopSidebar() {
         <div className="flex items-center justify-between px-4 py-1">
           <Link
             href="/settings"
-            className="flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-300 transition"
+            className="ed-meta flex items-center gap-2 hover:text-white transition"
           >
             <Icon name="Settings" size={16} />
             Settings
@@ -111,9 +107,9 @@ export function DesktopSidebar() {
         {/* Submit CTA */}
         <Link
           href="/new"
-          className="block mx-1 rounded-xl bg-gradient-to-r from-orange-500 to-pink-500 px-4 py-2.5 text-sm font-bold text-white text-center shadow-lg transition hover:shadow-xl hover:scale-[1.02]"
+          className="ed-btn mx-1 text-center justify-center"
         >
-          <Icon name="Plus" size={14} className="inline mr-1.5" />
+          <Icon name="Plus" size={14} />
           Submit a List
         </Link>
       </div>

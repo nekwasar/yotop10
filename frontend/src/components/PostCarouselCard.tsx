@@ -29,15 +29,15 @@ export const PostCarouselCard = memo(function PostCarouselCard({ post }: { post:
   return (
     <Link
       href={`/${post.slug}`}
-      className="rounded-2xl border border-white/5 bg-white/5 backdrop-blur-sm overflow-hidden transition hover:border-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 flex flex-col"
+      className="ed-card rounded-2xl lg:rounded-none border border-white/5 bg-white/5 backdrop-blur-sm overflow-hidden transition flex flex-col lg:focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
     >
       {/* Section A: Title + Description */}
-      <div className="px-4 lg:px-5 pt-4 lg:pt-5 pb-3 lg:pb-4">
-        <h3 className="text-lg lg:text-2xl font-bold text-white leading-snug lg:leading-tight line-clamp-2">
+      <div className="px-4 lg:px-8 pt-4 lg:pt-8 pb-3 lg:pb-4">
+        <h3 className="text-lg lg:text-2xl font-bold text-white leading-snug lg:leading-tight line-clamp-2 ed-headline-lg">
           {post.title}
         </h3>
         {post.intro && (
-          <p className="mt-1.5 lg:mt-2 text-xs lg:text-sm text-zinc-500 leading-relaxed line-clamp-2 lg:line-clamp-3">
+          <p className="mt-1.5 lg:mt-3 text-xs lg:text-sm text-zinc-500 leading-relaxed line-clamp-2 lg:line-clamp-3 ed-body">
             {post.intro}
           </p>
         )}
@@ -45,10 +45,10 @@ export const PostCarouselCard = memo(function PostCarouselCard({ post }: { post:
 
       {/* Section B: Ranked Items */}
       {topItems.length > 0 && (
-        <div className="px-4 lg:px-5 space-y-2 lg:space-y-3 mb-2 lg:mb-3">
+        <div className="px-4 lg:px-8 space-y-2 lg:space-y-3 mb-2 lg:mb-4">
           {topItems.slice(0, 3).map((item) => (
             <div key={item.rank} className="flex items-center gap-3 lg:gap-4">
-              <span className="flex items-center justify-center w-6 lg:w-8 h-6 lg:h-8 rounded-full bg-gradient-to-r from-orange-500 to-red-600 text-3xs lg:text-xs font-bold font-mono text-white shrink-0" style={{ color: '#fff' }}>
+              <span className="flex items-center justify-center w-6 lg:w-8 h-6 lg:h-8 rounded-full bg-white text-black text-3xs lg:text-xs font-bold font-mono shrink-0">
                 #{item.rank}
               </span>
               <span className="text-sm lg:text-lg text-zinc-300 truncate">{item.title}</span>
@@ -62,8 +62,8 @@ export const PostCarouselCard = memo(function PostCarouselCard({ post }: { post:
         </div>
       )}
 
-      {/* Section C: Media — Image or Category Gradient Fallback */}
-      <div className="mx-4 lg:mx-5 rounded-xl overflow-hidden h-44 lg:h-64 bg-white/5">
+      {/* Section C: Media — Image or Category Fallback */}
+      <div className="mx-4 lg:mx-8 rounded-xl lg:rounded-none overflow-hidden h-44 lg:h-64 bg-white/5">
         {post.hero_image_url ? (
           <Image
             src={post.hero_image_url}
@@ -74,10 +74,10 @@ export const PostCarouselCard = memo(function PostCarouselCard({ post }: { post:
             unoptimized
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-orange-600/30 via-purple-700/20 to-red-700/30 flex items-center justify-center">
+          <div className="w-full h-full bg-white/[0.03] border border-white/[0.06] flex items-center justify-center">
             <div className="flex flex-col items-center gap-2">
               <Icon name={getCategoryIcon(post.category_slug) as LucideIconName} size={48} className="text-white/25" />
-              <span className="text-xs font-mono uppercase tracking-widest text-white/40">
+              <span className="ed-label text-white/40">
                 {post.category_name || post.category_slug}
               </span>
             </div>
@@ -86,21 +86,21 @@ export const PostCarouselCard = memo(function PostCarouselCard({ post }: { post:
       </div>
 
       {/* Section D: Author Byline — below media */}
-      <div className="px-4 lg:px-5 pt-3 lg:pt-4 pb-1 flex items-center gap-1.5 lg:gap-2 text-xs lg:text-sm text-zinc-500">
+      <div className="px-4 lg:px-8 pt-3 lg:pt-4 pb-1 flex items-center gap-1.5 lg:gap-2 text-xs lg:text-sm text-zinc-500 lg:text-white/60">
         <span>By</span>
-        <span className="font-mono text-zinc-400">@{displayName}</span>
-        
-        <span className="text-zinc-700">&middot;</span>
+        <span className="font-mono text-zinc-400 lg:text-white/50">@{displayName}</span>
+
+        <span className="text-zinc-700 lg:text-white/20">&middot;</span>
         <span suppressHydrationWarning>{formatDate(post.published_at || post.created_at)}</span>
       </div>
 
       {/* Section E: Engagement Footer */}
-      <div className="flex items-center justify-between px-4 lg:px-5 py-3 lg:py-4 mt-auto border-t border-white/5">
-        <span className="flex items-center gap-1.5 text-3xs lg:text-xs text-zinc-500">
+      <div className="flex items-center justify-between px-4 lg:px-8 py-3 lg:py-4 mt-auto border-t border-white/5 lg:border-white/[0.06]">
+        <span className="flex items-center gap-1.5 text-3xs lg:text-xs text-zinc-500 lg:text-white/30">
           <Icon name="MessageCircle" size={16} />
           <span>{post.comment_count} comments</span>
         </span>
-        <span className="flex items-center gap-1.5 text-3xs lg:text-xs text-zinc-500">
+        <span className="flex items-center gap-1.5 text-3xs lg:text-xs text-zinc-500 lg:text-white/30">
           <span>{post.view_count} views</span>
         </span>
       </div>

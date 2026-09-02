@@ -84,17 +84,17 @@ export default function AdminAlertBell() {
     } catch { /* ignore */ }
   };
 
-  const severityColor = (s: string) => (s === 'critical' ? '#d32f2f' : '#f57c00');
-  const severityBg = (s: string) => (s === 'critical' ? '#ffebee' : '#fff3e0');
+  const severityColor = (s: string) => (s === 'critical' ? '#d32f2f' : '#888');
+  const severityBg = (s: string) => (s === 'critical' ? '#ffebee' : 'rgba(255,255,255,0.05)');
 
   return (
     <div style={{ position: 'relative', display: 'inline-block' }}>
       <button
         onClick={handleBellClick}
         style={{
-          background: unreadCount > 0 ? '#fff3e0' : 'transparent',
-          border: unreadCount > 0 ? '2px solid #ff9800' : '1px solid #444',
-          color: unreadCount > 0 ? '#e65100' : '#888',
+          background: unreadCount > 0 ? 'rgba(255,255,255,0.05)' : 'transparent',
+          border: unreadCount > 0 ? '1px solid rgba(255,255,255,0.2)' : '1px solid rgba(255,255,255,0.1)',
+          color: unreadCount > 0 ? '#fff' : 'rgba(255,255,255,0.4)',
           fontSize: '18px',
           cursor: 'pointer',
           position: 'relative',
@@ -105,7 +105,7 @@ export default function AdminAlertBell() {
         aria-label={`Alerts ${unreadCount > 0 ? `(${unreadCount} unread)` : ''}`}
         title="Admin Alerts"
         >
-          <Icon name="BellDot" size={20} color={unreadCount > 0 ? '#e65100' : '#888'} strokeWidth={2.5} />
+          <Icon name="BellDot" size={20} color={unreadCount > 0 ? '#fff' : 'rgba(255,255,255,0.4)'} strokeWidth={2.5} />
           {unreadCount > 0 && (
           <span
             style={{
@@ -143,8 +143,8 @@ export default function AdminAlertBell() {
               width: '400px',
               maxHeight: '480px',
               overflowY: 'auto',
-              backgroundColor: '#FFF8F0',
-              border: '1px solid #E8D5C4',
+              backgroundColor: '#111',
+              border: '1px solid rgba(255,255,255,0.1)',
               borderRadius: '8px',
               boxShadow: '0 4px 24px rgba(0,0,0,0.1)',
               zIndex: 100,
@@ -153,28 +153,28 @@ export default function AdminAlertBell() {
           >
             <div style={{
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              padding: '10px 16px', borderBottom: '1px solid #EFEBE0',
+              padding: '10px 16px', borderBottom: '1px solid rgba(255,255,255,0.05)',
             }}>
-              <strong style={{ color: '#3E2723', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <strong style={{ color: '#fff', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <Icon name="BellDot" size={16} strokeWidth={2.5} /> Alerts
               </strong>
               <div style={{ display: 'flex', gap: '8px' }}>
                 {unreadCount > 0 && (
                   <button
                     onClick={handleSettleAll}
-                    style={{ background: 'none', border: 'none', color: '#D84315', cursor: 'pointer', fontSize: '12px' }}
+                    style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', cursor: 'pointer', fontSize: '12px' }}
                   >
                     Settle all
                   </button>
                 )}
-                <Link href="/admin/alerts" style={{ color: '#8D6E63', fontSize: '12px', textDecoration: 'none' }} onClick={() => setOpen(false)}>
+                <Link href="/admin/alerts" style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', textDecoration: 'none' }} onClick={() => setOpen(false)}>
                   View all <Icon name="ArrowRight" size={12} />
                 </Link>
               </div>
             </div>
 
             {notifications.length === 0 ? (
-              <div style={{ padding: '24px 16px', textAlign: 'center', color: '#A1887F', fontSize: '13px' }}>
+              <div style={{ padding: '24px 16px', textAlign: 'center', color: 'rgba(255,255,255,0.3)', fontSize: '13px' }}>
                 <Icon name="Check" size={14} color="#2e7d32" /> No active alerts
               </div>
             ) : (
@@ -185,7 +185,7 @@ export default function AdminAlertBell() {
                   style={{
                     padding: '10px 16px',
                     backgroundColor: n.read ? 'transparent' : severityBg(n.severity),
-                    borderBottom: '1px solid #EFEBE0',
+                    borderBottom: '1px solid rgba(255,255,255,0.05)',
                     fontSize: '13px',
                     lineHeight: '1.5',
                     cursor: 'pointer',
@@ -197,24 +197,24 @@ export default function AdminAlertBell() {
                       [{n.severity.toUpperCase()}]
                     </span>
                     <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-                      <span style={{ color: '#A1887F', fontSize: '11px' }} suppressHydrationWarning>
+                      <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '11px' }} suppressHydrationWarning>
                         {formatTime(n.created_at)}
                       </span>
                       <button
                         onClick={(e) => handleDismiss(e, n._id)}
-                        style={{ background: 'none', border: 'none', color: '#8D6E63', cursor: 'pointer', fontSize: '14px', padding: 0, lineHeight: 1 }}
+                        style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.3)', cursor: 'pointer', fontSize: '14px', padding: 0, lineHeight: 1 }}
                         aria-label="Dismiss" title="Dismiss"
                       >
                         <Icon name="X" size={16} />
                       </button>
                     </div>
                   </div>
-                  <div style={{ color: '#5D4037', marginTop: '2px' }}>
-                    <span style={{ color: '#8D6E63', fontSize: '11px' }}>
+                  <div style={{ color: 'rgba(255,255,255,0.7)', marginTop: '2px' }}>
+                    <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '11px' }}>
                       {TYPE_LABELS[n.alert_type] || n.alert_type}
                     </span>
                   </div>
-                  <div style={{ color: '#3E2723', marginTop: '2px' }}>
+                  <div style={{ color: '#fff', marginTop: '2px' }}>
                     {n.message}
                   </div>
                 </div>
@@ -222,10 +222,10 @@ export default function AdminAlertBell() {
             )}
 
             <div style={{
-              padding: '8px 16px', borderTop: '1px solid #EFEBE0', textAlign: 'center',
-              fontSize: '11px', color: '#A1887F',
+              padding: '8px 16px', borderTop: '1px solid rgba(255,255,255,0.05)', textAlign: 'center',
+              fontSize: '11px', color: 'rgba(255,255,255,0.3)',
             }}>
-              Runs every 60s · <Link href="/admin/alerts" style={{ color: '#8D6E63' }}>Manage thresholds</Link>
+              Runs every 60s · <Link href="/admin/alerts" style={{ color: 'rgba(255,255,255,0.4)' }}>Manage thresholds</Link>
             </div>
           </div>
         </>
