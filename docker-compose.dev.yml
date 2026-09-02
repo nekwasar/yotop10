@@ -25,7 +25,8 @@ services:
       - ./frontend/postcss.config.mjs:/app/frontend/postcss.config.mjs
       - next_cache:/app/frontend/.next/cache
     networks:
-      - yotop10_net
+      - yotop10_frontend_net
+      - yotop10_backend_net
     extra_hosts:
       - "yotop10.fun:host-gateway"
     depends_on:
@@ -40,6 +41,9 @@ volumes:
   next_cache:
 
 networks:
-  yotop10_net:
+  yotop10_frontend_net:
     external: true
-    name: yotop10_yotop10_net
+    name: yotop10_frontend_net
+  yotop10_backend_net:
+    external: true
+    name: yotop10_backend_net
