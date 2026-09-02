@@ -29,80 +29,112 @@ export const PostCarouselCard = memo(function PostCarouselCard({ post }: { post:
   return (
     <Link
       href={`/${post.slug}`}
-      className="ed-card rounded-2xl lg:rounded-none border border-white/5 bg-white/5 backdrop-blur-sm overflow-hidden transition flex flex-col lg:focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+      className="block overflow-hidden transition-opacity hover:opacity-90 focus:outline-none"
     >
-      {/* Section A: Title + Description */}
-      <div className="px-4 lg:px-8 pt-4 lg:pt-8 pb-3 lg:pb-4">
-        <h3 className="text-lg lg:text-2xl font-bold text-white leading-snug lg:leading-tight line-clamp-2 ed-headline-lg">
-          {post.title}
-        </h3>
-        {post.intro && (
-          <p className="mt-1.5 lg:mt-3 text-xs lg:text-sm text-zinc-500 leading-relaxed line-clamp-2 lg:line-clamp-3 ed-body">
-            {post.intro}
-          </p>
-        )}
-      </div>
-
-      {/* Section B: Ranked Items */}
-      {topItems.length > 0 && (
-        <div className="px-4 lg:px-8 space-y-2 lg:space-y-3 mb-2 lg:mb-4">
-          {topItems.slice(0, 3).map((item) => (
-            <div key={item.rank} className="flex items-center gap-3 lg:gap-4">
-              <span className="flex items-center justify-center w-6 lg:w-8 h-6 lg:h-8 rounded-full bg-white text-black text-3xs lg:text-xs font-bold font-mono shrink-0">
-                #{item.rank}
-              </span>
-              <span className="text-sm lg:text-lg text-zinc-300 truncate">{item.title}</span>
-            </div>
-          ))}
-          {remaining > 0 && (
-            <p className="text-right text-2xs lg:text-xs text-zinc-600 mt-1 lg:mt-2 mb-1">
-              ... and {remaining} more items
-            </p>
+      {/* Mobile: card style */}
+      <div className="lg:hidden border border-white/5 bg-white/5 rounded-2xl overflow-hidden flex flex-col">
+        <div className="px-4 pt-4 pb-3">
+          <h3 className="text-lg font-bold text-white leading-snug line-clamp-2">{post.title}</h3>
+          {post.intro && (
+            <p className="mt-1.5 text-xs text-zinc-500 leading-relaxed line-clamp-2">{post.intro}</p>
           )}
         </div>
-      )}
+        {topItems.length > 0 && (
+          <div className="px-4 space-y-2 mb-2">
+            {topItems.slice(0, 3).map((item) => (
+              <div key={item.rank} className="flex items-center gap-3">
+                <span className="flex items-center justify-center w-6 h-6 rounded-full bg-white text-black text-[10px] font-bold font-mono shrink-0">#{item.rank}</span>
+                <span className="text-sm text-zinc-300 truncate">{item.title}</span>
+              </div>
+            ))}
+            {remaining > 0 && <p className="text-right text-[10px] text-zinc-600 mt-1 mb-1">... and {remaining} more</p>}
+          </div>
+        )}
+        <div className="mx-4 rounded-xl overflow-hidden h-44 bg-white/5">
+          {post.hero_image_url ? (
+            <Image src={post.hero_image_url} alt="" width={600} height={338} className="w-full h-full object-cover" unoptimized />
+          ) : (
+            <div className="w-full h-full bg-white/[0.03] flex items-center justify-center">
+              <Icon name={getCategoryIcon(post.category_slug) as LucideIconName} size={48} className="text-white/25" />
+            </div>
+          )}
+        </div>
+        <div className="px-4 pt-3 pb-1 flex items-center gap-1.5 text-xs text-zinc-500">
+          <span>By</span>
+          <span className="font-mono text-zinc-400">@{displayName}</span>
+          <span className="text-zinc-700">&middot;</span>
+          <span suppressHydrationWarning>{formatDate(post.published_at || post.created_at)}</span>
+        </div>
+        <div className="flex items-center justify-between px-4 py-3 mt-auto border-t border-white/5">
+          <span className="flex items-center gap-1.5 text-[10px] text-zinc-500">
+            <Icon name="MessageCircle" size={14} />{post.comment_count}
+          </span>
+          <span className="text-[10px] text-zinc-600">{post.view_count} views</span>
+        </div>
+      </div>
 
-      {/* Section C: Media — Image or Category Fallback */}
-      <div className="mx-4 lg:mx-8 rounded-xl lg:rounded-none overflow-hidden h-44 lg:h-64 bg-white/5">
+      {/* Desktop: magazine cover — image behind, giant title overlay */}
+      <div className="hidden lg:block relative h-[480px] bg-black">
+        {/* Background image */}
         {post.hero_image_url ? (
           <Image
             src={post.hero_image_url}
             alt=""
-            width={600}
-            height={338}
-            className="w-full h-full object-cover"
+            width={1200}
+            height={675}
+            className="absolute inset-0 w-full h-full object-cover opacity-40"
             unoptimized
           />
         ) : (
-          <div className="w-full h-full bg-white/[0.03] border border-white/[0.06] flex items-center justify-center">
-            <div className="flex flex-col items-center gap-2">
-              <Icon name={getCategoryIcon(post.category_slug) as LucideIconName} size={48} className="text-white/25" />
-              <span className="ed-label text-white/40">
-                {post.category_name || post.category_slug}
-              </span>
-            </div>
-          </div>
+          <div className="absolute inset-0 bg-white/[0.02]" />
         )}
-      </div>
 
-      {/* Section D: Author Byline — below media */}
-      <div className="px-4 lg:px-8 pt-3 lg:pt-4 pb-1 flex items-center gap-1.5 lg:gap-2 text-xs lg:text-sm text-zinc-500 lg:text-white/60">
-        <span>By</span>
-        <span className="font-mono text-zinc-400 lg:text-white/50">@{displayName}</span>
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
 
-        <span className="text-zinc-700 lg:text-white/20">&middot;</span>
-        <span suppressHydrationWarning>{formatDate(post.published_at || post.created_at)}</span>
-      </div>
+        {/* Content */}
+        <div className="absolute inset-0 flex flex-col justify-end p-10">
+          {/* Category */}
+          <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500 mb-3">
+            {post.category_name || post.category_slug}
+          </span>
 
-      {/* Section E: Engagement Footer */}
-      <div className="flex items-center justify-between px-4 lg:px-8 py-3 lg:py-4 mt-auto border-t border-white/5 lg:border-white/[0.06]">
-        <span className="flex items-center gap-1.5 text-3xs lg:text-xs text-zinc-500 lg:text-white/30">
-          <Icon name="MessageCircle" size={16} />
-          <span>{post.comment_count} comments</span>
-        </span>
-        <span className="flex items-center gap-1.5 text-3xs lg:text-xs text-zinc-500 lg:text-white/30">
-          <span>{post.view_count} views</span>
-        </span>
+          {/* Giant title */}
+          <h2 className="text-[40px] leading-[1.05] font-extrabold text-white tracking-[-0.02em] mb-3 max-w-2xl">
+            {post.title}
+          </h2>
+
+          {/* Intro */}
+          {post.intro && (
+            <p className="text-[15px] leading-relaxed text-zinc-400 mb-5 max-w-xl line-clamp-2">
+              {post.intro}
+            </p>
+          )}
+
+          {/* Items — minimal, just top 3 */}
+          {topItems.length > 0 && (
+            <div className="flex items-center gap-6 mb-5">
+              {topItems.slice(0, 3).map((item) => (
+                <div key={item.rank} className="flex items-center gap-2">
+                  <span className="text-[11px] font-bold font-mono text-zinc-600">{item.rank}</span>
+                  <span className="text-[13px] text-zinc-300">{item.title}</span>
+                </div>
+              ))}
+              {remaining > 0 && (
+                <span className="text-[11px] text-zinc-600">+{remaining}</span>
+              )}
+            </div>
+          )}
+
+          {/* Byline */}
+          <div className="flex items-center gap-2 text-[12px] text-zinc-500">
+            <span className="font-mono text-zinc-400">@{displayName}</span>
+            <span className="text-zinc-700">&middot;</span>
+            <span suppressHydrationWarning>{formatDate(post.published_at || post.created_at)}</span>
+            <span className="text-zinc-700">&middot;</span>
+            <span>{post.comment_count} comments</span>
+          </div>
+        </div>
       </div>
     </Link>
   );

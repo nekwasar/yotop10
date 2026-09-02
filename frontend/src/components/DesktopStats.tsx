@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Icon } from './icons/Icon';
 
 interface StatsData {
   total_posts: number;
@@ -26,24 +25,26 @@ export function DesktopStats({ className = '' }: { className?: string }) {
   if (!stats) return null;
 
   const items = [
-    { icon: 'FileText' as const, label: 'Posts', value: stats.total_posts.toLocaleString() },
-    { icon: 'MessageCircle' as const, label: 'Debates', value: stats.total_debates.toLocaleString() },
-    { icon: 'Users' as const, label: 'Curators', value: stats.total_users.toLocaleString() },
-    { icon: 'Lightbulb' as const, label: 'Facts', value: stats.total_facts.toLocaleString() },
+    { label: 'Posts', value: stats.total_posts },
+    { label: 'Debates', value: stats.total_debates },
+    { label: 'Curators', value: stats.total_users },
+    { label: 'Facts', value: stats.total_facts },
   ];
 
   return (
     <section className={className}>
-      <h2 className="ed-section-title flex items-center gap-2 mb-4">
-        <Icon name="ChartColumn" size={16} />
-        Platform
-      </h2>
-      <div className="grid grid-cols-2 gap-3">
-        {items.map(item => (
-          <div key={item.label} className="ed-card text-center">
-            <Icon name={item.icon} size={18} className="text-white/30 mx-auto mb-1" />
-            <p className="text-lg font-bold font-mono text-white">{item.value}</p>
-            <p className="ed-meta mt-0.5">{item.label}</p>
+      {/* Section header */}
+      <div className="flex items-baseline justify-between mb-6">
+        <h2 className="text-[11px] font-bold text-white uppercase tracking-[0.15em]">Platform</h2>
+        <div className="h-px flex-1 bg-white/[0.06] mx-6" />
+      </div>
+
+      {/* Stats — giant numbers */}
+      <div className="space-y-0">
+        {items.map((item) => (
+          <div key={item.label} className="py-4 border-t border-white/[0.06]">
+            <p className="text-[32px] font-extrabold text-white leading-none mb-1 tabular-nums">{item.value.toLocaleString()}</p>
+            <p className="text-[11px] text-zinc-600 uppercase tracking-[0.1em]">{item.label}</p>
           </div>
         ))}
       </div>

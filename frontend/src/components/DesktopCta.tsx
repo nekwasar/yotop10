@@ -1,22 +1,20 @@
 import Link from 'next/link';
-import { Icon } from './icons/Icon';
 
 export function DesktopCta({ className = '' }: { className?: string }) {
   return (
-    <section className={`${className}`}>
-      <div className="rounded-2xl border border-white/10 bg-black p-8 text-center">
-        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10">
-          <Icon name="Sparkles" size={22} className="text-white/50" />
-        </div>
-        <h3 className="ed-headline-sm text-lg font-bold text-white mb-2">Share Your Perspective</h3>
-        <p className="ed-body max-w-lg mx-auto mb-6">
-          Have a ranking, debate, or fact to share? Submit your post and join a growing community of curators.
+    <section className={className}>
+      <div className="border border-white/[0.06] py-16 px-8 text-center">
+        <p className="text-[11px] font-bold text-zinc-600 uppercase tracking-[0.15em] mb-4">Contribute</p>
+        <h3 className="text-[28px] font-bold text-white leading-tight mb-3 max-w-lg mx-auto">
+          Share your ranking with the world
+        </h3>
+        <p className="text-[14px] text-zinc-500 mb-8 max-w-md mx-auto leading-relaxed">
+          Submit a list, start a debate, or drop a fact. Join a community of curators building the open catalog.
         </p>
         <Link
           href="/new"
-          className="ed-btn inline-flex items-center gap-2"
+          className="inline-flex items-center justify-center px-8 py-3 bg-white text-black text-[11px] font-bold uppercase tracking-[0.1em] hover:opacity-85 transition-opacity"
         >
-          <Icon name="Plus" size={16} />
           Submit a List
         </Link>
       </div>

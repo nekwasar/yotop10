@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Icon } from './icons/Icon';
 
 export function DesktopTrending({ className = '' }: { className?: string }) {
   const [trending, setTrending] = useState<string[]>([]);
@@ -21,19 +20,22 @@ export function DesktopTrending({ className = '' }: { className?: string }) {
 
   return (
     <section className={className}>
-      <h2 className="ed-section-title flex items-center gap-2 mb-4">
-        <Icon name="TrendingUp" size={16} />
-        Trending Now
-      </h2>
-      <div className="space-y-3">
+      {/* Section header */}
+      <div className="flex items-baseline justify-between mb-6">
+        <h2 className="text-[11px] font-bold text-white uppercase tracking-[0.15em]">Trending</h2>
+        <div className="h-px flex-1 bg-white/[0.06] mx-6" />
+      </div>
+
+      {/* Trending list — editorial numbered */}
+      <div className="space-y-0">
         {trending.map((term, i) => (
           <Link
             key={term}
             href={`/search?q=${encodeURIComponent(term)}`}
-            className="ed-card flex items-center gap-4 group hover:border-white/20"
+            className="flex items-baseline gap-5 py-4 border-t border-white/[0.06] group"
           >
-            <span className="ed-number-sm">{String(i + 1).padStart(2, '0')}</span>
-            <span className="ed-headline-sm group-hover:text-white transition">{term}</span>
+            <span className="text-[32px] font-extrabold text-white/[0.06] leading-none w-10 text-right tabular-nums">{i + 1}</span>
+            <span className="text-[17px] font-medium text-zinc-400 group-hover:text-white transition-colors">{term}</span>
           </Link>
         ))}
       </div>

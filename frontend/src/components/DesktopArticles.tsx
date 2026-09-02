@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { Icon } from './icons/Icon';
 
 interface ArticleItem {
   slug: string;
@@ -16,45 +15,46 @@ interface ArticleItem {
 export function DesktopArticles({ articles, className = '' }: { articles: ArticleItem[]; className?: string }) {
   if (!articles || articles.length === 0) return null;
 
+  const featured = articles[0];
+  const rest = articles.slice(1, 5);
+
   return (
-    <section className={`${className}`}>
-      <div className="flex items-center justify-between mb-5">
-        <h2 className="ed-section-title flex items-center gap-2">
-          <Icon name="FileText" size={16} className="text-zinc-500" />
-          Recent Articles
-        </h2>
-        <Link href="/articles" className="ed-meta hover:text-black transition">
-          Read more &rarr;
-        </Link>
+    <section className={className}>
+      {/* Section header */}
+      <div className="flex items-baseline justify-between mb-6">
+        <h2 className="text-[11px] font-bold text-white uppercase tracking-[0.15em]">Articles</h2>
+        <div className="h-px flex-1 bg-white/[0.06] mx-6" />
+        <Link href="/articles" className="text-[12px] text-zinc-600 hover:text-white transition-colors uppercase tracking-[0.08em]">Read more</Link>
       </div>
-      <div className="grid grid-cols-2 lg:grid-cols-1 gap-4">
-        {articles.slice(0, 4).map(a => (
+
+      {/* Featured article — large */}
+      {featured && (
+        <Link href={`/articles/${featured.slug}`} className="block mb-6 group">
+          {featured.cover_image && (
+            <div className="overflow-hidden mb-3">
+              <Image src={featured.cover_image} alt="" width={600} height={240} className="w-full h-[180px] object-cover grayscale opacity-60 group-hover:opacity-80 transition-opacity" unoptimized />
+            </div>
+          )}
+          <h3 className="text-[20px] font-bold text-white leading-snug mb-2 group-hover:opacity-80 transition-opacity">{featured.title}</h3>
+          <div className="flex items-center gap-3 text-[11px] text-zinc-600">
+            <span>{featured.author_display_name || featured.author_username}</span>
+            {featured.reading_time && <span>{featured.reading_time} min read</span>}
+          </div>
+        </Link>
+      )}
+
+      {/* Article list — clean editorial lines */}
+      <div className="space-y-0">
+        {rest.map((a, i) => (
           <Link
             key={a.slug}
             href={`/articles/${a.slug}`}
-            className="ed-card p-6 lg:p-8 group overflow-hidden transition"
+            className="block py-4 border-t border-white/[0.06] group"
           >
-            <div className="relative h-32 w-full overflow-hidden bg-zinc-100">
-              {a.cover_image ? (
-                <Image src={a.cover_image} alt="" fill className="object-cover grayscale transition duration-500 group-hover:scale-105" unoptimized />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <Icon name="FileText" size={32} className="text-zinc-400" />
-                </div>
-              )}
-              {a.reading_time && (
-                <span className="absolute top-2 right-2 bg-white/80 backdrop-blur-sm px-2 py-0.5 text-3xs font-medium text-zinc-700">
-                  {a.reading_time} min read
-                </span>
-              )}
-            </div>
-            <div className="p-4">
-              <h3 className="ed-headline-sm leading-snug line-clamp-2 group-hover:text-black transition mb-2">
-                {a.title}
-              </h3>
-              <p className="ed-body text-zinc-600">
-                {a.author_display_name || a.author_username || ''}
-              </p>
+            <h4 className="text-[15px] font-semibold text-white leading-snug mb-1 group-hover:opacity-80 transition-opacity line-clamp-2">{a.title}</h4>
+            <div className="flex items-center gap-3 text-[11px] text-zinc-600">
+              <span>{a.author_display_name || a.author_username}</span>
+              {a.reading_time && <span>{a.reading_time} min</span>}
             </div>
           </Link>
         ))}

@@ -25,21 +25,21 @@ export function DesktopSidebar() {
   const cleanUsername = rawUsername.replace(/^a_/, '');
 
   return (
-    <aside className="ed-sidebar fixed top-0 left-0 z-50 h-full w-64 lg:w-72 flex flex-col overflow-y-auto -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-out">
-      {/* Logo */}
-      <Link href="/" className="flex flex-col px-6 pt-6 pb-4 shrink-0">
+    <aside className="fixed top-0 left-0 z-50 h-full w-[260px] bg-black flex flex-col overflow-y-auto -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-out">
+      {/* Logo — the only thing that stays */}
+      <Link href="/" className="block px-7 pt-8 pb-6 shrink-0">
         <div className="flex items-baseline gap-0">
           <span className="font-accent gradient-text text-3xl lg:text-4xl tracking-normal">YO</span>
           <span className="font-display text-3xl lg:text-4xl tracking-tight text-white">Top10</span>
         </div>
-        <p className="ed-meta mt-1">Fact Mine. Debate Ground.</p>
       </Link>
 
-      <hr className="ed-divider mx-4 mb-4" />
+      {/* Thin rule */}
+      <div className="mx-7 h-px bg-white/10" />
 
-      {/* Navigation */}
-      <nav className="flex-1 px-3 space-y-0.5">
-        {NAV_ITEMS.map(item => {
+      {/* Navigation — big, spaced, editorial */}
+      <nav className="flex-1 px-5 pt-6 pb-4">
+        {NAV_ITEMS.map((item, i) => {
           const isActive = item.href === '/'
             ? pathname === '/'
             : pathname === item.href || pathname.startsWith(item.href + '/');
@@ -47,69 +47,62 @@ export function DesktopSidebar() {
             <Link
               key={item.label}
               href={item.href}
-              className={`ed-sidebar-link ${isActive ? 'ed-sidebar-link-active' : ''}`}
+              className="flex items-center gap-4 py-3 text-[13px] font-medium tracking-wide transition-colors duration-150"
+              style={{ color: isActive ? '#fff' : '#52525b' }}
             >
-              <Icon name={item.icon} size={16} />
-              <span>{item.label}</span>
+              <Icon name={item.icon} size={18} strokeWidth={1.5} />
+              <span className="uppercase" style={{ letterSpacing: '0.08em', fontWeight: isActive ? 700 : 500 }}>{item.label}</span>
             </Link>
           );
         })}
       </nav>
 
       {/* Bottom section */}
-      <div className="mt-auto pt-4 pb-4 px-3 space-y-3 shrink-0">
-        <hr className="ed-divider mx-1" />
+      <div className="mt-auto px-5 pb-6 shrink-0">
+        <div className="h-px bg-white/10 mb-5" />
 
-        {/* User section */}
+        {/* User */}
         {user ? (
           <Link
             href={`/a/${cleanUsername}`}
-            className="ed-sidebar-link"
+            className="flex items-center gap-3 py-2 transition-colors hover:opacity-80"
           >
             {user.profile_image_url ? (
-              <Image src={user.profile_image_url} alt="" width={32} height={32} className="w-8 h-8 rounded-full object-cover shrink-0" unoptimized />
+              <Image src={user.profile_image_url} alt="" width={36} height={36} className="w-9 h-9 rounded-full object-cover shrink-0 grayscale" unoptimized />
             ) : (
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-white text-black font-bold text-xs shrink-0">
+              <span className="flex items-center justify-center w-9 h-9 rounded-full bg-white text-black font-bold text-sm shrink-0">
                 {displayName[0].toUpperCase()}
               </span>
             )}
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-1">
-                <span className="ed-headline-sm text-sm truncate">{displayName}</span>
-                {user.posts_approved >= 3 && <Icon name="BadgeCheck" size={12} className="text-white shrink-0" />}
-              </div>
-              <p className="ed-meta truncate">@{cleanUsername}</p>
+            <div className="min-w-0">
+              <p className="text-[13px] font-semibold text-white truncate">{displayName}</p>
+              <p className="text-[11px] text-zinc-600 font-mono truncate">@{cleanUsername}</p>
             </div>
           </Link>
         ) : (
-          <div className="ed-sidebar-link">
-            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-white/5 shrink-0">
-              <Icon name="User" size={16} />
+          <div className="flex items-center gap-3 py-2">
+            <span className="flex items-center justify-center w-9 h-9 rounded-full bg-white/5 shrink-0">
+              <Icon name="User" size={16} className="text-zinc-600" />
             </span>
-            <div className="min-w-0 flex-1">
-              <p className="ed-headline-sm text-sm">Guest</p>
-            </div>
+            <p className="text-[13px] text-zinc-600">Guest</p>
           </div>
         )}
 
-        {/* Settings + Theme */}
-        <div className="flex items-center justify-between px-4 py-1">
-          <Link
-            href="/settings"
-            className="ed-meta flex items-center gap-2 hover:text-white transition"
-          >
-            <Icon name="Settings" size={16} />
+        {/* Settings row */}
+        <div className="flex items-center justify-between mt-4">
+          <Link href="/settings" className="text-[12px] text-zinc-600 hover:text-white transition-colors flex items-center gap-2">
+            <Icon name="Settings" size={14} />
             Settings
           </Link>
           <ThemeToggle />
         </div>
 
-        {/* Submit CTA */}
+        {/* Submit */}
         <Link
           href="/new"
-          className="ed-btn mx-1 text-center justify-center"
+          className="mt-5 flex items-center justify-center w-full py-3 bg-white text-black text-[11px] font-bold uppercase tracking-[0.1em] hover:opacity-85 transition-opacity"
         >
-          <Icon name="Plus" size={14} />
+          <Icon name="Plus" size={14} className="mr-2" />
           Submit a List
         </Link>
       </div>

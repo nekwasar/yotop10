@@ -129,7 +129,7 @@ export default async function Home() {
       <div className="pb-2">
         <div className="px-3 sm:px-6 pt-6 pb-2">
           <h2 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-            <Icon name="Flame" size={16} className="text-orange-400" />
+            <Icon name="Flame" size={16} className="text-zinc-400" />
             Latest Lists
           </h2>
         </div>
@@ -182,26 +182,53 @@ export default async function Home() {
       </div>
 
       {/* ─── Desktop sections (hidden below md) ─── */}
-      <div className="hidden md:block px-4 lg:px-8 xl:px-12 pb-16 ed-section-gap">
-        <div className="ed-grid grid grid-cols-1 lg:grid-cols-12">
-          {/* Row 1: Debates (8 cols) + Articles (4 cols) */}
-          <DesktopDebates className="lg:col-span-8 ed-section-gap" debates={debates} />
-          <DesktopArticles className="lg:col-span-4 ed-section-gap" articles={articles} />
-
-          {/* Row 2: Trending (8 cols) + Categories (4 cols) */}
-          <DesktopTrending className="lg:col-span-8 ed-section-gap" />
-          <DesktopCategories className="lg:col-span-4 ed-section-gap" categories={categories} />
-
-          {/* Row 3: Hall of Fame (full width) */}
-          <DesktopHallOfFame className="lg:col-span-12 ed-section-gap" />
-
-          {/* Row 4: Facts (8 cols) + Stats (4 cols) */}
-          <DesktopFacts className="lg:col-span-8 ed-section-gap" facts={facts} />
-          <DesktopStats className="lg:col-span-4 ed-section-gap" />
-
-          {/* Row 5: CTA (full width) */}
-          <DesktopCta className="lg:col-span-12" />
+      <div className="hidden md:block px-8 lg:px-12 xl:px-16 pb-20">
+        {/* Hero: full-width carousel with giant text */}
+        <div className="mb-16">
+          <div className="flex items-baseline justify-between mb-6">
+            <h2 className="text-[11px] font-bold text-white uppercase tracking-[0.15em]">Featured</h2>
+            <div className="h-px flex-1 bg-white/[0.06] ml-6" />
+          </div>
+          <DesktopCarousel posts={posts} />
         </div>
+
+        {/* Debates + Articles: 8/4 split */}
+        <div className="grid grid-cols-12 gap-8 mb-16">
+          <div className="col-span-8">
+            <DesktopDebates debates={debates} />
+          </div>
+          <div className="col-span-4">
+            <DesktopArticles articles={articles} />
+          </div>
+        </div>
+
+        {/* Trending + Categories: 7/5 split */}
+        <div className="grid grid-cols-12 gap-8 mb-16">
+          <div className="col-span-7">
+            <DesktopTrending />
+          </div>
+          <div className="col-span-5">
+            <DesktopCategories categories={categories} />
+          </div>
+        </div>
+
+        {/* Hall of Fame: full width */}
+        <div className="mb-16">
+          <DesktopHallOfFame />
+        </div>
+
+        {/* Facts + Stats: 8/4 split */}
+        <div className="grid grid-cols-12 gap-8 mb-16">
+          <div className="col-span-8">
+            <DesktopFacts facts={facts} />
+          </div>
+          <div className="col-span-4">
+            <DesktopStats />
+          </div>
+        </div>
+
+        {/* CTA: full width */}
+        <DesktopCta />
       </div>
     </>
     </Suspense>

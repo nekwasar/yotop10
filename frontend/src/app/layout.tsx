@@ -156,7 +156,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <Suspense fallback={<div className="fixed inset-0 z-40 bg-[var(--color-bg)]/50" />}>
           <SlideMenuRouter />
         </Suspense>
-        <main className="flex-1 pt-14 lg:pt-14 lg:ml-64 xl:ml-72 transition-[margin] duration-300 ease-out flex flex-col">
+        <main className="flex-1 pt-14 lg:pt-14 lg:ml-[260px] transition-[margin] duration-300 ease-out flex flex-col">
           <div className="flex-1">{children}</div>
           <AppFooter />
         </main>

@@ -20,27 +20,33 @@ export default function DesktopTopBarMinimal() {
   };
 
   return (
-    <header className="ed-topbar fixed top-0 left-64 lg:left-72 right-0 z-30 h-14 bg-[#000] border-b border-white/10">
-      <div className="flex h-full items-center justify-between px-4 lg:px-6">
-        <div className="flex-1 flex justify-center">
-          <input
-            type="text"
-            value={query}
-            onChange={e => setQuery(e.target.value)}
-            onKeyDown={handleSearch}
-            placeholder="Search rankings..."
-            className="w-full max-w-2xl bg-transparent border border-white/10 rounded-none px-6 py-2.5 text-sm text-white placeholder:text-zinc-500 focus:border-white/30 focus:outline-none transition"
-          />
+    <header className="fixed top-0 left-[260px] right-0 z-30 h-14 bg-black border-b border-white/[0.06]">
+      <div className="flex h-full items-center justify-between px-8">
+        {/* Search — full width, editorial style */}
+        <div className="flex-1 max-w-3xl">
+          <div className="relative">
+            <Icon name="Search" size={16} className="absolute left-0 top-1/2 -translate-y-1/2 text-zinc-600" />
+            <input
+              type="text"
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              onKeyDown={handleSearch}
+              placeholder="Search..."
+              className="w-full bg-transparent border-b border-white/10 pl-7 pr-4 py-2 text-[13px] text-white placeholder:text-zinc-700 focus:border-white/30 focus:outline-none transition-colors"
+            />
+          </div>
         </div>
-        <div className="flex items-center gap-3 ml-3 shrink-0">
+
+        {/* Right side — bells + profile */}
+        <div className="flex items-center gap-5 ml-8 shrink-0">
           <HeaderBells />
           {cleanUsername && (
             <Link
               href={`/a/${cleanUsername}`}
-              className="flex items-center justify-center w-9 h-9 rounded-full bg-transparent border border-white/10 text-zinc-400 hover:text-white hover:bg-white/10 transition"
+              className="text-[12px] font-medium text-zinc-500 hover:text-white transition-colors uppercase tracking-[0.08em]"
               aria-label="Profile"
             >
-              <Icon name="User" size={18} />
+              Profile
             </Link>
           )}
         </div>
