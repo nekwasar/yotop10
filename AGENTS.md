@@ -86,6 +86,27 @@ more than trivial code):
 **This is a mandatory step. A task is NOT complete until code is committed,
 pushed, and ALL documentation reflects reality.**
 
+### 3.0f 🚫 ALL Changes MUST Be Committed — NO EXCEPTIONS (NON-NEGOTIABLE)
+
+Every single change, no matter how small or "micro", MUST be committed.
+There are NO exceptions. This includes but is not limited to:
+
+- A single line change
+- A typo fix
+- A whitespace/formatting fix
+- A configuration value change
+- Any file modification whatsoever
+
+**Rationale**: Uncommitted changes are invisible to other team members,
+create confusion, and can be lost. Even a "tiny" change can be critical
+to functionality. The cost of committing a micro change is negligible;
+the cost of losing it can be enormous.
+
+**Rule**: If a file is modified, it MUST be staged and committed before
+the task is considered complete. No file modifications may be left
+uncommitted. `git status` MUST show a clean working tree after each
+sub-task.
+
 ### 3.0b 🚫 BANNED: `sed` Edits (NON-NEGOTIABLE)
 
 The `sed` command is PERMANENTLY BANNED for editing source code files.
