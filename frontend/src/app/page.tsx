@@ -68,10 +68,10 @@ async function fetchJson<T>(url: string, fallback: T): Promise<T> {
 }
 
 export const metadata: Metadata = {
-  title: 'YoTop10 — Fact Mine. Debate Ground.',
+  title: 'YoTop20 — Fact Mine. Debate Ground.',
   description: 'The open catalog of ranked lists. Submit your list. Defend your rankings. Vote on debates, discover facts, and curate the best of everything.',
   openGraph: {
-    title: 'YoTop10 — Fact Mine. Debate Ground.',
+    title: 'YoTop20 — Fact Mine. Debate Ground.',
     description: 'The open catalog of ranked lists. Submit your list. Defend your rankings.',
   },
 };
@@ -110,7 +110,7 @@ export default async function Home() {
         <div className="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-3xl bg-white/5">
           <Icon name="FileText" size={36} className="text-zinc-600" />
         </div>
-        <h2 className="mb-2 text-xl font-bold text-white">Welcome to YoTop10</h2>
+        <h2 className="mb-2 text-xl font-bold text-white">Welcome to YoTop20</h2>
         <p className="mb-8 max-w-md text-sm text-zinc-500 leading-relaxed">
           The open catalog of ranked lists. Be the first to submit a list and start the conversation.
         </p>
