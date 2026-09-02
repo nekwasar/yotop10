@@ -11,9 +11,16 @@ services:
       - NODE_ENV=development
       - CORS_ORIGINS=http://localhost:3100
       - MONGODB_URI=mongodb://mongodb:27017/yotop10
+      - MONGO_HOST=mongodb
+      - MONGO_PORT=27017
+      - MONGO_DATABASE=yotop10
+      - MONGO_USERNAME=yotop10_admin
+      - MONGO_PASSWORD=${MONGO_PASSWORD}
       - REDIS_URL=redis://redis:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
       - ELASTICSEARCH_URL=http://elasticsearch:9200
-      - JWT_SECRET=dev-jwt-secret-local-only
+      - ES_PASSWORD=${ES_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
       - INTERNAL_API_URL=http://localhost:8000/api
     volumes:
       - ./backend/src:/app/backend/src
