@@ -30,10 +30,20 @@ const CLEAR_KEYS = [
   'yotop10_submit_draft',
 ];
 
-export const useAuthStore = create<AuthState>((set) => ({
-  user: null,
-  loading: true,
-  initialized: false,
+// Read server-provided user data (injected by layout.tsx)
+function getServerUser(): AuthUser | null {
+  try {
+    const w = window as Record<string, unknown>;
+    const data = w.__YOTOP10_USER__;
+    if (data && typeof data === 'object') return data as AuthUser;
+  } catch {}
+  return null;
+}
+
+export const useAuthStore = create<AuthState>((set, get) => ({
+  user: getServerUser(),
+  loading: false,
+  initialized: true,
 
   fetchUser: async () => {
     try {
@@ -65,7 +75,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       const { toast } = await import('@/lib/toast');
       toast.success('Logged out. New anonymous identity created.');
     } catch {
-      // stay logged out — AuthInitializer will retry on next page load
+      // stay logged out — will retry on next page load
     }
   },
 }));

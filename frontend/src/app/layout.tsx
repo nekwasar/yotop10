@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { cookies } from "next/headers";
 import { Anton, Monoton } from "next/font/google";
 import "./globals.css";
-import AuthInitializer from "@/components/AuthInitializer";
 import ToastContainer from "@/components/Toast";
 import AnalyticsBeacon from "@/components/AnalyticsBeacon";
 import { DynamicIsland } from "@/components/DynamicIsland";
@@ -12,7 +12,6 @@ import DesktopTopBar from "@/components/DesktopTopBar";
 import DesktopTopBarMinimal from "@/components/DesktopTopBarMinimal";
 import { DesktopSidebar } from "@/components/DesktopSidebar";
 import { SlideMenuRouter } from "@/components/SlideMenuRouter";
-// import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 import { FingerprintMergeDetector } from "@/components/FingerprintMergeDialog";
 
 const anton = Anton({ weight: '400', subsets: ['latin'], display: 'swap', variable: '--font-display' });
@@ -67,7 +66,24 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // Fetch user server-side for instant profile links (no loading delay)
+  let serverUser = null;
+  try {
+    const cookieStore = await cookies();
+    const fpCookie = cookieStore.get('device_fingerprint')?.value || '';
+    const baseUrl = process.env.INTERNAL_API_URL || 'http://backend:8000/api';
+    const res = await fetch(`${baseUrl}/users/me`, {
+      headers: fpCookie ? { Cookie: `device_fingerprint=${fpCookie}` } : {},
+      cache: 'no-store',
+    });
+    if (res.ok) {
+      serverUser = await res.json();
+    }
+  } catch {
+    // Backend unreachable on server — client will handle
+  }
+
   return (
     <html lang="en" className="h-full antialiased" suppressHydrationWarning>
       <head>
@@ -111,6 +127,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             } catch(e) {}
           })();
         `}} />
+        {serverUser && (
+          <script dangerouslySetInnerHTML={{ __html: `window.__YOTOP10_USER__=${JSON.stringify(serverUser)};` }} />
+        )}
       </head>
       <body className={`${anton.variable} ${monoton.variable} min-h-screen flex flex-col bg-[var(--color-bg)] text-[#eaeaef]`} suppressHydrationWarning>
         {/* Mobile top bar */}
@@ -136,9 +155,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
         <Suspense fallback={<div className="fixed inset-0 z-40 bg-[var(--color-bg)]/50" />}>
           <SlideMenuRouter />
-        </Suspense>
-        <Suspense>
-          <AuthInitializer />
         </Suspense>
         <main className="flex-1 pt-14 lg:pt-14 lg:ml-64 xl:ml-72 transition-[margin] duration-300 ease-out flex flex-col">
           <div className="flex-1">{children}</div>
