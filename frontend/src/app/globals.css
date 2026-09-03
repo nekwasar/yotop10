@@ -398,7 +398,11 @@ body > main { padding-bottom: 90px; }
   }
 
   [class*="flex"] { display: block !important; }
-  [class*="grid"] { display: block !important; }
+  [class*="grid"] {
+    display: block !important;
+    grid-template-columns: none !important;
+    gap: 0 !important;
+  }
   [class*="shadow"] { box-shadow: none !important; }
   [class*="rounded"] { border-radius: 0 !important; }
   [class*="backdrop-blur"],
@@ -475,7 +479,7 @@ body > main { padding-bottom: 90px; }
   .hidden.md\:block {
     display: block !important;
     max-width: 1100px !important;
-    margin: -80px auto 0 !important;
+    margin: 0 auto !important;
     padding: 0 40px !important;
   }
 
@@ -487,15 +491,20 @@ body > main { padding-bottom: 90px; }
     border-bottom: 1px solid #ddd !important;
   }
 
+  /* Kill col-span utilities */
+  [class*="col-span"] {
+    grid-column: auto !important;
+  }
+
   /* ── SECTION SPACING ── */
   section {
-    margin-bottom: 8px !important;
-    padding-bottom: 8px !important;
+    margin-bottom: 12px !important;
+    padding-bottom: 12px !important;
     border-bottom: 1px solid #eee !important;
   }
   section > div:first-child {
-    margin-bottom: 8px !important;
-    padding-bottom: 6px !important;
+    margin-bottom: 6px !important;
+    padding-bottom: 4px !important;
   }
   section:last-child {
     border-bottom: none !important;
