@@ -9,13 +9,10 @@ import { HomeFactDrop } from '@/components/HomeFactDrop';
 import { HomeSkeleton } from '@/components/HomeSkeleton';
 import { DesktopDebates } from '@/components/DesktopDebates';
 import { DesktopArticles } from '@/components/DesktopArticles';
-import { DesktopCategories } from '@/components/DesktopCategories';
 import { DesktopFacts } from '@/components/DesktopFacts';
 import { DesktopCta } from '@/components/DesktopCta';
 
 import { DesktopTrending } from '@/components/DesktopTrending';
-import { DesktopHallOfFame } from '@/components/DesktopHallOfFame';
-import { DesktopStats } from '@/components/DesktopStats';
 import CtaButton from '@/components/CtaButton';
 import { Icon } from '@/components/icons/Icon';
 import type { PostsResponse } from '@/lib/api/types';
@@ -182,50 +179,56 @@ export default async function Home() {
       </div>
 
       {/* ─── Desktop sections (hidden below md) ─── */}
-      <div className="hidden md:block px-8 lg:px-12 xl:px-16 pb-20">
-        {/* Hero: full-width carousel with giant text */}
-        <div className="mb-16">
-          <div className="flex items-baseline justify-between mb-6">
-            <h2 className="text-[11px] font-bold text-white uppercase tracking-[0.15em]">Featured</h2>
-            <div className="h-px flex-1 bg-white/[0.06] ml-6" />
+      <div className="hidden md:block">
+        {/* Hero: first post as giant headline */}
+        {posts.length > 0 && (
+          <div className="mb-16">
+            <div className="mb-4">
+              <h2 className="text-[11px] font-bold text-white uppercase tracking-[0.15em]">Latest</h2>
+            </div>
+            <a href={`/${posts[0].slug}`} className="block group">
+              <h3 className="text-[11px] sm:text-[14px] md:text-[48px] font-bold text-white leading-tight mb-4 group-hover:opacity-80 transition-opacity">
+                {posts[0].title}
+              </h3>
+              {posts[0].intro && (
+                <p className="text-[14px] sm:text-[16px] md:text-[22px] text-zinc-400 mb-6 max-w-3xl leading-relaxed">
+                  {posts[0].intro}
+                </p>
+              )}
+              <div className="flex items-center gap-4 text-[11px] sm:text-[13px] md:text-[16px] text-zinc-500">
+                <span>{posts[0].author_display_name || posts[0].author_username}</span>
+                <span>&middot;</span>
+                <span>{posts[0].category_name || posts[0].category_slug}</span>
+              </div>
+            </a>
           </div>
-          <DesktopCarousel posts={posts} />
-        </div>
+        )}
 
-        {/* Debates + Articles: 8/4 split */}
-        <div className="grid grid-cols-12 gap-8 mb-16">
-          <div className="col-span-8">
+        {/* Debates: full width */}
+        {debates.length > 0 && (
+          <div className="mb-16">
             <DesktopDebates debates={debates} />
           </div>
-          <div className="col-span-4">
+        )}
+
+        {/* Trending: full width */}
+        <div className="mb-16">
+          <DesktopTrending />
+        </div>
+
+        {/* Articles: full width */}
+        {articles.length > 0 && (
+          <div className="mb-16">
             <DesktopArticles articles={articles} />
           </div>
-        </div>
+        )}
 
-        {/* Trending + Categories: 7/5 split */}
-        <div className="grid grid-cols-12 gap-8 mb-16">
-          <div className="col-span-7">
-            <DesktopTrending />
-          </div>
-          <div className="col-span-5">
-            <DesktopCategories categories={categories} />
-          </div>
-        </div>
-
-        {/* Hall of Fame: full width */}
-        <div className="mb-16">
-          <DesktopHallOfFame />
-        </div>
-
-        {/* Facts + Stats: 8/4 split */}
-        <div className="grid grid-cols-12 gap-8 mb-16">
-          <div className="col-span-8">
+        {/* Facts: full width */}
+        {facts.length > 0 && (
+          <div className="mb-16">
             <DesktopFacts facts={facts} />
           </div>
-          <div className="col-span-4">
-            <DesktopStats />
-          </div>
-        </div>
+        )}
 
         {/* CTA: full width */}
         <DesktopCta />
