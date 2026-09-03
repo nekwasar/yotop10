@@ -234,6 +234,75 @@ body > main { padding-bottom: 90px; }
   .hide-desktop { display: none !important; }
   .show-desktop { display: flex !important; }
 
+  /* Hide ALL mobile chrome */
+  header { display: none !important; }
+  .fixed { position: static !important; }
+  [class*="slide"] { display: none !important; }
+  [class*="SlideMenu"] { display: none !important; }
+  nav[class*="fixed"] { display: none !important; }
+
+  /* Kill ALL backgrounds on everything — NO exceptions */
+  * {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+  }
+  body { background: #fff !important; }
+  main { background: transparent !important; }
+  section { background: transparent !important; }
+  a { background: transparent !important; }
+  div { background: transparent !important; }
+  span { background: transparent !important; }
+  button { background: transparent !important; }
+  footer { background: #fff !important; }
+  img { background: transparent !important; }
+
+  /* Kill all gradients */
+  [class*="gradient"] { background-image: none !important; }
+  [class*="from-"] { background-image: none !important; }
+  [class*="to-"] { background-image: none !important; }
+
+  /* Kill all backdrop-blur */
+  [class*="backdrop"] { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+
+  /* Icons: remove backgrounds, make them simple black outlines */
+  svg {
+    background: none !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    fill: none !important;
+    stroke: #111 !important;
+    stroke-width: 1.5 !important;
+    color: #111 !important;
+  }
+  /* Icon containers: no backgrounds, no rounded, no borders */
+  span[class*="flex"][class*="items-center"][class*="justify-center"][class*="rounded"] {
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    width: auto !important;
+    height: auto !important;
+    padding: 0 !important;
+    display: inline !important;
+  }
+  div[class*="flex"][class*="items-center"][class*="justify-center"][class*="rounded"] {
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    width: auto !important;
+    height: auto !important;
+    padding: 0 !important;
+  }
+
+  /* Theme toggle: kill completely */
+  button[aria-label="Toggle theme"] { display: none !important; }
+
+  /* Slide menu: kill completely */
+  [class*="z-60"],
+  [class*="z-70"],
+  [class*="z-[60]"],
+  [class*="z-[70]"] { display: none !important; }
+
   body {
     background: #fff !important;
     color: #111 !important;
