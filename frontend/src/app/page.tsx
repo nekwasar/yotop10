@@ -122,25 +122,20 @@ export default async function Home() {
   return (
     <Suspense fallback={<HomeSkeleton />}>
     <>
-      {/* Section 1: Latest Lists — horizontal carousel */}
-      <div className="pb-2">
+      {/* Section 1: Latest Lists — mobile only */}
+      <div className="md:hidden pb-2">
         <div className="px-3 sm:px-6 pt-6 pb-2">
           <h2 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
             <Icon name="Flame" size={16} className="text-zinc-400" />
             Latest Lists
           </h2>
         </div>
-        <div className="lg:hidden">
-          <div className="flex flex-row overflow-x-auto overflow-y-hidden gap-3 pl-4 py-2 -webkit-overflow-scrolling-touch snap-x snap-mandatory scroll-smooth">
-            {posts.map(post => (
-              <div key={post.id} className="flex-shrink-0 w-[calc(76vw-12px)] scroll-snap-align-start">
-                <PostCarouselCard post={post} />
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="hidden lg:block">
-          <DesktopCarousel posts={posts} />
+        <div className="flex flex-row overflow-x-auto overflow-y-hidden gap-3 pl-4 py-2 -webkit-overflow-scrolling-touch snap-x snap-mandatory scroll-smooth">
+          {posts.map(post => (
+            <div key={post.id} className="flex-shrink-0 w-[calc(76vw-12px)] scroll-snap-align-start">
+              <PostCarouselCard post={post} />
+            </div>
+          ))}
         </div>
       </div>
 
