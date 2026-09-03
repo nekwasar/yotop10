@@ -9,6 +9,7 @@ import { DynamicIsland } from "@/components/DynamicIsland";
 import { SubmitFAB } from "@/components/SubmitFAB";
 import { AppFooter } from "@/components/AppFooter";
 import DesktopTopBar from "@/components/DesktopTopBar";
+import { DesktopNav } from "@/components/DesktopNav";
 import { SlideMenuRouter } from "@/components/SlideMenuRouter";
 import { FingerprintMergeDetector } from "@/components/FingerprintMergeDialog";
 
@@ -145,6 +146,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <SlideMenuRouter />
         </Suspense>
         <main className="flex-1 pt-14 lg:pt-0 flex flex-col">
+          <div className="hidden lg:block px-8 pt-6 pb-4">
+            <DesktopNav />
+          </div>
           <div className="flex-1">{children}</div>
           <AppFooter />
         </main>
