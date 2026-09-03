@@ -222,3 +222,242 @@ html.light-mode select {
 body > main { padding-bottom: 90px; }
 
 } /* end mobile-only */
+
+/* ═══════════════════════════════════════════════════════
+   DESKTOP: Reset to raw unstyled HTML
+   Tailwind utilities are still generated (import is top-level)
+   but we override EVERYTHING here to look like plain HTML.
+   ═══════════════════════════════════════════════════════ */
+@media (min-width: 980px) {
+  /* Visibility classes — these MUST work */
+  .hide-desktop { display: none !important; }
+  .show-desktop { display: flex !important; }
+
+  /* Body: kill Tailwind utilities */
+  body {
+    background: white !important;
+    color: black !important;
+    min-height: auto !important;
+    display: block !important;
+    font-family: times, serif !important;
+    -webkit-font-smoothing: auto !important;
+    -moz-osx-font-smoothing: auto !important;
+  }
+
+  /* Main: kill flex layout */
+  main {
+    display: block !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Kill all dark backgrounds from Tailwind */
+  [class*="bg-zinc-950"],
+  [class*="bg-[var(--color-bg)"],
+  [class*="bg-[#05050f]"],
+  [class*="bg-[#000]"],
+  [class*="bg-black"],
+  [class*="bg-white/5"],
+  [class*="bg-white/10"],
+  [class*="bg-white/20"],
+  [class*="bg-white/[0"],
+  [class*="gradient-to-r"],
+  [class*="from-orange"],
+  [class*="from-pink"],
+  [class*="to-red"],
+  [class*="to-pink"] {
+    background: transparent !important;
+  }
+
+  /* Kill all text colors from Tailwind */
+  [class*="text-white"],
+  [class*="text-zinc-"],
+  [class*="text-orange"],
+  [class*="text-red"],
+  [class*="text-pink"],
+  [class*="text-[#eaeaef]"] {
+    color: black !important;
+  }
+
+  /* Kill all border colors */
+  [class*="border-white"],
+  [class*="border-zinc-"],
+  [class*="border-orange"],
+  [class*="border-red"] {
+    border-color: black !important;
+  }
+
+  /* Kill flex on all elements — force block */
+  [class*="flex"] {
+    display: block !important;
+  }
+
+  /* Kill grid on all elements — force block */
+  [class*="grid"] {
+    display: block !important;
+  }
+
+  /* Kill all shadows */
+  [class*="shadow"] {
+    box-shadow: none !important;
+  }
+
+  /* Kill all border-radius */
+  [class*="rounded"] {
+    border-radius: 0 !important;
+  }
+
+  /* Kill all backdrop-blur */
+  [class*="backdrop-blur"],
+  [class*="backdrop-filter"] {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  /* Kill all transitions */
+  [class*="transition"] {
+    transition: none !important;
+  }
+
+  /* Reset links to browser defaults */
+  a {
+    color: blue !important;
+    text-decoration: underline !important;
+  }
+
+  /* Reset images */
+  img {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  /* Kill fixed/absolute positioning */
+  [class*="fixed"],
+  [class*="absolute"] {
+    position: static !important;
+  }
+
+  /* Kill z-index */
+  [class*="z-"] {
+    z-index: auto !important;
+  }
+
+  /* Kill overflow hidden */
+  [class*="overflow-hidden"] {
+    overflow: visible !important;
+  }
+
+  /* Kill space-y, gap, etc */
+  [class*="space-y"],
+  [class*="gap-"],
+  [class*="gap-["] {
+    gap: 0 !important;
+  }
+
+  /* Kill all padding from Tailwind */
+  [class*="px-"],
+  [class*="py-"],
+  [class*="pt-"],
+  [class*="pb-"],
+  [class*="pl-"],
+  [class*="pr-"],
+  [class*="p-"],
+  [class*="p-["] {
+    padding: 0 !important;
+  }
+
+  /* Kill all margin from Tailwind */
+  [class*="mx-"],
+  [class*="my-"],
+  [class*="mt-"],
+  [class*="mb-"],
+  [class*="ml-"],
+  [class*="mr-"],
+  [class*="m-"],
+  [class*="m-["] {
+    margin: 0 !important;
+  }
+
+  /* Kill width constraints */
+  [class*="max-w-"],
+  [class*="w-full"],
+  [class*="w-["] {
+    width: auto !important;
+  }
+
+  /* Kill height constraints */
+  [class*="h-"],
+  [class*="min-h-"],
+  [class*="max-h-"] {
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+  }
+
+  /* Kill font-weight */
+  [class*="font-bold"],
+  [class*="font-semibold"],
+  [class*="font-medium"] {
+    font-weight: normal !important;
+  }
+
+  /* Kill text-transform */
+  [class*="uppercase"],
+  [class*="lowercase"],
+  [class*="capitalize"] {
+    text-transform: none !important;
+  }
+
+  /* Kill letter-spacing */
+  [class*="tracking-"] {
+    letter-spacing: normal !important;
+  }
+
+  /* Kill text-align */
+  [class*="text-center"],
+  [class*="text-left"],
+  [class*="text-right"] {
+    text-align: left !important;
+  }
+
+  /* Kill whitespace */
+  [class*="truncate"],
+  [class*="line-clamp-"] {
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: normal !important;
+  }
+
+  /* Kill opacity */
+  [class*="opacity-"],
+  [class*="hover:opacity"] {
+    opacity: 1 !important;
+  }
+
+  /* Kill pointer-events */
+  [class*="pointer-events"] {
+    pointer-events: auto !important;
+  }
+
+  /* Kill cursor */
+  [class*="cursor-"] {
+    cursor: auto !important;
+  }
+
+  /* Kill select styling */
+  select {
+    appearance: auto !important;
+    background: white !important;
+    color: black !important;
+    border: 1px solid black !important;
+    border-radius: 0 !important;
+  }
+
+  /* Kill scroll styling */
+  ::-webkit-scrollbar { width: auto !important; }
+  ::-webkit-scrollbar-track { background: auto !important; }
+  ::-webkit-scrollbar-thumb { background: auto !important; border-radius: auto !important; }
+
+  /* Reset selection */
+  ::selection { background: blue; color: white; }
+}
