@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+/* ═══ ALL STYLING IS MOBILE-ONLY ═══
+   Desktop (980px+) gets raw unstyled HTML.
+   To add desktop styles later, add a
+   @media (min-width: 980px) { ... } block below.
+   ════════════════════════════════════ */
+
+@media (max-width: 979px) {
+
 @font-face {
   font-family: 'Geist';
   src: url('/fonts/geist-sans.woff2') format('woff2');
@@ -202,10 +210,7 @@ html.light-mode select {
 
 /* ═══ Responsive Visibility (plain CSS — no Tailwind utilities) ═══ */
 .hide-desktop { display: flex; }
-@media (min-width: 980px) { .hide-desktop { display: none; } }
-
 .show-desktop { display: none; }
-@media (min-width: 980px) { .show-desktop { display: flex; } }
 
 .show-from-sm { display: none; }
 @media (min-width: 640px) { .show-from-sm { display: flex; } }
@@ -214,261 +219,6 @@ html.light-mode select {
 @media (min-width: 640px) { .show-from-sm-block { display: block; } }
 
 /* ═══ Bottom Nav Safe Area — prevent DynamicIsland from overlaying content ═══ */
-@media (max-width: 979px) {
-  body > main { padding-bottom: 90px; }
-}
+body > main { padding-bottom: 90px; }
 
-/* ═══ Desktop: Force Light Mode ═══ */
-@media (min-width: 980px) {
-  html { background: #f8f8fa !important; }
-  body { background: #f8f8fa !important; color: #0f0f1a !important; }
-  /* Override dark backgrounds */
-  .bg-black, .bg-\[\#000\], .bg-\[var\(--color-bg\)\], .bg-zinc-950 {
-    background: #f8f8fa !important;
-  }
-  /* Override dark text */
-  .text-white { color: #0f0f1a !important; }
-  .text-zinc-300 { color: #3f3f46 !important; }
-  .text-zinc-400 { color: #52525b !important; }
-  .text-zinc-500 { color: #6b6b80 !important; }
-  .text-zinc-600 { color: #71717a !important; }
-  .text-zinc-700 { color: #a1a1aa !important; }
-  /* Override dark borders */
-  .border-white\/5, .border-white\/10, .border-white\/\[0\.06\] {
-    border-color: rgba(0,0,0,0.1) !important;
-  }
-  /* Override dark card backgrounds */
-  .bg-white\/5 { background: rgba(0,0,0,0.04) !important; }
-  .bg-white\/\[0\.02\], .bg-white\/\[0\.03\], .bg-white\/\[0\.04\] {
-    background: rgba(0,0,0,0.03) !important;
-  }
-  /* Force light footer */
-  footer { background: #fff !important; border-color: rgba(0,0,0,0.1) !important; }
-  footer p { color: #6b6b80 !important; }
-  /* Selection color */
-  ::selection { background: #0f0f1a; color: #fff; }
-  /* Scrollbar light */
-  ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); }
-  ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.25); }
-}
-
-/* ═══════════════════════════════════════════════════════
-   DESKTOP EDITORIAL DESIGN SYSTEM
-   Black & white, magazine-style, giant typography
-   Only applies at 980px+ (desktop)
-   ═══════════════════════════════════════════════════════ */
-
-@media (min-width: 980px) {
-  /* Editorial Typography Scale */
-  .ed-headline-xl {
-    font-size: 3.5rem;
-    line-height: 1.05;
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    color: #fff;
-  }
-  .ed-headline-lg {
-    font-size: 2.5rem;
-    line-height: 1.1;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    color: #fff;
-  }
-  .ed-headline-md {
-    font-size: 1.75rem;
-    line-height: 1.15;
-    font-weight: 700;
-    letter-spacing: -0.01em;
-    color: #fff;
-  }
-  .ed-headline-sm {
-    font-size: 1.25rem;
-    line-height: 1.25;
-    font-weight: 600;
-    color: #fff;
-  }
-  .ed-body {
-    font-size: 1.0625rem;
-    line-height: 1.65;
-    color: #a1a1aa;
-  }
-  .ed-body-lg {
-    font-size: 1.125rem;
-    line-height: 1.7;
-    color: #d4d4d8;
-  }
-  .ed-meta {
-    font-size: 0.8125rem;
-    line-height: 1.4;
-    color: #71717a;
-    letter-spacing: 0.01em;
-  }
-  .ed-meta-sm {
-    font-size: 0.75rem;
-    line-height: 1.4;
-    color: #52525b;
-    letter-spacing: 0.02em;
-  }
-  .ed-label {
-    font-size: 0.6875rem;
-    line-height: 1;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: #52525b;
-  }
-  .ed-section-title {
-    font-size: 0.6875rem;
-    line-height: 1;
-    font-weight: 700;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: #fff;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-    margin-bottom: 1.5rem;
-  }
-  .ed-number {
-    font-size: 4rem;
-    line-height: 1;
-    font-weight: 800;
-    color: rgba(255,255,255,0.06);
-    font-variant-numeric: tabular-nums;
-  }
-  .ed-number-sm {
-    font-size: 2rem;
-    line-height: 1;
-    font-weight: 700;
-    color: rgba(255,255,255,0.08);
-    font-variant-numeric: tabular-nums;
-  }
-
-  /* Editorial Card Styles */
-  .ed-card {
-    background: transparent;
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 0;
-    transition: border-color 0.2s ease;
-  }
-  .ed-card:hover {
-    border-color: rgba(255,255,255,0.15);
-  }
-  .ed-card-featured {
-    background: #fff;
-    color: #000;
-    border-radius: 0;
-    transition: opacity 0.2s ease;
-  }
-  .ed-card-featured:hover {
-    opacity: 0.92;
-  }
-  .ed-card-featured .ed-headline-xl,
-  .ed-card-featured .ed-headline-lg,
-  .ed-card-featured .ed-headline-md,
-  .ed-card-featured .ed-headline-sm {
-    color: #000;
-  }
-  .ed-card-featured .ed-body,
-  .ed-card-featured .ed-body-lg {
-    color: #333;
-  }
-  .ed-card-featured .ed-meta,
-  .ed-card-featured .ed-meta-sm {
-    color: #666;
-  }
-  .ed-card-featured .ed-label {
-    color: #999;
-  }
-
-  /* Editorial Dividers */
-  .ed-divider {
-    border-top: 1px solid rgba(255,255,255,0.08);
-  }
-  .ed-divider-strong {
-    border-top: 2px solid #fff;
-  }
-
-  /* Editorial Button */
-  .ed-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.875rem 2rem;
-    background: #fff;
-    color: #000;
-    font-size: 0.8125rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    border: none;
-    cursor: pointer;
-    transition: opacity 0.2s ease;
-  }
-  .ed-btn:hover {
-    opacity: 0.85;
-  }
-  .ed-btn-outline {
-    background: transparent;
-    color: #fff;
-    border: 1px solid rgba(255,255,255,0.2);
-  }
-  .ed-btn-outline:hover {
-    border-color: rgba(255,255,255,0.5);
-    opacity: 1;
-  }
-
-  /* Editorial Argument Bars (monochrome) */
-  .argument-bar-support {
-    background: #fff;
-  }
-  .argument-bar-contradict {
-    background: #52525b;
-  }
-
-  /* Editorial Numbering */
-  .ed-rank {
-    font-family: 'Geist Mono', monospace;
-    font-size: 0.6875rem;
-    font-weight: 700;
-    color: #52525b;
-    letter-spacing: 0.05em;
-  }
-
-  /* Editorial Sidebar */
-  .ed-sidebar {
-    background: #000;
-    border-right: 1px solid rgba(255,255,255,0.06);
-  }
-  .ed-sidebar-link {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.625rem 1.5rem;
-    font-size: 0.8125rem;
-    font-weight: 500;
-    color: #52525b;
-    text-decoration: none;
-    transition: color 0.15s ease;
-  }
-  .ed-sidebar-link:hover {
-    color: #fff;
-  }
-  .ed-sidebar-link-active {
-    color: #fff;
-    font-weight: 600;
-  }
-
-  /* Editorial Top Bar */
-  .ed-topbar {
-    background: #000;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
-  }
-
-  /* Editorial Grid Spacing */
-  .ed-grid {
-    gap: 2rem;
-  }
-  .ed-section-gap {
-    margin-bottom: 3.5rem;
-  }
-}
+} /* end mobile-only */
