@@ -225,8 +225,7 @@ body > main { padding-bottom: 90px; }
 
 
 /* ═══════════════════════════════════════════════════════
-   DESKTOP: Targeted Tailwind Kills + Clean CSS
-   Only kill Tailwind visual properties. Keep browser defaults.
+   DESKTOP: Giant Typography + Very Generous Spacing
    ═══════════════════════════════════════════════════════ */
 @media (min-width: 980px) {
 
@@ -243,13 +242,13 @@ body > main { padding-bottom: 90px; }
   }
 
   /* ── BASE ── */
-  html { font-size: 18px; line-height: 1.6; }
+  html { font-size: 20px !important; line-height: 1.6 !important; }
   body {
-    background: #fff;
-    color: #111;
-    font-family: Georgia, 'Times New Roman', Times, serif;
-    font-size: 19px;
-    line-height: 1.7;
+    background: #fff !important;
+    color: #111 !important;
+    font-family: Georgia, 'Times New Roman', Times, serif !important;
+    font-size: 22px !important;
+    line-height: 1.75 !important;
   }
 
   /* ── HIDE MOBILE ── */
@@ -264,158 +263,158 @@ body > main { padding-bottom: 90px; }
 
   /* ── LAYOUT ── */
   main {
-    display: block;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 48px;
+    display: block !important;
+    max-width: 1200px !important;
+    margin: 0 auto !important;
+    padding: 0 48px !important;
   }
   footer {
-    border-top: 2px solid #111;
-    padding: 40px 48px;
-    text-align: center;
-    max-width: 1200px;
-    margin: 0 auto;
+    border-top: 2px solid #111 !important;
+    padding: 40px 48px !important;
+    text-align: center !important;
+    max-width: 1200px !important;
+    margin: 0 auto !important;
   }
   footer p {
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-    color: #999;
+    font-size: 13px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.15em !important;
+    color: #999 !important;
   }
 
   /* ── DESKTOP NAV ── */
   nav ul {
-    display: flex;
-    align-items: center;
-    gap: 32px;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 16px;
-    margin-bottom: 40px;
+    display: flex !important;
+    align-items: center !important;
+    gap: 36px !important;
+    list-style: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-bottom: 1px solid #ddd !important;
+    padding-bottom: 16px !important;
+    margin-bottom: 48px !important;
   }
   nav ul li a {
-    font-family: Georgia, 'Times New Roman', Times, serif;
-    font-size: 15px;
-    color: #666;
-    text-decoration: none;
-    border-bottom: 2px solid transparent;
-    padding-bottom: 4px;
+    font-family: Georgia, 'Times New Roman', Times, serif !important;
+    font-size: 18px !important;
+    color: #666 !important;
+    text-decoration: none !important;
+    border-bottom: 2px solid transparent !important;
+    padding-bottom: 4px !important;
   }
-  nav ul li a:hover { color: #111; }
+  nav ul li a:hover { color: #111 !important; }
 
   /* ── TYPOGRAPHY — GIANT ── */
   h2 {
-    font-family: Georgia, 'Times New Roman', Times, serif;
-    font-size: 14px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.2em;
-    color: #111;
-    border-bottom: 3px solid #111;
-    padding-bottom: 12px;
-    margin-bottom: 32px;
+    font-family: Georgia, 'Times New Roman', Times, serif !important;
+    font-size: 20px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.2em !important;
+    color: #111 !important;
+    border-bottom: 3px solid #111 !important;
+    padding-bottom: 14px !important;
+    margin-bottom: 40px !important;
   }
   h3 {
-    font-family: Georgia, 'Times New Roman', Times, serif;
-    font-size: 36px;
-    font-weight: 700;
-    line-height: 1.15;
-    letter-spacing: -0.02em;
-    color: #111;
-    margin-bottom: 12px;
+    font-family: Georgia, 'Times New Roman', Times, serif !important;
+    font-size: 52px !important;
+    font-weight: 700 !important;
+    line-height: 1.08 !important;
+    letter-spacing: -0.03em !important;
+    color: #111 !important;
+    margin-bottom: 16px !important;
   }
   h4 {
-    font-family: Georgia, 'Times New Roman', Times, serif;
-    font-size: 22px;
-    font-weight: 400;
-    line-height: 1.3;
-    color: #111;
-    margin-bottom: 6px;
+    font-family: Georgia, 'Times New Roman', Times, serif !important;
+    font-size: 28px !important;
+    font-weight: 400 !important;
+    line-height: 1.3 !important;
+    color: #111 !important;
+    margin-bottom: 8px !important;
   }
-  p {
-    font-family: Georgia, 'Times New Roman', Times, serif;
-    font-size: 19px;
-    color: #333;
-    line-height: 1.7;
-    margin-bottom: 12px;
+  p, span, div, li, td, th, label {
+    font-family: Georgia, 'Times New Roman', Times, serif !important;
+    font-size: 22px !important;
+    color: #333 !important;
+    line-height: 1.75 !important;
   }
+  p { margin-bottom: 16px !important; }
 
   /* ── LINKS ── */
-  a { color: #111; text-decoration: none; }
-  a:hover { text-decoration: underline; }
+  a { color: #111 !important; text-decoration: none !important; }
+  a:hover { text-decoration: underline !important; }
 
   /* ── IMAGES ── */
   img {
-    max-width: 100%;
-    height: auto;
-    display: block;
-    filter: grayscale(100%);
+    max-width: 100% !important;
+    height: auto !important;
+    display: block !important;
+    filter: grayscale(100%) !important;
   }
 
   /* ── SECTIONS — VERY GENEROUS ── */
   section {
-    margin-bottom: 40px;
-    padding-bottom: 40px;
-    border-bottom: 1px solid #ddd;
+    margin-bottom: 56px !important;
+    padding-bottom: 56px !important;
+    border-bottom: 1px solid #ddd !important;
   }
-  section:last-child { border-bottom: none; }
+  section:last-child { border-bottom: none !important; }
 
   /* ── LIST ITEMS ── */
   section a, div a {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    padding: 16px 0;
-    border-top: 1px solid #eee;
-    text-decoration: none;
-    gap: 24px;
+    display: flex !important;
+    align-items: baseline !important;
+    justify-content: space-between !important;
+    padding: 24px 0 !important;
+    border-top: 1px solid #eee !important;
+    text-decoration: none !important;
+    gap: 24px !important;
   }
 
   /* ── BUTTONS ── */
   a[href="/new"] {
-    display: inline-block;
-    font-family: Georgia, 'Times New Roman', Times, serif;
-    font-size: 14px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    padding: 14px 32px;
-    border: 2px solid #111;
-    background: transparent;
-    color: #111;
-    text-decoration: none;
+    display: inline-block !important;
+    font-family: Georgia, 'Times New Roman', Times, serif !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.12em !important;
+    padding: 18px 40px !important;
+    border: 2px solid #111 !important;
+    background: transparent !important;
+    color: #111 !important;
+    text-decoration: none !important;
   }
   a[href="/new"]:hover {
-    background: #111;
-    color: #fff;
-    text-decoration: none;
+    background: #111 !important;
+    color: #fff !important;
+    text-decoration: none !important;
   }
 
   /* ── CAROUSEL ── */
   button[aria-label="Previous"],
-  button[aria-label="Next"] { display: none; }
-  div[class*="justify-center"] button { display: none; }
+  button[aria-label="Next"] { display: none !important; }
+  div[class*="justify-center"] button { display: none !important; }
 
-  /* ── EMPTY STATE ── */
+  /* ── EMPTY STATE — GIANT ── */
   div[class*="items-center"][class*="justify-center"][class*="min-h"] {
-    min-height: 50vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 60px;
+    min-height: 50vh !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    padding: 80px !important;
   }
   div[class*="items-center"][class*="justify-center"][class*="min-h"] h2 {
-    font-size: 48px;
-    margin-bottom: 16px;
+    font-size: 64px !important;
+    margin-bottom: 20px !important;
   }
   div[class*="items-center"][class*="justify-center"][class*="min-h"] p {
-    font-size: 20px;
-    color: #666;
-    max-width: 520px;
-    margin: 0 auto 32px;
+    font-size: 26px !important;
+    color: #666 !important;
+    max-width: 600px !important;
+    margin: 0 auto 40px !important;
   }
 }
