@@ -243,6 +243,14 @@ body > main { padding-bottom: 90px; }
   img { display: block; }
   input, textarea, select, button { font: inherit; }
   hr { display: block; border: none; border-top: 1px solid #ccc; margin: 1em 0; }
+  /* Restore CSS inheritance (all:unset kills it) */
+  div, span, p, h1, h2, h3, h4, h5, h6, li, a, td, th, label, section, nav, footer, header, main, article, aside {
+    color: inherit;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    text-align: inherit;
+  }
 
   /* ── BASE ── */
   html { font-size: 16px; line-height: 1.6; }
