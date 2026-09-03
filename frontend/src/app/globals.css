@@ -297,11 +297,13 @@ body > main { padding-bottom: 90px; }
   /* Theme toggle: kill completely */
   button[aria-label="Toggle theme"] { display: none !important; }
 
-  /* Slide menu: kill completely */
-  [class*="z-60"],
-  [class*="z-70"],
-  [class*="z-[60]"],
-  [class*="z-[70]"] { display: none !important; }
+  /* Slide menu: completely hidden on desktop */
+  .slide-menu-panel,
+  .slide-menu-backdrop {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
 
   /* ── Remove ALL icons on desktop ── */
   svg { display: none !important; }

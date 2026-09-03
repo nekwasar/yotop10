@@ -42,13 +42,13 @@ export function SlideMenuPanel() {
     <>
       {open && (
         <div
-          className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm"
+          className="slide-menu-backdrop fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm"
           onClick={() => setOpen(false)}
         />
       )}
 
       <div
-        className={`fixed top-0 right-0 z-[70] h-full w-80 bg-[var(--color-bg)] border-l border-white/5 shadow-2xl transform transition-transform duration-300 ease-out flex flex-col ${
+        className={`slide-menu-panel fixed top-0 right-0 z-[70] h-full w-80 bg-[var(--color-bg)] border-l border-white/5 shadow-2xl transform transition-transform duration-300 ease-out flex flex-col ${
           open ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
