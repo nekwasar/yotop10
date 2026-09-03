@@ -1,18 +1,7 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
-import { PostCarouselCard } from '@/components/PostCarouselCard';
-import { DesktopCarousel } from '@/components/DesktopCarousel';
-import { HomeCategoryFeed } from '@/components/HomeCategoryFeed';
-import { HomeDebates } from '@/components/HomeDebates';
-import { HomeArticles } from '@/components/HomeArticles';
-import { HomeFactDrop } from '@/components/HomeFactDrop';
 import { HomeSkeleton } from '@/components/HomeSkeleton';
-import { DesktopDebates } from '@/components/DesktopDebates';
-import { DesktopArticles } from '@/components/DesktopArticles';
-import { DesktopFacts } from '@/components/DesktopFacts';
-import { DesktopCta } from '@/components/DesktopCta';
-
-import { DesktopTrending } from '@/components/DesktopTrending';
+import HomeClient from '@/components/HomeClient';
 import CtaButton from '@/components/CtaButton';
 import { Icon } from '@/components/icons/Icon';
 import type { PostsResponse } from '@/lib/api/types';
@@ -82,7 +71,6 @@ export default async function Home() {
     fetchJson<PostsResponse>(`${API_BASE}/posts?post_type=fact_drop&limit=10`, { posts: [] }),
   ]);
 
-  // Deduplicate by title — never show the same content twice
   const uniqueByTitle = <T extends { title: string }>(items: T[]): T[] => {
     const seen = new Set<string>();
     return items.filter(item => {
@@ -121,114 +109,7 @@ export default async function Home() {
 
   return (
     <Suspense fallback={<HomeSkeleton />}>
-    <>
-      {/* Section 1: Latest Lists — mobile only */}
-      <div className="md:hidden pb-2">
-        <div className="px-3 sm:px-6 pt-6 pb-2">
-          <h2 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-            <Icon name="Flame" size={16} className="text-zinc-400" />
-            Latest Lists
-          </h2>
-        </div>
-        <div className="flex flex-row overflow-x-auto overflow-y-hidden gap-3 pl-4 py-2 -webkit-overflow-scrolling-touch snap-x snap-mandatory scroll-smooth">
-          {posts.map(post => (
-            <div key={post.id} className="flex-shrink-0 w-[calc(76vw-12px)] scroll-snap-align-start">
-              <PostCarouselCard post={post} />
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ─── Mobile sections (unchanged, hidden on md+) ─── */}
-      <div className="md:hidden">
-        {/* Section 2: Hot Debates */}
-        <HomeDebates debates={debates} />
-
-        {debates.length > 0 && <hr className="border-white/5 mx-3 sm:mx-6" />}
-
-        {/* Section 3: Categories — pills + 3-slide post feed */}
-        <HomeCategoryFeed categories={categories} />
-
-        <hr className="border-white/5 mx-3 sm:mx-6" />
-
-        {/* Section 4: Did You Know? (Fact Drop widget) */}
-        <HomeFactDrop facts={facts} />
-
-        {facts.length > 0 && <hr className="border-white/5 mx-3 sm:mx-6" />}
-
-        {/* Section 5: Recent Articles */}
-        <HomeArticles articles={articles} />
-
-        <hr className="border-white/5 mx-3 sm:mx-6" />
-
-        {/* Section 6: Bottom CTA */}
-        <section className="px-3 sm:px-6 py-8 text-center">
-          <p className="mb-4 text-sm text-zinc-500 leading-relaxed max-w-md mx-auto">
-            Have a ranking to share? Submit your list and join the debate.
-          </p>
-          <CtaButton href="/new">
-            <Icon name="Plus" size={16} />
-            Submit a List
-          </CtaButton>
-        </section>
-      </div>
-
-      {/* ─── Desktop sections (hidden below md) ─── */}
-      <div className="hidden md:block">
-        {/* Hero: first post as giant headline */}
-        {posts.length > 0 && (
-          <div className="mb-16">
-            <div className="mb-4">
-              <h2 className="text-[11px] font-bold text-white uppercase tracking-[0.15em]">Latest</h2>
-            </div>
-            <a href={`/${posts[0].slug}`} className="block group">
-              <h3 className="text-[11px] sm:text-[14px] md:text-[48px] font-bold text-white leading-tight mb-4 group-hover:opacity-80 transition-opacity">
-                {posts[0].title}
-              </h3>
-              {posts[0].intro && (
-                <p className="text-[14px] sm:text-[16px] md:text-[22px] text-zinc-400 mb-6 max-w-3xl leading-relaxed">
-                  {posts[0].intro}
-                </p>
-              )}
-              <div className="flex items-center gap-4 text-[11px] sm:text-[13px] md:text-[16px] text-zinc-500">
-                <span>{posts[0].author_display_name || posts[0].author_username}</span>
-                <span>&middot;</span>
-                <span>{posts[0].category_name || posts[0].category_slug}</span>
-              </div>
-            </a>
-          </div>
-        )}
-
-        {/* Debates: full width */}
-        {debates.length > 0 && (
-          <div className="mb-16">
-            <DesktopDebates debates={debates} />
-          </div>
-        )}
-
-        {/* Trending: full width */}
-        <div className="mb-16">
-          <DesktopTrending />
-        </div>
-
-        {/* Articles: full width */}
-        {articles.length > 0 && (
-          <div className="mb-16">
-            <DesktopArticles articles={articles} />
-          </div>
-        )}
-
-        {/* Facts: full width */}
-        {facts.length > 0 && (
-          <div className="mb-16">
-            <DesktopFacts facts={facts} />
-          </div>
-        )}
-
-        {/* CTA: full width */}
-        <DesktopCta />
-      </div>
-    </>
+      <HomeClient posts={posts} categories={categories} debates={debates} articles={articles} facts={facts} />
     </Suspense>
   );
 }
