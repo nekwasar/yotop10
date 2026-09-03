@@ -477,13 +477,22 @@ body > main { padding-bottom: 90px; }
     display: block !important;
     max-width: 1100px !important;
     margin: 0 auto !important;
-    padding: 60px 40px !important;
+    padding: 24px 40px 40px !important;
+  }
+
+  /* Desktop nav wrapper: div.hidden.lg:block with px-8 pt-6 pb-4 */
+  .hidden.lg\:block {
+    display: block !important;
+    max-width: 1100px !important;
+    margin: 0 auto !important;
+    padding: 16px 40px 12px !important;
+    border-bottom: 1px solid #ddd !important;
   }
 
   /* ── SECTION SPACING ── */
   section {
-    margin-bottom: 56px !important;
-    padding-bottom: 56px !important;
+    margin-bottom: 32px !important;
+    padding-bottom: 32px !important;
     border-bottom: 1px solid #ddd !important;
   }
   section:last-child {
