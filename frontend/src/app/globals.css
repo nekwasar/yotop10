@@ -223,691 +223,193 @@ body > main { padding-bottom: 90px; }
 
 } /* end mobile-only */
 
+
 /* ═══════════════════════════════════════════════════════
-   DESKTOP: Newspaper Broadsheet Design
-   White background, serif typography, generous spacing,
-   thin rules, no decoration. Completely different from mobile.
+   DESKTOP: Nuclear Reset + Clean Rebuild
+   All Tailwind killed. Plain CSS from scratch.
    ═══════════════════════════════════════════════════════ */
 @media (min-width: 980px) {
 
-  /* ── Reset all Tailwind utilities ── */
+  /* ── NUCLEAR RESET ── */
+  *, *::before, *::after {
+    all: unset !important;
+    box-sizing: border-box !important;
+  }
+
+  /* ── BASE ── */
+  html { font-size: 16px; line-height: 1.6; }
+  body {
+    background: #fff;
+    color: #111;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-size: 17px;
+    line-height: 1.65;
+  }
+
+  /* ── HIDE MOBILE ── */
   .hide-desktop { display: none !important; }
   .show-desktop { display: flex !important; }
-
-  /* Hide ALL mobile chrome */
   header { display: none !important; }
-  .fixed { position: static !important; }
-  [class*="slide"] { display: none !important; }
-  [class*="SlideMenu"] { display: none !important; }
   nav[class*="fixed"] { display: none !important; }
-
-  /* Kill ALL backgrounds on everything — NO exceptions */
-  * {
-    background: transparent !important;
-    background-color: transparent !important;
-    background-image: none !important;
-  }
-  body { background: #fff !important; }
-  main { background: transparent !important; }
-  section { background: transparent !important; }
-  a { background: transparent !important; }
-  div { background: transparent !important; }
-  span { background: transparent !important; }
-  button { background: transparent !important; }
-  footer { background: #fff !important; }
-  img { background: transparent !important; }
-
-  /* Kill all gradients */
-  [class*="gradient"] { background-image: none !important; }
-  [class*="from-"] { background-image: none !important; }
-  [class*="to-"] { background-image: none !important; }
-
-  /* Kill all backdrop-blur */
-  [class*="backdrop"] { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
-
-  /* Icons: remove backgrounds, make them simple black outlines */
-  svg {
-    background: none !important;
-    background-color: transparent !important;
-    background-image: none !important;
-    fill: none !important;
-    stroke: #111 !important;
-    stroke-width: 1.5 !important;
-    color: #111 !important;
-  }
-  /* Icon containers: no backgrounds, no rounded, no borders */
-  span[class*="flex"][class*="items-center"][class*="justify-center"][class*="rounded"] {
-    background: transparent !important;
-    border: none !important;
-    border-radius: 0 !important;
-    width: auto !important;
-    height: auto !important;
-    padding: 0 !important;
-    display: inline !important;
-  }
-  div[class*="flex"][class*="items-center"][class*="justify-center"][class*="rounded"] {
-    background: transparent !important;
-    border: none !important;
-    border-radius: 0 !important;
-    width: auto !important;
-    height: auto !important;
-    padding: 0 !important;
-  }
-
-  /* Theme toggle: kill completely */
+  .slide-menu-panel, .slide-menu-backdrop { display: none !important; }
   button[aria-label="Toggle theme"] { display: none !important; }
-
-  /* Slide menu: completely hidden on desktop */
-  .slide-menu-panel,
-  .slide-menu-backdrop {
-    display: none !important;
-    visibility: hidden !important;
-    pointer-events: none !important;
-  }
-
-  /* ── Remove ALL icons on desktop ── */
+  a[aria-label="Create new post"] { display: none !important; }
   svg { display: none !important; }
 
-  /* ── Kill ALL shadows ── */
-  * { box-shadow: none !important; }
-
-  /* ── Kill ALL backgrounds on buttons/links ── */
-  a[class*="bg-gradient"],
-  a[class*="bg-black"],
-  a[class*="bg-[#"],
-  a[class*="bg-white"],
-  button[class*="bg-gradient"],
-  button[class*="bg-black"],
-  div[class*="bg-gradient"],
-  div[class*="bg-gradient-to"] {
-    background: transparent !important;
-    background-image: none !important;
-    background-color: transparent !important;
-    color: #111 !important;
-  }
-
-  /* Submit a List — clean text with border */
-  a[href="/new"] {
-    display: inline-block !important;
-    font-family: Georgia, 'Times New Roman', Times, serif !important;
-    font-size: 13px !important;
-    font-weight: 700 !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.12em !important;
-    padding: 10px 24px !important;
-    border: 1.5px solid #111 !important;
-    background: transparent !important;
-    background-image: none !important;
-    color: #111 !important;
-    text-decoration: none !important;
-  }
-  a[href="/new"]:hover {
-    background: #111 !important;
-    color: #fff !important;
-  }
-
-  /* Hide SubmitFAB */
-  a[aria-label="Create new post"] { display: none !important; }
-
-  body {
-    background: #fff !important;
-    color: #111 !important;
-    min-height: auto !important;
-    display: block !important;
-    font-family: Georgia, 'Times New Roman', Times, serif !important;
-    font-size: 17px !important;
-    line-height: 1.65 !important;
-    -webkit-font-smoothing: auto !important;
-    -moz-osx-font-smoothing: auto !important;
-  }
-
+  /* ── LAYOUT ── */
   main {
-    display: block !important;
-    padding: 0 !important;
-    margin: 0 !important;
+    display: block;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 40px;
   }
-
-  /* Kill ALL Tailwind visual utilities */
-  [class*="bg-zinc"],
-  [class*="bg-[var"],
-  [class*="bg-[#"],
-  [class*="bg-black"],
-  [class*="bg-white/"],
-  [class*="bg-gradient"],
-  [class*="from-orange"],
-  [class*="from-pink"],
-  [class*="to-red"],
-  [class*="to-pink"],
-  [class*="to-orange"] {
-    background: transparent !important;
-  }
-
-  [class*="text-white"],
-  [class*="text-zinc-"],
-  [class*="text-orange"],
-  [class*="text-red"],
-  [class*="text-[#"],
-  [class*="text-black"] {
-    color: #111 !important;
-  }
-
-  [class*="border-white"],
-  [class*="border-zinc-"],
-  [class*="border-orange"] {
-    border-color: #ccc !important;
-  }
-
-  [class*="flex"] { display: block !important; }
-  [class*="grid"] {
-    display: block !important;
-    grid-template-columns: none !important;
-    gap: 0 !important;
-  }
-  [class*="shadow"] { box-shadow: none !important; }
-  [class*="rounded"] { border-radius: 0 !important; }
-  [class*="backdrop-blur"],
-  [class*="backdrop-filter"] { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
-  [class*="transition"] { transition: none !important; }
-  [class*="space-y"] { gap: 0 !important; }
-  [class*="gap-"] { gap: 0 !important; }
-  [class*="px-"],
-  [class*="py-"],
-  [class*="pt-"],
-  [class*="pb-"],
-  [class*="pl-"],
-  [class*="pr-"],
-  [class*="p-["] { padding: 0 !important; }
-  [class*="mx-"],
-  [class*="my-"],
-  [class*="mt-"],
-  [class*="mb-"],
-  [class*="ml-"],
-  [class*="mr-"],
-  [class*="m-["] { margin: 0 !important; }
-  [class*="max-w-"] { max-width: none !important; }
-  [class*="w-full"] { width: 100% !important; }
-  [class*="w-["] { width: auto !important; }
-  [class*="h-"] { height: auto !important; }
-  [class*="min-h-"] { min-height: auto !important; }
-  [class*="font-bold"],
-  [class*="font-semibold"],
-  [class*="font-medium"] { font-weight: normal !important; }
-  [class*="uppercase"] { text-transform: none !important; }
-  [class*="tracking-"] { letter-spacing: normal !important; }
-  [class*="text-center"] { text-align: center !important; }
-  [class*="text-right"] { text-align: right !important; }
-  [class*="truncate"],
-  [class*="line-clamp-"] { overflow: visible !important; text-overflow: clip !important; white-space: normal !important; }
-  [class*="opacity-"] { opacity: 1 !important; }
-  [class*="fixed"],
-  [class*="absolute"] { position: static !important; }
-  [class*="z-"] { z-index: auto !important; }
-  [class*="overflow-hidden"] { overflow: visible !important; }
-  [class*="cursor-"] { cursor: auto !important; }
-  [class*="pointer-events"] { pointer-events: auto !important; }
-
-  select {
-    appearance: auto !important;
-    background: white !important;
-    color: black !important;
-    border: 1px solid #999 !important;
-    border-radius: 0 !important;
-    padding: 4px 8px !important;
-    font-family: inherit !important;
-  }
-
-  ::selection { background: #111; color: #fff; }
-  ::-webkit-scrollbar { width: 6px !important; }
-  ::-webkit-scrollbar-track { background: #f5f5f5 !important; }
-  ::-webkit-scrollbar-thumb { background: #ccc !important; border-radius: 0 !important; }
-
-  /* ── BASE TYPOGRAPHY ── */
-  a {
-    color: #111 !important;
-    text-decoration: none !important;
-  }
-  a:hover {
-    text-decoration: underline !important;
-  }
-  img {
-    max-width: 100% !important;
-    height: auto !important;
-    display: block !important;
-  }
-
-  /* ── PAGE CONTAINER ── */
-  .hidden.md\:block {
-    display: block !important;
-    max-width: 1100px !important;
-    margin: 0 auto !important;
-    padding: 0 40px !important;
-  }
-
-  .hidden.lg\:block {
-    display: block !important;
-    max-width: 1100px !important;
-    margin: 0 auto !important;
-    padding: 0 40px 4px !important;
-    border-bottom: 1px solid #ddd !important;
-  }
-
-  /* Kill col-span utilities */
-  [class*="col-span"] {
-    grid-column: auto !important;
-  }
-
-  /* ── SECTION SPACING ── */
-  section {
-    margin-bottom: 12px !important;
-    padding-bottom: 12px !important;
-    border-bottom: 1px solid #eee !important;
-  }
-  section > div:first-child {
-    margin-bottom: 6px !important;
-    padding-bottom: 4px !important;
-  }
-  section:last-child {
-    border-bottom: none !important;
-  }
-
-  /* ── SECTION HEADERS ── */
-  /* The flex items-baseline justify-between mb-6 headers */
-  section > div:first-child {
-    display: block !important;
-    margin-bottom: 24px !important;
-    padding-bottom: 12px !important;
-    border-bottom: 2px solid #111 !important;
-  }
-
-  section h2 {
-    font-family: Georgia, 'Times New Roman', Times, serif !important;
-    font-size: 12px !important;
-    font-weight: 700 !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.2em !important;
-    color: #111 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-
-  /* "View all" links in section headers */
-  section > div:first-child a {
-    font-size: 12px !important;
-    color: #666 !important;
-    text-decoration: none !important;
-  }
-  section > div:first-child a:hover {
-    color: #111 !important;
-  }
-
-  /* Divider lines inside headers */
-  section > div:first-child > div {
-    display: none !important;
-  }
-
-  /* ── CAROUSEL / HERO ── */
-  /* The carousel wrapper: div.mb-16 > div (header) + div.relative (carousel) */
-  .relative {
-    position: relative !important;
-  }
-
-  /* Carousel scroll container */
-  .snap-x {
-    display: flex !important;
-    gap: 0 !important;
-    overflow-x: auto !important;
-    scroll-snap-type: x mandatory !important;
-    -webkit-overflow-scrolling: touch !important;
-    scrollbar-width: none !important;
-  }
-  .snap-x::-webkit-scrollbar { display: none !important; }
-  .snap-start {
-    flex-shrink: 0 !important;
-    scroll-snap-align: start !important;
-    width: 100% !important;
-  }
-
-  /* Carousel nav arrows — kill them */
-  .absolute { display: none !important; }
-
-  /* Carousel dots */
-  .justify-center.gap-2 {
-    display: flex !important;
-    justify-content: center !important;
-    gap: 8px !important;
-    margin-top: 20px !important;
-  }
-
-  /* ── HEADLINES ── */
-  h3, h4 {
-    font-family: Georgia, 'Times New Roman', Times, serif !important;
-    color: #111 !important;
-    line-height: 1.2 !important;
-  }
-
-  /* Featured debate/article headline: text-[28px] */
-  h3[class*="text-["] {
-    font-size: 36px !important;
-    font-weight: 700 !important;
-    letter-spacing: -0.02em !important;
-    margin-bottom: 12px !important;
-  }
-
-  /* List item headlines: text-[17px], text-[15px], text-[20px] */
-  h4[class*="text-["],
-  h3[class*="text-[20px]"] {
-    font-size: 20px !important;
-    font-weight: 400 !important;
-    letter-spacing: -0.01em !important;
-    margin-bottom: 4px !important;
-  }
-
-  /* ── BODY TEXT ── */
-  p {
-    font-family: Georgia, 'Times New Roman', Times, serif !important;
-    color: #333 !important;
-    line-height: 1.65 !important;
-    margin-bottom: 8px !important;
-  }
-
-  /* ── GRID LAYOUTS ── */
-  /* 12-column grid wrapper */
-  [class*="grid-cols-12"] {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
-    gap: 48px !important;
-  }
-
-  /* 8-col panel */
-  [class*="col-span-8"] {
-    grid-column: 1 / 2 !important;
-  }
-
-  /* 7-col panel */
-  [class*="col-span-7"] {
-    grid-column: 1 / 2 !important;
-  }
-
-  /* 4-col panel */
-  [class*="col-span-4"] {
-    grid-column: 2 / 3 !important;
-  }
-
-  /* 5-col panel */
-  [class*="col-span-5"] {
-    grid-column: 2 / 3 !important;
-  }
-
-  /* Full-width panels (hall of fame, CTA) */
-  [class*="col-span-12"] {
-    grid-column: 1 / -1 !important;
-  }
-
-  /* ── LIST ITEMS ── */
-  /* The flex items-baseline justify-between py-4 border-t pattern */
-  a[class*="flex"][class*="items-baseline"] {
-    display: flex !important;
-    align-items: baseline !important;
-    justify-content: space-between !important;
-    padding: 12px 0 !important;
-    border-top: 1px solid #ddd !important;
-    text-decoration: none !important;
-    gap: 16px !important;
-  }
-  a[class*="flex"][class*="items-baseline"]:last-child {
-    border-bottom: 1px solid #ddd !important;
-  }
-
-  /* ── VOTE BARS ── */
-  /* The border p-4 vote containers */
-  [class*="border"][class*="p-4"],
-  [class*="border"][class*="p-5"] {
-    border: 1px solid #ddd !important;
-    padding: 16px !important;
-    margin-bottom: 8px !important;
-  }
-
-  /* Vote bar progress */
-  [class*="h-1"],
-  [class*="h-[3px]"] {
-    height: 3px !important;
-    background: #eee !important;
-    margin-bottom: 8px !important;
-  }
-  [class*="bg-white"],
-  [class*="transition-all"] {
-    background: #111 !important;
-    height: 3px !important;
-  }
-
-  /* Vote buttons */
-  button[class*="text-["] {
-    font-family: Georgia, 'Times New Roman', Times, serif !important;
-    font-size: 12px !important;
-    padding: 4px 12px !important;
-    border: 1px solid #111 !important;
-    background: white !important;
-    color: #111 !important;
-    cursor: pointer !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.08em !important;
-  }
-  button[class*="bg-white/10"],
-  button[class*="bg-white text-black"] {
-    background: #111 !important;
-    color: #fff !important;
-  }
-
-  /* ── IMAGES ── */
-  /* Featured images: grayscale, full width */
-  img[class*="object-cover"] {
-    width: 100% !important;
-    height: 320px !important;
-    object-fit: cover !important;
-    filter: grayscale(100%) !important;
-    margin-bottom: 16px !important;
-  }
-
-  /* ── STATS ── */
-  /* Giant stat numbers: text-[32px] */
-  p[class*="text-[32px]"] {
-    font-family: Georgia, 'Times New Roman', Times, serif !important;
-    font-size: 56px !important;
-    font-weight: 700 !important;
-    color: #111 !important;
-    line-height: 1 !important;
-    margin-bottom: 4px !important;
-  }
-
-  /* Stat labels: text-[11px] uppercase */
-  p[class*="text-[11px]"] {
-    font-size: 11px !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.15em !important;
-    color: #999 !important;
-    font-family: Georgia, 'Times New Roman', Times, serif !important;
-  }
-
-  /* ── TRENDING NUMBERS ── */
-  /* text-[32px] in trending */
-  span[class*="text-[32px]"] {
-    font-family: Georgia, 'Times New Roman', Times, serif !important;
-    font-size: 48px !important;
-    font-weight: 700 !important;
-    color: #ccc !important;
-    line-height: 1 !important;
-    width: 60px !important;
-    text-align: right !important;
-  }
-
-  /* Trending term text */
-  span[class*="text-[17px]"] {
-    font-family: Georgia, 'Times New Roman', Times, serif !important;
-    font-size: 20px !important;
-    color: #333 !important;
-  }
-
-  /* ── CATEGORIES NUMBERING ── */
-  span[class*="text-[11px]"][class*="font-mono"] {
-    font-family: Georgia, 'Times New Roman', Times, serif !important;
-    font-size: 14px !important;
-    color: #999 !important;
-  }
-  span[class*="text-[15px]"] {
-    font-family: Georgia, 'Times New Roman', Times, serif !important;
-    font-size: 18px !important;
-    color: #333 !important;
-  }
-  span[class*="text-[13px]"] {
-    font-family: Georgia, 'Times New Roman', Times, serif !important;
-    font-size: 14px !important;
-    color: #999 !important;
-  }
-
-  /* ── FACTS QUOTE ── */
-  /* The quote mark: text-[64px] */
-  span[class*="text-[64px]"] {
-    font-family: Georgia, 'Times New Roman', Times, serif !important;
-    font-size: 96px !important;
-    color: #ddd !important;
-    line-height: 0.8 !important;
-    display: block !important;
-    margin-bottom: 8px !important;
-  }
-
-  /* Quote text: text-[20px] */
-  p[class*="text-[20px]"] {
-    font-family: Georgia, 'Times New Roman', Times, serif !important;
-    font-size: 24px !important;
-    font-style: italic !important;
-    color: #333 !important;
-    line-height: 1.5 !important;
-    margin-bottom: 24px !important;
-  }
-
-  /* ── HALL OF FAME WHITE CARDS ── */
-  /* bg-white p-6 featured cards */
-  a[class*="bg-white"] {
-    background: #f9f9f9 !important;
-    border: 1px solid #ddd !important;
-    padding: 24px !important;
-    margin-bottom: 16px !important;
-    display: block !important;
-    text-decoration: none !important;
-  }
-  a[class*="bg-white"]:hover {
-    background: #f0f0f0 !important;
-  }
-  a[class*="bg-white"] h3 {
-    font-size: 22px !important;
-    font-weight: 700 !important;
-    margin-bottom: 8px !important;
-  }
-
-  /* ── CTA SECTION ── */
-  /* border py-16 px-8 text-center */
-  section:last-child > div {
-    text-align: center !important;
-    padding: 64px 40px !important;
-    border: 1px solid #ddd !important;
-  }
-
-  /* CTA headline */
-  section:last-child h3 {
-    font-family: Georgia, 'Times New Roman', Times, serif !important;
-    font-size: 36px !important;
-    font-weight: 700 !important;
-    margin-bottom: 12px !important;
-  }
-
-  /* CTA button */
-  a[class*="inline-flex"][class*="px-8"] {
-    display: inline-block !important;
-    font-family: Georgia, 'Times New Roman', Times, serif !important;
-    font-size: 13px !important;
-    font-weight: 700 !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.12em !important;
-    padding: 12px 32px !important;
-    border: 2px solid #111 !important;
-    background: #111 !important;
-    color: #fff !important;
-    text-decoration: none !important;
-    margin-top: 8px !important;
-  }
-  a[class*="inline-flex"][class*="px-8"]:hover {
-    background: #333 !important;
-    border-color: #333 !important;
-  }
-
-  /* ── FOOTER ── */
   footer {
-    border-top: 2px solid #111 !important;
-    padding: 32px 40px !important;
-    text-align: center !important;
-    background: #fff !important;
-    max-width: 1100px !important;
-    margin: 0 auto !important;
+    border-top: 2px solid #111;
+    padding: 24px 40px;
+    text-align: center;
+    max-width: 1100px;
+    margin: 0 auto;
   }
   footer p {
-    font-size: 12px !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.15em !important;
-    color: #999 !important;
-    font-family: Georgia, 'Times New Roman', Times, serif !important;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: #999;
   }
+
+  /* ── DESKTOP NAV ── */
+  nav ul {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 12px;
+    margin-bottom: 24px;
+  }
+  nav ul li a {
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-size: 14px;
+    color: #666;
+    text-decoration: none;
+    border-bottom: 1.5px solid transparent;
+    padding-bottom: 2px;
+  }
+  nav ul li a:hover { color: #111; }
+
+  /* ── TYPOGRAPHY ── */
+  h2 {
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: #111;
+    border-bottom: 2px solid #111;
+    padding-bottom: 8px;
+    margin-bottom: 16px;
+  }
+  h3 {
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    color: #111;
+    margin-bottom: 8px;
+  }
+  h4 {
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 1.3;
+    color: #111;
+    margin-bottom: 4px;
+  }
+  p {
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-size: 17px;
+    color: #333;
+    line-height: 1.65;
+    margin-bottom: 8px;
+  }
+
+  /* ── LINKS ── */
+  a { color: #111; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* ── IMAGES ── */
+  img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    filter: grayscale(100%);
+  }
+
+  /* ── SECTIONS ── */
+  section {
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #ddd;
+  }
+  section:last-child { border-bottom: none; }
+
+  /* ── LIST ITEMS ── */
+  section a, div a {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-top: 1px solid #eee;
+    text-decoration: none;
+    gap: 16px;
+  }
+
+  /* ── BUTTONS ── */
+  a[href="/new"] {
+    display: inline-block;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    padding: 10px 24px;
+    border: 1.5px solid #111;
+    background: transparent;
+    color: #111;
+    text-decoration: none;
+  }
+  a[href="/new"]:hover {
+    background: #111;
+    color: #fff;
+    text-decoration: none;
+  }
+
+  /* ── CAROUSEL ── */
+  button[aria-label="Previous"],
+  button[aria-label="Next"] { display: none; }
+  div[class*="justify-center"] button { display: none; }
 
   /* ── EMPTY STATE ── */
-  /* Welcome card when no content */
-  div[class*="min-h-"][class*="items-center"] {
-    min-height: 60vh !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    text-align: center !important;
-    padding: 60px !important;
+  div[class*="items-center"][class*="justify-center"][class*="min-h"] {
+    min-height: 50vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px;
   }
-  div[class*="min-h-"][class*="items-center"] h2 {
-    font-family: Georgia, 'Times New Roman', Times, serif !important;
-    font-size: 48px !important;
-    font-weight: 700 !important;
-    margin-bottom: 12px !important;
+  div[class*="items-center"][class*="justify-center"][class*="min-h"] h2 {
+    font-size: 40px;
+    margin-bottom: 12px;
   }
-  div[class*="min-h-"][class*="items-center"] p {
-    font-size: 18px !important;
-    color: #666 !important;
-    max-width: 480px !important;
-    margin: 0 auto 32px !important;
+  div[class*="items-center"][class*="justify-center"][class*="min-h"] p {
+    font-size: 18px;
+    color: #666;
+    max-width: 480px;
+    margin: 0 auto 24px;
   }
-
-  /* CTA button in empty state */
-  a[class*="inline-flex"][class*="gap-2"] {
-    display: inline-block !important;
-    font-family: Georgia, 'Times New Roman', Times, serif !important;
-    font-size: 13px !important;
-    font-weight: 700 !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.12em !important;
-    padding: 12px 32px !important;
-    border: 2px solid #111 !important;
-    background: #111 !important;
-    color: #fff !important;
-    text-decoration: none !important;
-  }
-  a[class*="inline-flex"][class*="gap-2"]:hover {
-    background: #333 !important;
-  }
-
-  /* ── SVG ICONS — make them subtle ── */
-  svg {
-    color: #999 !important;
-    fill: none !important;
-    stroke: currentColor !important;
-  }
-
-  /* ── SCROLLBAR ── */
-  body::-webkit-scrollbar { width: 6px !important; }
-  body::-webkit-scrollbar-track { background: #f5f5f5 !important; }
-  body::-webkit-scrollbar-thumb { background: #ccc !important; }
-
 }
