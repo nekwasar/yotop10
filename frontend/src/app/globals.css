@@ -236,6 +236,14 @@ body > main { padding-bottom: 90px; }
     box-sizing: border-box !important;
   }
 
+  /* ── RESTORE ESSENTIAL BROWSER DEFAULTS ── */
+  ul, ol { list-style: disc outside; }
+  a { cursor: pointer; }
+  button { cursor: pointer; }
+  img { display: block; }
+  input, textarea, select, button { font: inherit; }
+  hr { display: block; border: none; border-top: 1px solid #ccc; margin: 1em 0; }
+
   /* ── BASE ── */
   html { font-size: 16px; line-height: 1.6; }
   body {
