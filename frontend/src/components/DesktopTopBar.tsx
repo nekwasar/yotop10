@@ -26,7 +26,7 @@ export default function DesktopTopBar() {
         <div className="flex items-center gap-2">
           <Link href="/" className="flex items-baseline gap-0 shrink-0">
             <span className="font-accent gradient-text text-lg sm:text-xl tracking-normal">YO</span>
-            <span className="font-display text-lg sm:text-xl tracking-tight text-white">Top20</span>
+            <span className="font-display text-lg sm:text-xl tracking-tight text-white">Top10</span>
           </Link>
         </div>
 

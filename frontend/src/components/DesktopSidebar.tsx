@@ -30,7 +30,7 @@ export function DesktopSidebar() {
       <Link href="/" className="block px-7 pt-8 pb-6 shrink-0">
         <div className="flex items-baseline gap-0">
           <span className="font-accent gradient-text text-3xl lg:text-4xl tracking-normal">YO</span>
-          <span className="font-display text-3xl lg:text-4xl tracking-tight text-white">Top20</span>
+          <span className="font-display text-3xl lg:text-4xl tracking-tight text-white">Top10</span>
         </div>
       </Link>
 

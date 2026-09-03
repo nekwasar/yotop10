@@ -218,6 +218,40 @@ html.light-mode select {
   body > main { padding-bottom: 90px; }
 }
 
+/* ═══ Desktop: Force Light Mode ═══ */
+@media (min-width: 980px) {
+  html { background: #f8f8fa !important; }
+  body { background: #f8f8fa !important; color: #0f0f1a !important; }
+  /* Override dark backgrounds */
+  .bg-black, .bg-\[\#000\], .bg-\[var\(--color-bg\)\], .bg-zinc-950 {
+    background: #f8f8fa !important;
+  }
+  /* Override dark text */
+  .text-white { color: #0f0f1a !important; }
+  .text-zinc-300 { color: #3f3f46 !important; }
+  .text-zinc-400 { color: #52525b !important; }
+  .text-zinc-500 { color: #6b6b80 !important; }
+  .text-zinc-600 { color: #71717a !important; }
+  .text-zinc-700 { color: #a1a1aa !important; }
+  /* Override dark borders */
+  .border-white\/5, .border-white\/10, .border-white\/\[0\.06\] {
+    border-color: rgba(0,0,0,0.1) !important;
+  }
+  /* Override dark card backgrounds */
+  .bg-white\/5 { background: rgba(0,0,0,0.04) !important; }
+  .bg-white\/\[0\.02\], .bg-white\/\[0\.03\], .bg-white\/\[0\.04\] {
+    background: rgba(0,0,0,0.03) !important;
+  }
+  /* Force light footer */
+  footer { background: #fff !important; border-color: rgba(0,0,0,0.1) !important; }
+  footer p { color: #6b6b80 !important; }
+  /* Selection color */
+  ::selection { background: #0f0f1a; color: #fff; }
+  /* Scrollbar light */
+  ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.25); }
+}
+
 /* ═══════════════════════════════════════════════════════
    DESKTOP EDITORIAL DESIGN SYSTEM
    Black & white, magazine-style, giant typography

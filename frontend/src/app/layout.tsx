@@ -17,7 +17,7 @@ const monoton = Monoton({ weight: '400', subsets: ['latin'], display: 'swap', va
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://yotop10.com'),
-  title: "YoTop20 — Fact Mine. Debate Ground.",
+  title: "YoTop10 — Fact Mine. Debate Ground.",
   description: "The open catalog of ranked lists. Submit your list. Defend your rankings.",
   manifest: "/manifest.json",
   icons: {
@@ -33,19 +33,19 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "YoTop20",
+    title: "YoTop10",
   },
   openGraph: {
-    title: "YoTop20 — Fact Mine. Debate Ground.",
+    title: "YoTop10 — Fact Mine. Debate Ground.",
     description: "The open catalog of ranked lists. Submit your list. Defend your rankings.",
     url: "https://yotop10.com",
-    siteName: "YoTop20",
+    siteName: "YoTop10",
     images: [
       {
         url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "YoTop20 — Fact Mine. Debate Ground.",
+        alt: "YoTop10 — Fact Mine. Debate Ground.",
       },
     ],
     locale: "en_US",
@@ -53,7 +53,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "YoTop20 — Fact Mine. Debate Ground.",
+    title: "YoTop10 — Fact Mine. Debate Ground.",
     description: "The open catalog of ranked lists. Submit your list. Defend your rankings.",
     images: ["/og-image.jpg"],
   },
@@ -95,7 +95,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             {
               '@type': 'Organization',
               '@id': `${process.env.NEXT_PUBLIC_SITE_URL || 'https://yotop10.com'}/#organization`,
-              name: 'YoTop20',
+              name: 'YoTop10',
               url: process.env.NEXT_PUBLIC_SITE_URL || 'https://yotop10.com',
               logo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://yotop10.com'}/icon-512.png`,
               sameAs: ['https://twitter.com/yotop10', 'https://reddit.com/r/yotop10'],
@@ -105,7 +105,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               '@type': 'WebSite',
               '@id': `${process.env.NEXT_PUBLIC_SITE_URL || 'https://yotop10.com'}/#website`,
               url: process.env.NEXT_PUBLIC_SITE_URL || 'https://yotop10.com',
-              name: 'YoTop20',
+              name: 'YoTop10',
               description: 'The open catalog of ranked lists. Submit your list. Defend your rankings.',
               publisher: { '@id': `${process.env.NEXT_PUBLIC_SITE_URL || 'https://yotop10.com'}/#organization` },
               potentialAction: {
