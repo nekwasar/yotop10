@@ -303,6 +303,50 @@ body > main { padding-bottom: 90px; }
   [class*="z-[60]"],
   [class*="z-[70]"] { display: none !important; }
 
+  /* ── Remove ALL icons on desktop ── */
+  svg { display: none !important; }
+
+  /* ── Kill ALL shadows ── */
+  * { box-shadow: none !important; }
+
+  /* ── Kill ALL backgrounds on buttons/links ── */
+  a[class*="bg-gradient"],
+  a[class*="bg-black"],
+  a[class*="bg-[#"],
+  a[class*="bg-white"],
+  button[class*="bg-gradient"],
+  button[class*="bg-black"],
+  div[class*="bg-gradient"],
+  div[class*="bg-gradient-to"] {
+    background: transparent !important;
+    background-image: none !important;
+    background-color: transparent !important;
+    color: #111 !important;
+  }
+
+  /* Submit a List — clean text with border */
+  a[href="/new"] {
+    display: inline-block !important;
+    font-family: Georgia, 'Times New Roman', Times, serif !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.12em !important;
+    padding: 10px 24px !important;
+    border: 1.5px solid #111 !important;
+    background: transparent !important;
+    background-image: none !important;
+    color: #111 !important;
+    text-decoration: none !important;
+  }
+  a[href="/new"]:hover {
+    background: #111 !important;
+    color: #fff !important;
+  }
+
+  /* Hide SubmitFAB */
+  a[aria-label="Create new post"] { display: none !important; }
+
   body {
     background: #fff !important;
     color: #111 !important;
