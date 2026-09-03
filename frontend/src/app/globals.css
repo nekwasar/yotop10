@@ -225,31 +225,21 @@ body > main { padding-bottom: 90px; }
 
 
 /* ═══════════════════════════════════════════════════════
-   DESKTOP: Nuclear Reset + Clean Rebuild
-   All Tailwind killed. Plain CSS from scratch.
+   DESKTOP: Targeted Tailwind Kills + Clean CSS
+   Only kill Tailwind visual properties. Keep browser defaults.
    ═══════════════════════════════════════════════════════ */
 @media (min-width: 980px) {
 
-  /* ── NUCLEAR RESET ── */
+  /* ── KILL ONLY TAILWIND VISUAL PROPERTIES ── */
   *, *::before, *::after {
-    all: unset !important;
-    box-sizing: border-box !important;
-  }
-
-  /* ── RESTORE ESSENTIAL BROWSER DEFAULTS ── */
-  ul, ol { list-style: disc outside; }
-  a { cursor: pointer; }
-  button { cursor: pointer; }
-  img { display: block; }
-  input, textarea, select, button { font: inherit; }
-  hr { display: block; border: none; border-top: 1px solid #ccc; margin: 1em 0; }
-  /* Restore CSS inheritance (all:unset kills it) */
-  div, span, p, h1, h2, h3, h4, h5, h6, li, a, td, th, label, section, nav, footer, header, main, article, aside {
-    color: inherit;
-    font-family: inherit;
-    font-size: inherit;
-    line-height: inherit;
-    text-align: inherit;
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    text-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
   }
 
   /* ── BASE ── */
