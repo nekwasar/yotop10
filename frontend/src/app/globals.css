@@ -475,7 +475,7 @@ body > main { padding-bottom: 90px; }
   .hidden.md\:block {
     display: block !important;
     max-width: 1100px !important;
-    margin: 0 auto !important;
+    margin: -80px auto 0 !important;
     padding: 0 40px !important;
   }
 
@@ -483,15 +483,19 @@ body > main { padding-bottom: 90px; }
     display: block !important;
     max-width: 1100px !important;
     margin: 0 auto !important;
-    padding: 0 40px 8px !important;
+    padding: 0 40px 4px !important;
     border-bottom: 1px solid #ddd !important;
   }
 
   /* ── SECTION SPACING ── */
   section {
-    margin-bottom: 16px !important;
-    padding-bottom: 16px !important;
-    border-bottom: 1px solid #ddd !important;
+    margin-bottom: 8px !important;
+    padding-bottom: 8px !important;
+    border-bottom: 1px solid #eee !important;
+  }
+  section > div:first-child {
+    margin-bottom: 8px !important;
+    padding-bottom: 6px !important;
   }
   section:last-child {
     border-bottom: none !important;
