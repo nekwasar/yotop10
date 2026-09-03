@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
 import { cookies } from "next/headers";
 import { Anton, Monoton } from "next/font/google";
@@ -22,7 +22,6 @@ export const metadata: Metadata = {
   title: "YoTop20 — Fact Mine. Debate Ground.",
   description: "The open catalog of ranked lists. Submit your list. Defend your rankings.",
   manifest: "/manifest.json",
-  themeColor: "#0a0f1e",
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },
@@ -66,6 +65,10 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  themeColor: '#0a0f1e',
+};
+
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   // Fetch user server-side for instant profile links (no loading delay)
   let serverUser = null;
@@ -87,6 +90,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en" className="h-full antialiased" suppressHydrationWarning>
       <head>
+        <meta name="theme-color" content="#0a0f1e" />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
           '@context': 'https://schema.org',
           '@graph': [
