@@ -254,6 +254,7 @@ body > main { padding-bottom: 90px; }
   /* ── HIDE MOBILE ── */
   .hide-desktop { display: none !important; }
   .show-desktop { display: flex !important; }
+  .md\:block { display: block !important; }
   header { display: none !important; }
   nav[class*="fixed"] { display: none !important; }
   .slide-menu-panel, .slide-menu-backdrop { display: none !important; }
