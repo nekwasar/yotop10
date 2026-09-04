@@ -1,16 +1,21 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useSyncExternalStore } from 'react';
+
+function subscribe(cb: () => void) {
+  const m = window.matchMedia('(min-width: 980px)');
+  m.addEventListener('change', cb);
+  return () => m.removeEventListener('change', cb);
+}
+
+function getSnapshot() {
+  return window.matchMedia('(min-width: 980px)').matches;
+}
+
+function getServerSnapshot() {
+  return false;
+}
 
 export function useViewport() {
-  const [isDesktop, setIsDesktop] = useState(false);
-
-  useEffect(() => {
-    const check = () => setIsDesktop(window.innerWidth >= 980);
-    check();
-    window.addEventListener('resize', check);
-    return () => window.removeEventListener('resize', check);
-  }, []);
-
-  return isDesktop;
+  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 }

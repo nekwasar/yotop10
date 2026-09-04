@@ -1,10 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { useViewport } from '@/hooks/useViewport';
 import MobileHome from '@/components/MobileHome';
 import DesktopHome from '@/components/DesktopHome';
-import { HomeSkeleton } from '@/components/HomeSkeleton';
 import type { PostsResponse } from '@/lib/api/types';
 
 interface CategoryItem {
@@ -52,15 +50,6 @@ interface HomeClientProps {
 
 export default function HomeClient({ posts, categories, debates, articles, facts }: HomeClientProps) {
   const isDesktop = useViewport();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
-    return <HomeSkeleton />;
-  }
 
   if (isDesktop) {
     return <DesktopHome posts={posts} debates={debates} articles={articles} facts={facts} />;
