@@ -1,5 +1,7 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { DesktopDebates } from '@/components/DesktopDebates';
 import { DesktopArticles } from '@/components/DesktopArticles';
 import { DesktopFacts } from '@/components/DesktopFacts';
@@ -43,29 +45,80 @@ interface DesktopHomeProps {
 }
 
 export default function DesktopHome({ posts, debates, articles, facts }: DesktopHomeProps) {
+  const [idx, setIdx] = useState(0);
+
+  useEffect(() => {
+    if (posts.length <= 1) return;
+    const id = setInterval(() => setIdx((i) => (i + 1) % posts.length), 4500);
+    return () => clearInterval(id);
+  }, [posts.length]);
+
+  const active = posts[idx];
+  const minis = posts.slice(0, 6);
+
   return (
     <>
-      {/* Hero: first post as giant headline */}
-      {posts.length > 0 && (
+      {/* Hero slider: all latest + mini strip + add-post box */}
+      {posts.length > 0 && active && (
         <div className="mb-16">
-          <div className="mb-4">
+          <div className="mb-4 flex items-center justify-between">
             <h2 className="text-[11px] font-bold text-white uppercase tracking-[0.15em]">Latest</h2>
+            <span className="text-[11px] text-zinc-500 font-mono">
+              {idx + 1} / {posts.length}
+            </span>
           </div>
-          <a href={`/${posts[0].slug}`} className="block group">
+
+          {/* Active slide */}
+          <Link href={`/${active.slug}`} className="block group">
             <h3 className="text-[48px] font-bold text-white leading-tight mb-4 group-hover:opacity-80 transition-opacity">
-              {posts[0].title}
+              {active.title}
             </h3>
-            {posts[0].intro && (
-              <p className="text-[22px] text-zinc-400 mb-6 max-w-3xl leading-relaxed">
-                {posts[0].intro}
+            {active.intro && (
+              <p className="text-[22px] text-zinc-400 mb-6 max-w-3xl leading-relaxed line-clamp-3">
+                {active.intro}
               </p>
             )}
-            <div className="flex items-center gap-4 text-[16px] text-zinc-500">
-              <span>{posts[0].author_display_name || posts[0].author_username}</span>
+            <div className="flex items-center gap-4 text-[16px] text-zinc-500 mb-6">
+              <span>{active.author_display_name || active.author_username}</span>
               <span>&middot;</span>
-              <span>{posts[0].category_name || posts[0].category_slug}</span>
+              <span>{active.category_name || active.category_slug}</span>
             </div>
-          </a>
+          </Link>
+
+          {/* Mini strip + add-post box */}
+          <div className="flex gap-3 overflow-x-auto pb-2">
+            {minis.map((p, i) => (
+              <button
+                key={p.id}
+                onClick={() => setIdx(i)}
+                className={`flex-shrink-0 text-left w-[220px] p-3 border transition ${
+                  i === idx ? 'border-white bg-white text-black' : 'border-white/10 bg-white/5 hover:bg-white/10 text-zinc-400'
+                }`}
+              >
+                <span className="text-[11px] font-mono block mb-1 opacity-60">#{String(i + 1).padStart(2, '0')}</span>
+                <span className="text-[13px] font-semibold leading-snug line-clamp-2 block">{p.title}</span>
+              </button>
+            ))}
+            <Link
+              href="/new"
+              className="flex-shrink-0 w-[220px] p-3 border border-dashed border-white/20 bg-transparent hover:bg-white hover:text-black text-zinc-400 hover:text-black transition flex flex-col items-center justify-center text-center gap-1"
+            >
+              <span className="text-[18px] leading-none">+</span>
+              <span className="text-[12px] font-bold uppercase tracking-[0.1em]">add post</span>
+            </Link>
+          </div>
+
+          {/* Dots */}
+          <div className="flex gap-2 mt-4">
+            {posts.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setIdx(i)}
+                aria-label={`Go to slide ${i + 1}`}
+                className={`h-[2px] transition-all ${i === idx ? 'w-6 bg-white' : 'w-2 bg-white/20'}`}
+              />
+            ))}
+          </div>
         </div>
       )}
 

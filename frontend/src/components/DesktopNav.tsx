@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useAuthStore } from '@/stores/auth';
 
 const NAV_ITEMS = [
   { label: 'Categories', href: '/categories' },
@@ -15,9 +16,12 @@ const NAV_ITEMS = [
 
 export function DesktopNav() {
   const pathname = usePathname();
+  const user = useAuthStore((s) => s.user);
+  const cleanUsername = user?.username?.replace(/^a_/, '') || '';
+  const profileHref = cleanUsername ? `/a/${cleanUsername}` : '/a';
 
   return (
-    <nav className="hidden lg:block">
+    <nav className="hidden lg:block flex items-center justify-between">
       <ul className="flex items-center gap-6">
         {NAV_ITEMS.map((item) => {
           const isActive = item.href === '/'
@@ -42,6 +46,20 @@ export function DesktopNav() {
           );
         })}
       </ul>
+      <Link
+        href={profileHref}
+        style={{
+          fontFamily: "Georgia, 'Times New Roman', Times, serif",
+          fontSize: '13px',
+          color: '#111',
+          textDecoration: 'none',
+          border: '1px solid #111',
+          padding: '6px 14px',
+          fontWeight: 600,
+        }}
+      >
+        {cleanUsername ? `@${cleanUsername}` : 'user'}
+      </Link>
     </nav>
   );
 }
