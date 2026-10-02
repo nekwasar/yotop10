@@ -44,3 +44,9 @@ coverage/
 *.log
 *.tsbuildinfo
 docs/handbook/build/
+
+# Local reference material + DB dumps (never commit)
+# ref-yotop10/ holds a legacy Express prototype incl. its own .env;
+# migrations-backups/ holds raw MongoDB dumps (PII).
+ref-yotop10/
+backend/uploads/migrations-backups/
