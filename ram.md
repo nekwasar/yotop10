@@ -1,13 +1,16 @@
 # RAM.md — Random Access Memory: Current Task State
 
-> **Last updated**: 2026-09-15
-> **Working tree**: Clean — committed and pushed
+> **Last updated**: 2026-10-02
+> **Working tree**: Clean — committed and pushed (only untracked `ref-yotop10/` + `backend/uploads/migrations-backups/`, both intentionally not committed)
 > **Branch**: main → up to date with origin/main
-> **Latest commits**: `d1d0526 [M04.1]`, `122960f [M15.1]`, `dae0916 [M18.6]`, `e4d6821 [M20.3]` (+M20.1/M20.2/DOC)
+> **Latest commits**: `b80830a [M31.6]`, `e62fe9e [M31.5]`, `c984516 [M31.4]`, `43da78e [M31.3]`
 
 ---
 
 ## Current Health
+
+All gates run **inside the dev container** (`docker exec yotop10_dev`), which now ships
+`.eslintrc.json` + `vitest.config.ts` for both packages as of [M31.6].
 
 | Check | Status |
 |-------|--------|
@@ -16,28 +19,27 @@
 | Backend lint | ✅ 0 errors, 0 warnings |
 | Frontend lint | ✅ 0 errors, 0 warnings |
 | Backend build (`tsc`) | ✅ 0 errors |
-| Frontend build (`next build`) | ✅ Completed (build + postbuild manifest generation injected BUILD_ID) |
-| Backend tests (vitest) | ✅ 38 files, 638 tests passed |
+| Frontend build (`next build`) | ✅ exit 0 (via `Dockerfile.frontend` prod image build) |
+| Backend tests (vitest) | ✅ 50 files, 700 passed, 4 skipped |
+| Frontend tests (vitest) | ✅ 11 files, 84 passed |
+| Prod stack (compose `-p yotop10`) | ✅ 7/7 containers healthy |
+| Dev stack (compose `-p yotop10dev`) | ✅ `yotop10_dev` up, :3200 / :8200 200 |
 
 ---
 
 ## What Has Been Done
 
 ### Recent commits (top of main):
-1. **[M00.8]** Lower nav hide breakpoint to 980px, uncomment DynamicIsland hydration fix
-2. **[M00.7]** Remove faulty SW, fix responsive nav with plain CSS, comment out bottom nav
-3. **Clean up** stale docs, dead env vars, and AI artifacts
-4. **Update** product_spec.md to reflect current state
-5. **Disable** Next.js dev indicators
-6. **Remove** Eruda + FloatingDock + hamburger; add User icon in top bar
-7. **Add** loading skeletons (FeedSkeleton on 5 CSR pages, AdminTableSkeleton)
-8. **Fix** ghost posts — filter deleted posts from public feed + post detail
-9. **Fix** admin auth immunity — Next.js middleware.ts (Edge, cookie only, zero API calls)
-10. **Admin SSR** — convert admin auth from client-side to server-side rendering
-11. **Admin mobile responsiveness** — 12 admin pages mobile-audit, AdminSlideMenu
-12. **Moderator System (M17)** — 31 permissions, 4 presets, 8 CRUD endpoints, 3-layer enforcement
-13. **Post cards v2/v3** — UI polish (numbered circles, author byline, carousel)
-14. **Various fixes** — theme flash, hydration, fonts, bottom nav, slide menu
+1. **[M31.6]** Docker: ES healthcheck `start_period` 30s→90s, nginx `depends_on` frontend, dev image ships lint+test configs
+2. **[M31.5]** Tablet nav: top-bar search/bell moved to `.show-desktop` (≥980px) — kills duplicate icons vs bottom nav
+3. **[M31.4]** Move design template PDF from root into docs/handbook
+4. **[M31.1]–[M31.3]** YoTop10 handbook (7 chapters, print CSS, PDF/EPUB pipeline)
+5. **[M30.1]–[M30.8]** OG image overhaul (light cards, www domain, a11y alt)
+6. **[M29.1]–[M29.4]** Ranking order config + `/admin/config` UI
+7. **[M28.1]–[M28.2]** Preloader skeletons + notification dot badge
+8. **[M00.8]** Lower nav hide breakpoint to 980px, uncomment DynamicIsland hydration fix
+9. **[M00.7]** Remove faulty SW, fix responsive nav with plain CSS, comment out bottom nav
+10. **Various** — post cards v2/v3, admin SSR, moderator system (M17), loading skeletons
 
 ### Milestones completed (all checked ✅):
 M1 (Foundation), M2 (Schema), M3 (Submit), M4 (Feed), M5 (Post Detail), M6 (Categories), M7 (Comments), M9 (Admin Auth), M10 (Admin Dashboard), M11 (User System), M12 (Search), M13 (Arguments), M14 (Hall of Fame), M15 (Identity), M17 (Moderator System)
@@ -157,7 +159,7 @@ Hardcoded JWT, orphaned setInterval, $regex injection, stub 200s, health check o
 ### Previous verification notes (kept for history)
 
 - **Removed** faulty service worker entirely (13 files deleted) — SW was serving stale cached HTML, no CSS fix could overcome it
-- **Replaced** all Tailwind responsive display utilities with plain CSS classes (`.hide-desktop`, `.show-desktop`, `.show-from-sm`, `.show-from-sm-block`) outside Tailwind's `@layer` to guarantee cascade wins
+- **Replaced** all Tailwind responsive display utilities with plain CSS classes (`.hide-desktop`, `.show-desktop`) outside Tailwind's `@layer` to guarantee cascade wins. The `.show-from-sm` / `.show-from-sm-block` pair was removed in [M31.5] — see the tablet-nav entry under Latest Verification.
 - **Fixed** hydration instability: removed empty `<Suspense>` wrapper around `<DynamicIsland>` that caused React to remount and strip className attributes
 - **Lowered** `.hide-desktop`/`.show-desktop` breakpoint from 1024px to 980px to match Chrome Android "Request Desktop Site" viewport behavior
 - **Committed and pushed** to `origin/main` — commits `7aa16346 [M00.7]` and `7958e402 [M00.8]`
@@ -230,3 +232,17 @@ Hardcoded JWT, orphaned setInterval, $regex injection, stub 200s, health check o
 - **CTAs added** (were missing): black "Join the Fun!" on post, article, and category cards.
 - **Profile 200×200 fix**: metadata used to prefer the raw avatar URL (200px upload, falsely labeled 1200×630) → validators failed it on X/LinkedIn/WhatsApp/Slack. Now always the generator route (true 1200×630, avatar composited inside). Verified by resolving the tagged URL and reading PNG dims.
 - **Post card verified visually**: real title, badge, www domain line, ranked items, CTA, external hotlinked photo renders fine.
+
+### Tablet nav duplication + Docker bring-up fixes (2026-10-02, [M31.5]–[M31.6])
+- **Bug reported**: on tablet screens the bottom nav *and* the top nav both rendered Search + notification bell → duplicate icons.
+- **Root cause**: two visibility systems with different thresholds. `DynamicIsland` (bottom nav) hides at **980px** via `.hide-desktop`, but `DesktopTopBar`'s search input and bells appeared from **640px** via `.show-from-sm` / `.show-from-sm-block`. Every portrait tablet (768–912px: iPad, iPad mini, Surface Go, Android tabs) sits in the 640–979px overlap → both bars showed Search and Bell. Profile was never duplicated (top-bar profile only shows ≥980px).
+- **Fix [M31.5]**: both elements switched to `.show-desktop` (≥980px) in `DesktopTopBar.tsx:35,48`; dead `.show-from-sm` / `.show-from-sm-block` rules deleted from `globals.css`. Below 980px the header is logo + hamburger and the bottom nav owns Search/Bell/Profile; from 980px the bottom nav is gone and the header carries search + bells + profile. Verified in served HTML: `show-from-sm` count 0, `show-desktop` present.
+- **Docker defects found while bringing prod + dev up from clean [M31.6]**:
+  1. ES healthcheck `start_period: 30s` (retries 5) but ES needs ~2min → first `compose up` aborted with `dependency failed to start: container yotop10-elasticsearch-1 is unhealthy`. Raised to **90s**.
+  2. nginx had no `depends_on: frontend` → crash-looped on `host not found in upstream "frontend:3000"` until frontend existed. Added `depends_on: frontend: service_started`.
+  3. `Dockerfile.dev` only COPYed postcss/tsconfig/next.config, so **`.eslintrc.json` and `vitest.config.ts` never reached the container** — `pnpm lint` died with `No files matching the pattern "src/"` and `pnpm test` failed 9/11 files with `Cannot find package '@/lib/api/client'`. COPYs added for frontend+backend eslint + vitest configs.
+- **Runbook** (project dir is `/root/top10`, so `-p` must be passed to reuse the `yotop10_*` volumes/networks):
+  - prod: `docker compose -p yotop10 -f docker-compose.yml up -d --build` → :80/:443/:3100/:8100
+  - dev: `docker compose -p yotop10dev -f docker-compose.dev.yml up -d --build` → :3200/:8200
+  - dev's external networks `yotop10_frontend_net` / `yotop10_backend_net` are created by the prod project, so **prod must come up first**.
+- **Gates (all in-container, 2026-10-02)**: backend typecheck ✅ lint ✅ 0/0 build ✅ 700 tests ✅; frontend typecheck ✅ lint ✅ 0/0 build ✅ (prod image, exit 0) 84 tests ✅; prod 7/7 healthy; dev :3200 200 / :8200 200. Commits `e62fe9e [M31.5]`, `b80830a [M31.6]` pushed to `origin/main`.
