@@ -25,6 +25,17 @@ export async function apiFetch<T>(
     ...(options?.headers as Record<string, string> || {}),
   };
 
+  // Server-side renders never keep the Set-Cookie the backend issues, so every
+  // SSR call is a fresh cookie-less hit. Counting those against the shared
+  // per-IP grace budget exhausts it for real users behind the same IP. Mark
+  // trusted internal traffic so the backend can skip the counter.
+  if (typeof window === 'undefined') {
+    const secret = process.env.INTERNAL_API_SECRET;
+    if (secret) {
+      headers['X-Internal-Request'] = secret;
+    }
+  }
+
   if (deviceFingerprint) {
     headers['X-Device-Fingerprint'] = deviceFingerprint;
   }

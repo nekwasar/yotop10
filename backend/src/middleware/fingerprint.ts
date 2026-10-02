@@ -8,7 +8,32 @@ import { findMatchingUser } from '../lib/fingerprintMatching';
 import { toDefaultShort } from '../lib/username';
 
 const GRACE_PERIOD_MS = 3500;
-const MAX_GRACE_REQUESTS = 10;
+// Cookie-less requests are common and harmless (SSR, health checks, link
+// previews), but they all share one counter per IP. 10 was small enough that a
+// handful of server-side renders locked out every user behind that IP.
+const MAX_GRACE_REQUESTS = 30;
+
+/**
+ * True when the request carries the shared secret proving it originated from
+ * this deployment's own server-side render, not from an end-user client.
+ *
+ * SSR responses are never stored by the browser, so the identity cookie set
+ * here is thrown away — counting those requests would drain the grace budget
+ * without the requester ever being able to use it.
+ *
+ * Fails closed: without an explicitly configured secret no request qualifies.
+ */
+export const isInternalRequest = (req: Request): boolean => {
+  const secret = process.env.INTERNAL_API_SECRET;
+  if (!secret) return false;
+
+  const presented = req.headers['x-internal-request'];
+  if (typeof presented !== 'string' || presented.length === 0) return false;
+  if (presented.length !== secret.length) return false;
+
+  // Constant-time compare so a wrong secret can't be guessed byte by byte.
+  return crypto.timingSafeEqual(Buffer.from(presented), Buffer.from(secret));
+};
 
 export const getClientIp = (req: { headers: Record<string, string | string[] | undefined>; ip?: string; socket?: { remoteAddress?: string } }): string => {
   if (req.ip && req.ip !== '::1' && req.ip !== '127.0.0.1') return req.ip;
@@ -270,6 +295,15 @@ export const fingerprintMiddleware = async (req: Request, res: Response, next: N
   const graceKey = `grace:${clientIp}`;
 
   try {
+    // Trusted internal traffic (SSR) skips the counter entirely — see
+    // isInternalRequest. It still needs an identity so downstream code that
+    // reads req.fingerprint works, but the Set-Cookie is never retained.
+    if (isInternalRequest(req)) {
+      req.fingerprint = generateFingerprint();
+      req.fingerprintSource = 'grace';
+      return next();
+    }
+
     const currentCount = await redis.incr(graceKey);
     if (currentCount === 1) await redis.expire(graceKey, Math.ceil(GRACE_PERIOD_MS / 1000));
 

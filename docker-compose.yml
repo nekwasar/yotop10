@@ -51,6 +51,7 @@ services:
       - PORT=3000
       - HOSTNAME=0.0.0.0
       - INTERNAL_API_URL=http://backend:8000/api
+      - INTERNAL_API_SECRET=${INTERNAL_API_SECRET:?INTERNAL_API_SECRET is required}
       - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-https://www.yotop10.com/api}
       - NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL:-https://www.yotop10.com}
     tmpfs:
@@ -88,6 +89,7 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - CORS_ORIGINS=${CORS_ORIGINS:-https://yotop10.com,https://www.yotop10.com}
       - INTERNAL_API_URL=http://backend:8000/api
+      - INTERNAL_API_SECRET=${INTERNAL_API_SECRET:?INTERNAL_API_SECRET is required}
       - MONGO_USERNAME=yotop10_admin
       - MONGO_PASSWORD=${MONGO_PASSWORD}
       - REDIS_PASSWORD=${REDIS_PASSWORD}

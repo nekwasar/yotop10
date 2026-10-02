@@ -1,5 +1,52 @@
-import { describe, it, expect } from 'vitest';
-import { isDeniedFingerprint, isLowEntropyFingerprint } from './fingerprint';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import type { Request } from 'express';
+import { isDeniedFingerprint, isLowEntropyFingerprint, isInternalRequest } from './fingerprint';
+
+const reqWithHeader = (value?: string): Request => {
+  const headers: Record<string, string | undefined> = {};
+  if (value !== undefined) headers['x-internal-request'] = value;
+  return { headers } as unknown as Request;
+};
+
+describe('isInternalRequest', () => {
+  const SECRET = 'unit-test-internal-secret';
+
+  const original = process.env.INTERNAL_API_SECRET;
+
+  beforeEach(() => { process.env.INTERNAL_API_SECRET = SECRET; });
+  afterEach(() => {
+    if (original === undefined) delete process.env.INTERNAL_API_SECRET;
+    else process.env.INTERNAL_API_SECRET = original;
+  });
+
+  it('accepts the shared secret', () => {
+    expect(isInternalRequest(reqWithHeader(SECRET))).toBe(true);
+  });
+
+  it('rejects a wrong secret of the same length', () => {
+    const wrong = SECRET.replace(/.$/, SECRET.endsWith('x') ? 'y' : 'x');
+    expect(isInternalRequest(reqWithHeader(wrong))).toBe(false);
+  });
+
+  it('rejects a wrong secret of a different length', () => {
+    expect(isInternalRequest(reqWithHeader(`${SECRET}x`))).toBe(false);
+    expect(isInternalRequest(reqWithHeader(SECRET.slice(0, -1)))).toBe(false);
+  });
+
+  it('rejects a missing header', () => {
+    expect(isInternalRequest(reqWithHeader())).toBe(false);
+  });
+
+  it('rejects an empty header', () => {
+    expect(isInternalRequest(reqWithHeader(''))).toBe(false);
+  });
+
+  it('fails closed when no secret is configured', () => {
+    delete process.env.INTERNAL_API_SECRET;
+    expect(isInternalRequest(reqWithHeader(SECRET))).toBe(false);
+    expect(isInternalRequest(reqWithHeader('anything'))).toBe(false);
+  });
+});
 
 describe('isDeniedFingerprint', () => {
   it('drops values in the explicit denylist', () => {

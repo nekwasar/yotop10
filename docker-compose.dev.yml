@@ -24,6 +24,7 @@ services:
       - ES_PASSWORD=${ES_PASSWORD}
       - JWT_SECRET=${JWT_SECRET}
       - INTERNAL_API_URL=http://yotop10_dev:8000/api
+      - INTERNAL_API_SECRET=${INTERNAL_API_SECRET:?INTERNAL_API_SECRET is required}
     volumes:
       - ./backend/src:/app/backend/src
       - ./frontend/src:/app/frontend/src
