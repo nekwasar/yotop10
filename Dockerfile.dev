@@ -14,6 +14,12 @@ COPY frontend/postcss.config.mjs ./frontend/postcss.config.mjs
 COPY frontend/tsconfig.json ./frontend/tsconfig.json
 COPY frontend/next.config.ts ./frontend/next.config.ts
 
+# Lint + test configs — without these `pnpm lint` / `pnpm test` cannot run in the container
+COPY frontend/.eslintrc.json ./frontend/.eslintrc.json
+COPY frontend/vitest.config.ts ./frontend/vitest.config.ts
+COPY backend/.eslintrc.json ./backend/.eslintrc.json
+COPY backend/vitest.config.ts ./backend/vitest.config.ts
+
 RUN mkdir -p /app/uploads /app/backend/uploads && chown -R node:node /app/uploads /app/backend/uploads 2>/dev/null || mkdir -p /app/uploads /app/backend/uploads
 
 COPY scripts/dev-* /app/scripts/
