@@ -1,6 +1,9 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { apiFetch } from '@/lib/api/client';
+import { ssrLoad } from '@/lib/api/ssr';
+import { Icon } from '@/components/icons/Icon';
+import { ReloadButton } from '@/components/ReloadButton';
 import { formatDate, relativeTime, cleanTitle } from '@/lib/dates';
 import type { HallOfFameEntry } from '@/lib/api/types';
 import type { Metadata } from 'next';
@@ -19,12 +22,21 @@ interface HallOfFameResponse {
 }
 
 export default async function HallOfFamePage() {
-  let entries: HallOfFameEntry[] = [];
+  const { data, failed } = await ssrLoad(() => apiFetch<HallOfFameResponse>('/hall-of-fame'));
+  const entries: HallOfFameEntry[] = data?.featured || [];
 
-  try {
-    const data = await apiFetch<HallOfFameResponse>('/hall-of-fame');
-    entries = data.featured || [];
-  } catch {}
+  if (failed && entries.length === 0) {
+    return (
+      <div className="min-h-screen bg-[var(--color-bg)] flex flex-col items-center justify-center px-4 text-center">
+        <div className="mb-4 text-zinc-600">
+          <Icon name="CloudOff" size={48} />
+        </div>
+        <h1 className="font-display text-3xl sm:text-4xl text-white mb-2">Hall of Fame</h1>
+        <p className="text-zinc-500 text-sm mb-6">We couldn&apos;t load the featured lists right now.</p>
+        <ReloadButton />
+      </div>
+    );
+  }
 
   if (entries.length === 0) {
     return (

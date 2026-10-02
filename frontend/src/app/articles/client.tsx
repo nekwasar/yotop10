@@ -6,6 +6,8 @@ import type { Article } from '@/lib/api/types';
 import Link from 'next/link';
 import Image from 'next/image';
 import { relativeTime, cleanTitle } from '@/lib/dates';
+import { useInitialFailure } from '@/lib/hooks/useInitialFailure';
+import { DataLoadError } from '@/components/DataLoadError';
 
 const PAGE_SIZE = 10;
 
@@ -24,13 +26,23 @@ const factCheckLabels: Record<string, string> = {
 interface ArticlesClientProps {
   initialArticles: Article[];
   initialHasMore: boolean;
+  initialFailed?: boolean;
 }
 
-export default function ArticlesClient({ initialArticles, initialHasMore }: ArticlesClientProps) {
+export default function ArticlesClient({ initialArticles, initialHasMore, initialFailed = false }: ArticlesClientProps) {
   const [articles, setArticles] = useState<Article[]>(initialArticles);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [loadingMore, setLoadingMore] = useState(false);
+
+  const reload = useCallback(async () => {
+    const data = await API.getArticles({ page: 1, limit: PAGE_SIZE });
+    setArticles(data.articles || []);
+    setPage(1);
+    setHasMore(1 < (data.pagination?.totalPages || 1));
+  }, []);
+
+  const { failed, retrying, retry } = useInitialFailure(initialFailed, reload);
 
   const handleLoadMore = useCallback(async () => {
     const nextPage = page + 1;
@@ -57,9 +69,13 @@ export default function ArticlesClient({ initialArticles, initialHasMore }: Arti
     <main className="mx-auto min-h-screen max-w-3xl bg-[var(--color-bg)] px-4 py-12 sm:px-6 lg:py-16">
 
       {articles.length === 0 && (
-        <div className="rounded-2xl border border-white/5 bg-white/5 p-12 text-center backdrop-blur-xl">
-          <p className="text-zinc-500">No articles yet. Be the first to publish.</p>
-        </div>
+        failed ? (
+          <DataLoadError onRetry={retry} retrying={retrying} />
+        ) : (
+          <div className="rounded-2xl border border-white/5 bg-white/5 p-12 text-center backdrop-blur-xl">
+            <p className="text-zinc-500">No articles yet. Be the first to publish.</p>
+          </div>
+        )
       )}
 
       <div className="space-y-8">

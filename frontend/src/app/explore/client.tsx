@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Icon } from '@/components/icons/Icon';
@@ -9,6 +9,8 @@ import { toPublicSlug } from '@/lib/username';
 import type { ExplorePost } from '@/lib/api/types';
 import { API } from '@/lib/api';
 import { ExploreSkeleton } from '@/components/ExploreSkeleton';
+import { useInitialFailure } from '@/lib/hooks/useInitialFailure';
+import { DataLoadError } from '@/components/DataLoadError';
 
 type TabValue = 'all' | 'list' | 'vs' | 'article' | 'fact';
 
@@ -23,6 +25,7 @@ const TABS: { value: TabValue; label: string }[] = [
 interface ExploreClientProps {
   initialPosts: ExplorePost[];
   initialHasMore: boolean;
+  initialFailed?: boolean;
 }
 
 function ListCard({ post }: { post: ExplorePost }) {
@@ -290,35 +293,46 @@ function PostCard({ post }: { post: ExplorePost }) {
   return <Card post={post} />;
 }
 
-export default function ExploreClient({ initialPosts, initialHasMore }: ExploreClientProps) {
+export default function ExploreClient({ initialPosts, initialHasMore, initialFailed = false }: ExploreClientProps) {
   const [posts, setPosts] = useState<ExplorePost[]>(initialPosts);
   const [tab, setTab] = useState<TabValue>('all');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(initialHasMore ? 2 : 1);
   const [loading, setLoading] = useState(false);
+  const tabRef = useRef<TabValue>('all');
 
-  const fetchPage = useCallback(async (pageNum: number, type?: string) => {
+  const fetchPage = useCallback(async (pageNum: number, type: TabValue) => {
     setLoading(true);
     try {
-      const data = await API.getExplore(pageNum, 10, type && type !== 'all' ? type : undefined);
+      const data = await API.getExplore(pageNum, 10, type !== 'all' ? type : undefined);
       setPosts(data.posts || []);
       setPage(pageNum);
       setTotalPages(data.pagination?.totalPages || 1);
-    } catch {
-      // silent
     } finally {
       setLoading(false);
     }
   }, []);
 
+  const { failed, retrying, retry } = useInitialFailure(
+    initialFailed,
+    () => fetchPage(1, tabRef.current)
+  );
+
+  const loadQuietly = useCallback((pageNum: number, type: TabValue) => {
+    void fetchPage(pageNum, type).catch(() => {
+      // Keep whatever is on screen — a failed page fetch must not blank the list.
+    });
+  }, [fetchPage]);
+
   const handleTabChange = (newTab: TabValue) => {
     setTab(newTab);
-    fetchPage(1, newTab);
+    tabRef.current = newTab;
+    loadQuietly(1, newTab);
   };
 
   const goToPage = (p: number) => {
     if (p < 1 || p > totalPages || loading) return;
-    fetchPage(p, tab);
+    loadQuietly(p, tab);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -351,12 +365,16 @@ export default function ExploreClient({ initialPosts, initialHasMore }: ExploreC
         {loading ? (
           <ExploreSkeleton />
         ) : posts.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-24 text-center">
-            <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-white/[0.03] border border-white/[0.08]">
-              <Icon name="Compass" size={32} className="text-zinc-600" />
+          failed ? (
+            <DataLoadError onRetry={retry} retrying={retrying} />
+          ) : (
+            <div className="flex flex-col items-center justify-center py-24 text-center">
+              <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-white/[0.03] border border-white/[0.08]">
+                <Icon name="Compass" size={32} className="text-zinc-600" />
+              </div>
+              <p className="text-zinc-500 text-lg max-w-sm">No trending content yet.</p>
             </div>
-            <p className="text-zinc-500 text-lg max-w-sm">No trending content yet.</p>
-          </div>
+          )
         ) : (
           <>
             <div className="space-y-5 pb-12">

@@ -5,6 +5,7 @@ import { ArticlesSkeleton } from '@/components/ArticlesSkeleton';
 import ArticlesClient from './client';
 import type { Metadata } from 'next';
 import { buildWebsiteMetadata } from '@/lib/seo/metadata';
+import { ssrLoad } from '@/lib/api/ssr';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -18,17 +19,13 @@ export const metadata: Metadata = buildWebsiteMetadata({
 const PAGE_SIZE = 10;
 
 async function ArticlesFeed() {
-  let articles: Article[] = [];
-  let hasMore = false;
+  const { data, failed } = await ssrLoad(() => API.getArticles({ page: 1, limit: PAGE_SIZE }));
 
-  try {
-    const data = await API.getArticles({ page: 1, limit: PAGE_SIZE });
-    articles = data.articles || [];
-    const totalPages = data.pagination?.totalPages || 1;
-    hasMore = 1 < totalPages;
-  } catch {}
+  const articles: Article[] = data?.articles || [];
+  const totalPages = data?.pagination?.totalPages || 1;
+  const hasMore = 1 < totalPages;
 
-  return <ArticlesClient initialArticles={articles} initialHasMore={hasMore} />;
+  return <ArticlesClient initialArticles={articles} initialHasMore={hasMore} initialFailed={failed} />;
 }
 
 export default function ArticlesPage() {
