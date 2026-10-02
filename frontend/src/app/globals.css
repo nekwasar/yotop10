@@ -360,12 +360,6 @@ html.light-mode select {
 .show-desktop { display: none; }
 @media (min-width: 980px) { .show-desktop { display: flex; } }
 
-.show-from-sm { display: none; }
-@media (min-width: 640px) { .show-from-sm { display: flex; } }
-
-.show-from-sm-block { display: none; }
-@media (min-width: 640px) { .show-from-sm-block { display: block; } }
-
 /* ═══ Bottom Nav Safe Area — prevent DynamicIsland from overlaying content ═══ */
 @media (max-width: 979px) {
   body > main { padding-bottom: 90px; }

@@ -32,7 +32,7 @@ export default function DesktopTopBar() {
           </Link>
         </div>
 
-        <div className="show-from-sm flex-1 mx-4 justify-center">
+        <div className="show-desktop flex-1 mx-4 justify-center">
           <input
             type="text"
             value={query}
@@ -45,7 +45,7 @@ export default function DesktopTopBar() {
 
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <SlideMenuTrigger />
-          <div className="show-from-sm-block">
+          <div className="show-desktop">
             <HeaderBells />
           </div>
 
