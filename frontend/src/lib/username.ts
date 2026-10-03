@@ -24,8 +24,10 @@ export function toPublicUsername(full: string): string {
 }
 
 export function toPublicSlug(full: string): string {
-  const pub = toPublicUsername(full);
-  return pub.replace(/^a_/, '');
+  if (!full) return full;
+  const def = full.match(/^a_([a-z0-9]{4})_([a-z0-9]{4})$/i);
+  if (def) return `${def[1].toLowerCase()}_${def[2].toLowerCase()}`;
+  return toPublicUsername(full).replace(/^(?:a_)+/, '');
 }
 
 export function isShortSlug(slug: string): boolean {

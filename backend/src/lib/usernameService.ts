@@ -1,15 +1,19 @@
 import { UsernameHistory } from '../models/UsernameHistory';
 import { User } from '../models/User';
 
-/**
- * Check if a username is available for use
- */
+export function identityNameCandidates(username: string): string[] {
+  const lower = username.toLowerCase();
+  const bare = lower.replace(/^(?:a_)+/, '');
+  const candidates = new Set<string>([username, lower, bare, `a_${bare}`].filter((c) => c.length > 0));
+  return Array.from(candidates);
+}
+
 export async function isUsernameAvailable(username: string, currentUserId?: string): Promise<{ available: boolean }> {
-  // Check if username is currently in use by any user
+  const candidates = identityNameCandidates(username);
   const existingUser = await User.findOne({
     $or: [
-      { username },
-      { custom_display_name: username },
+      { username: { $in: candidates } },
+      { custom_display_name: { $in: candidates } },
     ]
   });
 
@@ -21,6 +25,39 @@ export async function isUsernameAvailable(username: string, currentUserId?: stri
   }
 
   return { available: true };
+}
+
+export function buildProfileLookupQuery(username: string): Record<string, unknown> {
+  const cleanUsername = username.replace(/^a_/, '');
+  const isShort = cleanUsername.length === 4;
+
+  if (isShort) {
+    const short = `a_${cleanUsername.toLowerCase()}`;
+    return {
+      $or: [
+        { short_username: short },
+        { short_username: username.toLowerCase() },
+        { short_username: { $regex: `^a_${cleanUsername}`, $options: 'i' } },
+        { custom_display_name: { $regex: `^a_${cleanUsername}`, $options: 'i' } },
+        { username: { $regex: `^a_${cleanUsername}`, $options: 'i' } },
+        { custom_display_name: { $regex: `^a_${cleanUsername}`, $options: 'i' } },
+      ],
+    };
+  }
+
+  return {
+    $or: [
+      { user_id: username },
+      { username },
+      { username: `a_${cleanUsername}` },
+      { custom_display_name: username },
+      { custom_display_name: `a_${cleanUsername}` },
+      { short_username: username.toLowerCase() },
+      { short_username: `a_${cleanUsername.toLowerCase()}` },
+      { custom_display_name: { $regex: `^a_${cleanUsername}`, $options: 'i' } },
+      { short_username: { $regex: `^a_${cleanUsername}`, $options: 'i' } },
+    ],
+  };
 }
 
 /**

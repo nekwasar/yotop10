@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { isUsernameAvailable, recordUsernameChange } from './usernameService';
+import { isUsernameAvailable, recordUsernameChange, identityNameCandidates, buildProfileLookupQuery } from './usernameService';
 import { User } from '../models/User';
 import { UsernameHistory } from '../models/UsernameHistory';
 
@@ -28,8 +28,8 @@ describe('usernameService', () => {
       expect(result).toEqual({ available: true });
       expect(User.findOne).toHaveBeenCalledWith({
         $or: [
-          { username: 'newuser' },
-          { custom_display_name: 'newuser' },
+          { username: { $in: ['newuser', 'a_newuser'] } },
+          { custom_display_name: { $in: ['newuser', 'a_newuser'] } },
         ],
       });
     });
@@ -71,8 +71,8 @@ describe('usernameService', () => {
       expect(result).toEqual({ available: false });
       expect(User.findOne).toHaveBeenCalledWith({
         $or: [
-          { username: 'displayname' },
-          { custom_display_name: 'displayname' },
+          { username: { $in: ['displayname', 'a_displayname'] } },
+          { custom_display_name: { $in: ['displayname', 'a_displayname'] } },
         ],
       });
     });
@@ -90,6 +90,97 @@ describe('usernameService', () => {
     it('handles DB query failure by propagating the error', async () => {
       vi.mocked(User.findOne).mockRejectedValue(new Error('DB connection lost'));
       await expect(isUsernameAvailable('anyname')).rejects.toThrow('DB connection lost');
+    });
+  });
+
+  describe('identityNameCandidates', () => {
+    it('collapses the a_ prefix so both spellings are one identity', () => {
+      expect(identityNameCandidates('a_cutie')).toEqual(['a_cutie', 'cutie']);
+      expect(identityNameCandidates('cutie')).toEqual(['cutie', 'a_cutie']);
+      expect(identityNameCandidates('a_dbb4_aed5')).toEqual(['a_dbb4_aed5', 'dbb4_aed5']);
+      expect(identityNameCandidates('cyprianzube')).toEqual(['cyprianzube', 'a_cyprianzube']);
+      expect(identityNameCandidates('a_a_x')).toEqual(['a_a_x', 'x', 'a_x']);
+    });
+  });
+
+  describe('namespace-unified availability', () => {
+    it('rejects a name whose other prefix spelling is already taken', async () => {
+      vi.mocked(User.findOne).mockResolvedValue({ user_id: 'other123', username: 'a_cutie' });
+      const result = await isUsernameAvailable('cutie');
+      expect(result).toEqual({ available: false });
+      expect(User.findOne).toHaveBeenCalledWith({
+        $or: [
+          { username: { $in: ['cutie', 'a_cutie'] } },
+          { custom_display_name: { $in: ['cutie', 'a_cutie'] } },
+        ],
+      });
+    });
+
+    it('rejects the bare spelling of a default device identity', async () => {
+      vi.mocked(User.findOne).mockResolvedValue({ user_id: 'other123', username: 'a_dbb4_aed5' });
+      const result = await isUsernameAvailable('dbb4_aed5');
+      expect(result).toEqual({ available: false });
+      expect(User.findOne).toHaveBeenCalledWith({
+        $or: [
+          { username: { $in: ['dbb4_aed5', 'a_dbb4_aed5'] } },
+          { custom_display_name: { $in: ['dbb4_aed5', 'a_dbb4_aed5'] } },
+        ],
+      });
+    });
+
+    it('still lets the owner reclaim their own name', async () => {
+      vi.mocked(User.findOne).mockResolvedValue({ user_id: 'user123', username: 'a_cutie' });
+      const result = await isUsernameAvailable('cutie', 'user123');
+      expect(result).toEqual({ available: true });
+    });
+  });
+
+  describe('buildProfileLookupQuery', () => {
+    type Doc = Record<string, unknown>;
+
+    function fieldMatches(docValue: unknown, cond: unknown): boolean {
+      if (cond !== null && typeof cond === 'object' && !Array.isArray(cond)) {
+        const c = cond as { $in?: unknown[]; $regex?: string; $options?: string };
+        if (c.$in) return c.$in.includes(docValue);
+        if (c.$regex) return new RegExp(c.$regex, c.$options || '').test(String(docValue ?? ''));
+        return false;
+      }
+      return docValue === cond;
+    }
+
+    function matches(doc: Doc, query: Record<string, unknown>): boolean {
+      const clauses = query.$or as Array<Record<string, unknown>>;
+      return clauses.some((clause) => Object.entries(clause).every(([key, cond]) => fieldMatches(doc[key], cond)));
+    }
+
+    const deviceA: Doc = { user_id: 'u1', username: 'a_dbb4_aed5', short_username: 'a_dbb4' };
+    const deviceB: Doc = { user_id: 'u2', username: 'a_dbb4_7f2c', short_username: 'a_dbb4' };
+    const named: Doc = { user_id: 'u3', username: 'cyprianzube' };
+    const custom: Doc = { user_id: 'u4', username: 'a_cutie', custom_display_name: 'a_cutie', short_username: 'a_cutie' };
+
+    it('resolves the new unique canonical slug by exact username', () => {
+      const query = buildProfileLookupQuery('dbb4_aed5');
+      expect(query.$or).toContainEqual({ username: 'a_dbb4_aed5' });
+      expect(matches(deviceA, query)).toBe(true);
+      expect(matches(deviceB, query)).toBe(false);
+    });
+
+    it('resolves the legacy 4-character alias through short_username', () => {
+      const query = buildProfileLookupQuery('dbb4');
+      expect(query.$or).toContainEqual({ short_username: 'a_dbb4' });
+      expect(matches(deviceA, query)).toBe(true);
+    });
+
+    it('resolves the same account from every historical spelling', () => {
+      for (const slug of ['dbb4_aed5', 'a_dbb4_aed5', 'dbb4', 'a_dbb4']) {
+        expect(matches(deviceA, buildProfileLookupQuery(slug))).toBe(true);
+      }
+    });
+
+    it('resolves named and custom accounts', () => {
+      expect(matches(named, buildProfileLookupQuery('cyprianzube'))).toBe(true);
+      expect(matches(custom, buildProfileLookupQuery('cutie'))).toBe(true);
+      expect(matches(custom, buildProfileLookupQuery('a_cutie'))).toBe(true);
     });
   });
 

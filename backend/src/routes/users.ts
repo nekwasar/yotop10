@@ -7,7 +7,7 @@ import { Comment } from '../models/Comment';
 import { User } from '../models/User';
 import { Notification } from '../models/Notification';
 import { AdminMessage } from '../models/AdminMessage';
-import { isUsernameAvailable, recordUsernameChange } from '../lib/usernameService';
+import { isUsernameAvailable, recordUsernameChange, buildProfileLookupQuery } from '../lib/usernameService';
 import { calculateEffectivePostLimit, calculateEffectiveCommentLimit, RateLimitStatus, getRateLimitKey } from '../lib/rateLimit';
 import { getCategoryNameMap } from '../lib/categoryCache';
 import { checkAndPromoteUser } from '../lib/trustScore';
@@ -16,7 +16,7 @@ import { findUserByFingerprint, createUserForFingerprint, getClientIp, isLowEntr
 import { issuePowChallenge, verifyPowChallenge } from '../lib/proofOfWork';
 import { initIdentitySchema } from '../schemas/identity';
 import { isIdentityMature } from '../lib/identityMaturity';
-import { toShortUsername, toCustomShort, toDefaultShort, isDefaultFormat } from '../lib/username';
+import { toPublicSlug, toCustomShort, toDefaultShort, isDefaultFormat } from '../lib/username';
 
 const router: Router = Router();
 
@@ -432,39 +432,7 @@ router.get('/:username', async (req, res) => {
     
     console.log(`[USER PROFILE] Search variations: ${username}, ${cleanUsername}, a_${cleanUsername} (short=${isShort})`);
     
-    let user;
-    if (isShort) {
-      const short = `a_${cleanUsername.toLowerCase()}`;
-      user = await User.findOne({
-        $or: [
-          { short_username: short },
-          { short_username: username.toLowerCase() },
-          // Also match longer custom names starting with short prefix (e.g. a_cuti -> a_cutie)
-          { short_username: { $regex: `^a_${cleanUsername}`, $options: 'i' } },
-          { custom_display_name: { $regex: `^a_${cleanUsername}`, $options: 'i' } },
-          // Fallback for legacy users without short_username: regex on full
-          { username: { $regex: `^a_${cleanUsername}`, $options: 'i' } },
-          { custom_display_name: { $regex: `^a_${cleanUsername}`, $options: 'i' } }
-        ]
-      });
-    } else {
-      user = await User.findOne({
-        $or: [
-          { user_id: username },
-          { username },
-          { username: `a_${cleanUsername}` },
-          { custom_display_name: username },
-          { custom_display_name: `a_${cleanUsername}` },
-          { short_username: username.toLowerCase() },
-          { short_username: `a_${cleanUsername.toLowerCase()}` },
-          // Also handle truncated 4-char lookup for custom 5-char names (cutie vs cuti)
-          { custom_display_name: { $regex: `^a_${cleanUsername}`, $options: 'i' } },
-          { short_username: { $regex: `^a_${cleanUsername}`, $options: 'i' } }
-        ]
-      });
-    }
-
-
+    const user = await User.findOne(buildProfileLookupQuery(username));
     
     console.log(`[USER PROFILE] Query result: ${user ? 'FOUND' : 'NOT FOUND'} - ${user ? user.username : 'none'}`);
     
@@ -514,7 +482,7 @@ router.get('/:username', async (req, res) => {
     const approvalRate = decidedCount > 0 ? postsApproved / decidedCount : -1;
 
     const currentUsername = user.custom_display_name || user.username;
-    const cleanCurrentUsername = toShortUsername(currentUsername).replace(/^a_/, '');
+    const cleanCurrentUsername = toPublicSlug(currentUsername);
 
     // Get user comments
     const userComments = await Comment.find({ author_id: user.user_id })
