@@ -2058,9 +2058,9 @@ These features from the old social platform are NOT part of V1:
 - [x] D9 Unique identity URLs — fix `toPublicSlug` 4-hex collision
 
 ### M32.1 — Qualify user-placed links
-- [ ] `rel="ugc nofollow noopener noreferrer"` on list-item `source_url` anchors + profile external links
-- [ ] Internal `next/link` anchors unchanged (no `ugc`)
-- [ ] Component tests assert the exact `rel` value
+- [x] `rel="ugc nofollow noopener noreferrer"` on list-item `source_url` anchors + profile external links
+- [x] Internal `next/link` anchors unchanged (no `ugc`)
+- [x] Component tests assert the exact `rel` value
 
 ### M32.9 — Unique identity URLs
 - [ ] `toPublicSlug` collision-free for `a_xxxx_xxxx` accounts (unique, stable, resolvable)

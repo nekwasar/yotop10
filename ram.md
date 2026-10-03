@@ -20,9 +20,9 @@ All gates run **inside the dev container** (`docker exec yotop10_dev`), which no
 | Backend lint | ✅ 0 errors, 0 warnings |
 | Frontend lint | ✅ 0 errors, 0 warnings |
 | Backend build (`tsc`) | ✅ 0 errors |
-| Frontend build (`next build`) | ✅ exit 0 (via `Dockerfile.frontend` prod image build) |
+| Frontend build (`next build`) | ✅ exit 0 (scratch-dir `NODE_ENV=production` build + `Dockerfile.frontend` prod image) |
 | Backend tests (vitest) | ✅ 52 files, 713 passed, 4 skipped |
-| Frontend tests (vitest) | ✅ 17 files, 120 passed |
+| Frontend tests (vitest) | ✅ 18 files, 124 passed |
 | Prod stack (compose `-p yotop10`) | ✅ 7/7 containers healthy |
 | Dev stack (compose `-p yotop10dev`) | ✅ `yotop10_dev` up, :3200 / :8200 200 |
 
@@ -65,7 +65,8 @@ Hardcoded JWT, orphaned setInterval, $regex injection, stub 200s, health check o
 | 2.10 | Non-null assertion after findById | `!` in posts.ts:488 |
 
 ### Unfinished features:
-- **M32** — UGC & Search Compliance: 9 tasks (M32.1–M32.9), approved 2026-10-03, 0 of 9 done
+- **M32** — UGC & Search Compliance: 9 tasks (M32.1–M32.9), approved 2026-10-03, 1 of 9 done
+  (M32.1 link qualification `cec40df`)
 - **M5.6** — Counter-List System (The Arena): challenge/rebuttal, comparison engine, SEO governance
 - **M10.7** — Categories Management frontend: tree view, drag-drop, bulk ops, analytics
 - **M10.14** — Admin UI components: StatsChart, CategoryTree, UserBadge, SearchInput, DateRangePicker, ExportButton, ConfirmDialog
@@ -81,7 +82,7 @@ Hardcoded JWT, orphaned setInterval, $regex injection, stub 200s, health check o
 ## Next Steps (Priority Suggestion)
 
 1. **M32 — UGC & Search Compliance** *(ACTIVE, approved 2026-10-03)* — 9 tasks, execute in
-   this order: `M32.1` link qualification → `M32.9` unique identity URLs → `M32.2` index
+   this order: ~~`M32.1` link qualification~~ ✅ `cec40df` → `M32.9` unique identity URLs → `M32.2` index
    hygiene → `M32.3` authorship/structured data → `M32.4` guidelines + report flow →
    `M32.8` AI-assisted badge → `M32.5` discussion structured data → `M32.6` guard tests →
    `M32.7` Search Console verification + docs. Full plan: `docs/plans-m32-ugc-search-compliance.md`.
@@ -161,9 +162,13 @@ and no sitemap filter (F2), and the noindex/sitemap rule mismatch (F3).
      404s only on a real 404, outages show a retry screen, bare `/c` is a missing page.
   **Gates (in-container, 2026-10-03)**: backend tsc ✅ lint ✅ 0/0 build ✅ 52 files / 713 tests ✅;
   frontend tsc ✅ lint ✅ 0/0 build ✅ (prod image, exit 0) 17 files / 120 tests ✅.
-  Note: `npx next build` inside `yotop10_dev` is **not** a valid gate — it fights the running
-  `frontend-dev` pm2 process for `.next` (leaves `ENOENT prerender-manifest.json`); use the
-  `Dockerfile.frontend` prod image build, and repair the dev server with
+  Note: never build in place at `/app/frontend` inside `yotop10_dev` — it fights the running
+  `frontend-dev` pm2 process for `.next` (leaves `ENOENT prerender-manifest.json`). Fast
+  build gate (~3.5 min): copy sources to `/tmp/febuild` (exclude `.next`/`node_modules`,
+  symlink `node_modules`) and run `NODE_ENV=production npx next build` — the container's
+  exported `NODE_ENV=development` otherwise fails the build at `/404` with
+  `<Html> should not be imported outside of pages/_document`. Definitive gate (~11.5 min):
+  the `Dockerfile.frontend` prod image build. Repair only if the dev server is hit anyway:
   `pm2 stop frontend-dev && rm -rf .next && pm2 start frontend-dev`.
   **Prod verification (`docker compose -p yotop10 up -d --build`, 6/6 healthy)**:
   - 35 cookie-less backend calls → `200×30` then `425` (cap 30); wrong `X-Internal-Request`

@@ -1,7 +1,7 @@
 # M32 — UGC & Search Compliance Plan
 **Date**: 2026-10-03
-**Status**: ⏳ Approved — ready for implementation
-**Milestone**: M32 (next free commit ID: `[M32.1]`; `[M32.0]` = this docs commit)
+**Status**: 🔄 In progress — 1 of 9 tasks done
+**Milestone**: M32 (commits: `[M32.0]` docs, `[M32.1]` done; next free = `[M32.9]`)
 **Supersedes**: nothing — new milestone
 **Decided by**: product owner, on 2026-10-03 (all four open questions answered: adopt the
 recommended option in every case)
@@ -84,6 +84,20 @@ heuristic on posts/articles, noindex on `/search`, `/saved`, `/notifications`, `
 
 Execution order: **M32.1 → M32.9 → M32.2 → M32.3 → M32.4 → M32.8 → M32.5 → M32.6 → M32.7**.
 One task = one commit = `[M32.n] Description`, gated and pushed per AGENTS.md §3.0.
+
+**Progress**
+
+| Task | Status | Commit |
+|------|--------|--------|
+| M32.1 Qualify user-placed links | ✅ done | `cec40df [M32.1]` |
+| M32.9 Unique identity URLs | ⏳ pending | — |
+| M32.2 Index hygiene | ⏳ pending | — |
+| M32.3 Authorship / structured data | ⏳ pending | — |
+| M32.4 Guidelines + public reporting | ⏳ pending | — |
+| M32.8 AI-assisted disclosure | ⏳ pending | — |
+| M32.5 Discussion structured data | ⏳ pending | — |
+| M32.6 Anti-scaled-content guardrails | ⏳ pending | — |
+| M32.7 Search Console + docs | ⏳ pending | — |
 
 ### M32.1 — Qualify user-placed links (D6)
 - **Change**: `rel="ugc nofollow noopener noreferrer"` on list-item `source_url` anchors and
@@ -173,11 +187,24 @@ One task = one commit = `[M32.n] Description`, gated and pushed per AGENTS.md §
 
 ### Global gates (every task, per AGENTS.md §2.1)
 `cd backend && pnpm typecheck && pnpm lint && pnpm test` and
-`cd frontend && pnpm typecheck && pnpm lint && pnpm test`, plus frontend
-prod-image build (`Dockerfile.frontend`). Inside the dev container:
-`npx tsc --noEmit`, `ESLINT_USE_FLAT_CONFIG=false npx eslint …`, `npx vitest run`.
-**Never** run `npx next build` inside `yotop10_dev` (it corrupts the running dev server's
-`.next`) — use the prod image build as the build gate.
+`cd frontend && pnpm typecheck && pnpm lint && pnpm test`, plus a frontend build gate.
+Inside the dev container: `npx tsc --noEmit`, `ESLINT_USE_FLAT_CONFIG=false npx eslint …`,
+`npx vitest run`.
+
+Two valid build gates (measured 2026-10-03):
+- **Fast (~3.5 min)** — scratch-dir build inside `yotop10_dev`, never in `/app/frontend`:
+  ```bash
+  docker exec yotop10_dev bash -lc 'set -e; rm -rf /tmp/febuild; mkdir -p /tmp/febuild
+    cd /app/frontend && tar --exclude=.next --exclude=node_modules -cf - . | tar -xf - -C /tmp/febuild
+    ln -s /app/frontend/node_modules /tmp/febuild/node_modules
+    cd /tmp/febuild && NODE_ENV=production npx next build'
+  ```
+- **Definitive (~11.5 min)** — `docker compose -p yotop10 -f docker-compose.yml build frontend`.
+
+**Never** build in place at `/app/frontend` (it fights the running `frontend-dev` pm2 process
+for `.next` → `ENOENT prerender-manifest.json`), and **always** force `NODE_ENV=production`:
+the dev container exports `NODE_ENV=development`, which makes `next build` fail while
+prerendering `/404` with `<Html> should not be imported outside of pages/_document`.
 
 ---
 
