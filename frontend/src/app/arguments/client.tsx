@@ -9,6 +9,8 @@ import { ArgumentCard } from '@/components/ArgumentCard';
 import { CounterCard } from '@/components/CounterCard';
 import type { ArgumentPost, Category } from '@/lib/api/types';
 import { API } from '@/lib/api';
+import { useInitialFailure } from '@/lib/hooks/useInitialFailure';
+import { DataLoadError } from '@/components/DataLoadError';
 
 const PER_PAGE = 20;
 
@@ -23,9 +25,15 @@ interface ArgumentsClientProps {
   initialPosts: ArgumentPost[];
   initialCategories: Category[];
   initialHasMore: boolean;
+  initialFailed?: boolean;
 }
 
-export default function ArgumentsClient({ initialPosts, initialCategories, initialHasMore }: ArgumentsClientProps) {
+export default function ArgumentsClient({
+  initialPosts,
+  initialCategories,
+  initialHasMore,
+  initialFailed = false,
+}: ArgumentsClientProps) {
   const [posts, setPosts] = useState<ArgumentPost[]>(initialPosts);
   const [time, setTime] = useState<string>('all');
   const [category, setCategory] = useState<string>('');
@@ -49,6 +57,8 @@ export default function ArgumentsClient({ initialPosts, initialCategories, initi
     []
   );
 
+  // A failure must never blank the list the server already rendered — an
+  // empty array here is indistinguishable from "no debates exist".
   const resetFeed = useCallback(
     async (t: string, cat: string) => {
       fetchingRef.current = true;
@@ -57,9 +67,6 @@ export default function ArgumentsClient({ initialPosts, initialCategories, initi
         setPosts(data.arguments || []);
         pageRef.current = 1;
         hasMoreRef.current = 1 < (data.pagination?.totalPages || 1);
-      } catch {
-        setPosts([]);
-        hasMoreRef.current = false;
       } finally {
         fetchingRef.current = false;
       }
@@ -67,9 +74,18 @@ export default function ArgumentsClient({ initialPosts, initialCategories, initi
     [fetchArguments]
   );
 
+  const { failed, retrying, retry } = useInitialFailure(initialFailed, () => resetFeed(time, category));
+
+  // The server already fetched page 1 for these exact parameters, so refetching
+  // on mount is pure duplicate traffic — and it used to wipe good SSR data when
+  // it failed. Only refetch when the parameters actually change.
+  const lastQueryRef = useRef(`${time}|${category}`);
   useEffect(() => {
-    resetFeed(time, category);
-  }, [time, category, resetFeed]);
+    const query = `${time}|${category}`;
+    if (lastQueryRef.current === query) return;
+    lastQueryRef.current = query;
+    void retry();
+  }, [time, category, retry]);
 
   useEffect(() => {
     const sentinel = sentinelRef.current;
@@ -140,21 +156,25 @@ export default function ArgumentsClient({ initialPosts, initialCategories, initi
         </div>
 
         {posts.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-24 text-center">
-            <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-white/[0.03] border border-white/[0.08]">
-              <Icon name="MessageSquare" size={32} className="text-zinc-600" />
+          failed ? (
+            <DataLoadError onRetry={retry} retrying={retrying} />
+          ) : (
+            <div className="flex flex-col items-center justify-center py-24 text-center">
+              <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-white/[0.03] border border-white/[0.08]">
+                <Icon name="MessageSquare" size={32} className="text-zinc-600" />
+              </div>
+              <p className="text-zinc-500 text-lg max-w-md mb-6">
+                No active debates right now. Start one by submitting a This vs That or countering an existing list.
+              </p>
+              <Link
+                href="/new"
+                className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-red-600 px-6 py-3 text-base font-medium text-white transition hover:opacity-90"
+              >
+                <Icon name="Plus" size={16} />
+                Start a Debate
+              </Link>
             </div>
-            <p className="text-zinc-500 text-lg max-w-md mb-6">
-              No active debates right now. Start one by submitting a This vs That or countering an existing list.
-            </p>
-            <Link
-              href="/new"
-              className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-red-600 px-6 py-3 text-base font-medium text-white transition hover:opacity-90"
-            >
-              <Icon name="Plus" size={16} />
-              Start a Debate
-            </Link>
-          </div>
+          )
         ) : (
           <>
             <div className="space-y-3 pb-24">
