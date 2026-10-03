@@ -10,17 +10,47 @@ interface StatsData {
   total_facts: number;
 }
 
+const COUNT_KEYS = ['total_posts', 'total_debates', 'total_users', 'total_facts'] as const;
+
+/**
+ * The rail renders `.toLocaleString()` on every counter, so a partial or
+ * malformed payload would throw mid-render. Require all four to be finite
+ * numbers, otherwise hide the rail exactly like an error does.
+ */
+function toCounts(data: unknown): StatsData | null {
+  if (!data || typeof data !== 'object') return null;
+  const source = data as Record<string, unknown>;
+  const out: Partial<StatsData> = {};
+  for (const key of COUNT_KEYS) {
+    const value = source[key];
+    if (typeof value !== 'number' || !Number.isFinite(value)) return null;
+    out[key] = value;
+  }
+  return out as StatsData;
+}
+
 export function DesktopStats({ className = '' }: { className?: string }) {
   const [stats, setStats] = useState<StatsData | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
+
     (async () => {
       try {
         const { apiFetch } = await import('@/lib/api/client');
+        if (cancelled) return;
         const data = await apiFetch<StatsData>('/stats/platform');
-        setStats(data);
-      } catch { /* ignore */ }
+        if (cancelled) return;
+        setStats(toCounts(data));
+      } catch {
+        // Optional homepage rail: a failure hides the section rather than
+        // rendering an empty card.
+      }
     })();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   if (!stats) return null;

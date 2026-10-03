@@ -93,7 +93,16 @@ Routes are registered in `backend/src/routes/index.ts` as an array of `{ path, r
 | `/api/arguments` | `arguments.ts` | — | Hot debates with Redis sorting |
 | `/api/explore` | `explore.ts` | — | Explore scoring algorithm |
 | `/api/hall-of-fame` | `hallOfFame.ts` | — | Featured posts |
+| `/api/stats` | `stats.ts` | — | Public platform counters |
 | `/api/admin` | `admin.ts` | ~3466 | Admin dashboard, moderation, config, users |
+
+#### `GET /api/stats/platform`
+
+- **Auth**: public — no cookie, session, or admin token required.
+- **Query params**: Zod schema `backend/src/schemas/stats.ts` (`platformStatsQuerySchema`) — optional `refresh=1` to bypass the Redis cache; any other value returns `400 { code: 'VALIDATION', error }`.
+- **Response**: `200 { total_posts, total_debates, total_users, total_facts }` — counts of approved, non-deleted posts; approved posts of type `this_vs_that`/`counter_list` (matches `/api/arguments`); all users; approved `fact_drop` posts. Redis-cached for 60s (`stats:platform:v1`); cache reads/writes are best-effort so a Redis outage still returns `200`.
+- **Errors**: `400` invalid query, `500 { code: 'SERVER_ERROR', error: 'Failed to fetch platform stats' }` when the DB query fails.
+- **Consumer**: `frontend/src/components/DesktopStats.tsx` (homepage platform rail).
 
 ### Key Backend Libraries
 

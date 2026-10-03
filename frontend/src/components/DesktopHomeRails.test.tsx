@@ -16,7 +16,9 @@ const flush = async () => {
 };
 
 describe('DesktopTrending', () => {
-  beforeEach(() => apiFetchMock.mockReset());
+  beforeEach(() => {
+    apiFetchMock.mockReset();
+  });
 
   it('renders the query strings from the trending payload', async () => {
     apiFetchMock.mockResolvedValue({
@@ -52,10 +54,21 @@ describe('DesktopTrending', () => {
 
     expect(container.innerHTML).toBe('');
   });
+
+  it('hides the section when the request fails', async () => {
+    apiFetchMock.mockRejectedValue(new Error('425 Too Early'));
+
+    const { container } = render(<DesktopTrending />);
+    await flush();
+
+    expect(container.innerHTML).toBe('');
+  });
 });
 
 describe('DesktopHallOfFame', () => {
-  beforeEach(() => apiFetchMock.mockReset());
+  beforeEach(() => {
+    apiFetchMock.mockReset();
+  });
 
   it('renders entries from the featured payload', async () => {
     apiFetchMock.mockResolvedValue({
@@ -95,6 +108,15 @@ describe('DesktopHallOfFame', () => {
 
   it('does not crash when the payload has no featured key', async () => {
     apiFetchMock.mockResolvedValue({});
+
+    const { container } = render(<DesktopHallOfFame />);
+    await flush();
+
+    expect(container.innerHTML).toBe('');
+  });
+
+  it('hides the section when the request fails', async () => {
+    apiFetchMock.mockRejectedValue(new Error('boom'));
 
     const { container } = render(<DesktopHallOfFame />);
     await flush();
