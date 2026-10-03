@@ -55,6 +55,7 @@ export default function AdminClientShell({
       {hasPermission('articles:read') && nav('/admin/articles/pending', 'Pending Articles', 'Newspaper')}
       {hasPermission('posts:read') && nav('/admin/posts', 'All Posts', 'FileText')}
       {hasPermission('comments:read') && nav('/admin/comments', 'Comments', 'MessageCircle')}
+      {hasPermission('comments:read') && nav('/admin/reports', 'Reports', 'Flag')}
       {hasPermission('users:read') && nav('/admin/users', 'Users', 'Users')}
       {hasPermission('categories:read') && nav('/admin/categories', 'Categories', 'FolderTree')}
       {hasPermission('statistics:read') && nav('/admin/statistics', 'Statistics', 'ChartBar')}

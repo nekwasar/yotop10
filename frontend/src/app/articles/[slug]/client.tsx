@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { BookmarkButton } from '@/components/BookmarkButton';
 import { ShareButton } from '@/components/ShareButton';
+import { ReportButton } from '@/components/ReportButton';
 import { UserLink } from '@/components/UserLink';
 import { AuthorCard } from '@/components/AuthorCard';
 import { ArticleDetailSkeleton } from '@/components/ArticleDetailSkeleton';
@@ -107,6 +108,7 @@ export default function ArticleDetailClient({ slug, initialArticle, authorMember
           <div className="flex items-center gap-2">
             <BookmarkButton postId={article.id} contentType="article" />
             <ShareButton slug={article.slug} title={article.title} postId={article.id} />
+            <ReportButton targetType="article" targetId={article.id} />
           </div>
         </div>
 

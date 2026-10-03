@@ -20,6 +20,7 @@ import hallOfFameRouter from './hallOfFame';
 import statsRouter from './stats';
 import adminRouter from './admin';
 import queriesRouter from './queries';
+import reportsRouter from './reports';
 
 export interface RouteDefinition {
   path: string;
@@ -48,4 +49,5 @@ export const routes: RouteDefinition[] = [
   { path: '/api/hall-of-fame', router: hallOfFameRouter },
   { path: '/api/stats', router: statsRouter },
   { path: '/api/queries', router: queriesRouter },
+  { path: '/api/reports', router: reportsRouter },
 ];

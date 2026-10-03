@@ -437,6 +437,9 @@ describe('CI: every admin route has a permission mapping', () => {
       { method: 'GET', path: '/comments/stats' },
       { method: 'GET', path: '/comments/export' },
       { method: 'GET', path: '/comments/:id/activity' },
+      // Reports
+      { method: 'GET', path: '/reports' },
+      { method: 'PATCH', path: '/reports/:id' },
       // Users
       { method: 'GET', path: '/users' },
       { method: 'GET', path: '/users/:user_id' },

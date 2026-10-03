@@ -94,7 +94,7 @@ export default function AdminCommentsClient() {
   const isAutoFlag = (type: string | null) => type && type !== 'manual';
 
   const flagBadge = (type: string) => {
-    const map: Record<string, { label: string; icon: LucideIconName; colorClass: string }> = { spam_repetition: { label: 'Spam', icon: 'TriangleAlert', colorClass: 'bg-orange-600' }, spam_link_first: { label: 'Spam', icon: 'Link', colorClass: 'bg-orange-600' }, brigade_referrer: { label: 'Brigade', icon: 'BellDot', colorClass: 'bg-red-700' }, brigade_fresh: { label: 'Brigade', icon: 'BellDot', colorClass: 'bg-red-700' } };
+    const map: Record<string, { label: string; icon: LucideIconName; colorClass: string }> = { spam_repetition: { label: 'Spam', icon: 'TriangleAlert', colorClass: 'bg-orange-600' }, spam_link_first: { label: 'Spam', icon: 'Link', colorClass: 'bg-orange-600' }, brigade_referrer: { label: 'Brigade', icon: 'BellDot', colorClass: 'bg-red-700' }, brigade_fresh: { label: 'Brigade', icon: 'BellDot', colorClass: 'bg-red-700' }, user_report: { label: 'Report', icon: 'Flag', colorClass: 'bg-amber-600' } };
     const m = map[type] || { label: '', icon: 'TriangleAlert' as LucideIconName, colorClass: 'bg-white/20' };
     return <span className={`${m.colorClass} text-white rounded-full px-2.5 py-0.5 text-3xs font-semibold uppercase tracking-wider cursor-pointer`}><Icon name={m.icon} size={10} color="#fff" /> {m.label}</span>;
   };

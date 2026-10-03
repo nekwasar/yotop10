@@ -97,6 +97,10 @@ export const ROUTE_PERMISSIONS: Record<string, string> = {
   'GET /comments/export': 'comments:read',
   'GET /comments/:id/activity': 'comments:read',
 
+  // Reports (user-generated)
+  'GET /reports': 'comments:read',
+  'PATCH /reports/:id': 'comments:moderate',
+
   // Users
   'GET /users': 'users:read',
   'GET /users/:user_id': 'users:read',

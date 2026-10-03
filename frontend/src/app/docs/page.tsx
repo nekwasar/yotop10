@@ -8,6 +8,7 @@ export const metadata: Metadata = {
 };
 
 const LEGAL = [
+  { icon: 'Flag' as const, label: 'Community Guidelines', href: '/docs/guidelines', description: 'Anti-spam rules, moderation standards, and how to report content' },
   { icon: 'FileText' as const, label: 'Terms of Use', href: '/docs/terms', description: 'Rules and guidelines for using YoTop10' },
   { icon: 'Shield' as const, label: 'Privacy Policy', href: '/docs/privacy', description: 'How we collect, use, and protect your data' },
   { icon: 'Cookie' as const, label: 'Cookie Policy', href: '/docs/cookies', description: 'What cookies we use and how to manage them' },

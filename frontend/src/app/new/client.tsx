@@ -99,7 +99,12 @@ export default function NewPostClient() {
       </nav>
 
       <h1 className="text-2xl font-bold text-white mb-2 sm:text-3xl">Create New Post</h1>
-      <p className="text-sm text-zinc-500 mb-8">Choose a format to get started. No account required.</p>
+      <p className="text-sm text-zinc-500 mb-8">
+        Choose a format to get started. No account required.{' '}
+        <Link href="/docs/guidelines" className="text-orange-400 hover:text-orange-300 transition">
+          Read the Community Guidelines
+        </Link>
+      </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {TYPES.map(t => (

@@ -24,6 +24,8 @@ import { PlatformSnapshot } from '../models/PlatformSnapshot';
 import { Category } from '../models/Category';
 import { PageVisit } from '../models/PageVisit';
 import { Comment } from '../models/Comment';
+import { Report } from '../models/Report';
+import { reportListQuerySchema, updateReportSchema } from '../schemas/report';
 import { AlertThreshold } from '../models/AlertThreshold';
 import { AlertHistory } from '../models/AlertHistory';
 import { AlertNotificationModel } from '../models/AlertNotification';
@@ -1689,6 +1691,143 @@ router.post('/comments/bulk/unflag', async (req, res) => {
   if (!Array.isArray(ids) || ids.length === 0 || ids.length > 50) return res.status(400).json({ code: 'VALIDATION', error: 'Provide 1-50 IDs' });
   const r = await Comment.updateMany({ _id: { $in: ids } }, { $set: { flag_type: null, flag_evidence: null } });
   res.json({ success: true, unflagged: r.modifiedCount });
+});
+
+router.get('/reports', async (req, res) => {
+  try {
+    const parsed = reportListQuerySchema.safeParse(req.query);
+    if (!parsed.success) {
+      return res.status(400).json({ code: 'VALIDATION', error: parsed.error.issues.map((i) => i.message).join('; ') });
+    }
+    const { status, page, limit } = parsed.data;
+    const statusFilter = status === 'all' ? {} : { status };
+    const [reports, total] = await Promise.all([
+      Report.find(statusFilter).sort({ created_at: -1 }).skip((page - 1) * limit).limit(limit).lean(),
+      Report.countDocuments(statusFilter),
+    ]);
+
+    const commentIds = reports.filter((r) => r.target_type === 'comment').map((r) => r.target_id);
+    const postIds = reports.filter((r) => r.target_type === 'post').map((r) => r.target_id);
+    const articleIds = reports.filter((r) => r.target_type === 'article').map((r) => r.target_id);
+
+    const [comments, directPosts, articles] = await Promise.all([
+      commentIds.length > 0
+        ? Comment.find({ _id: { $in: commentIds } }).select('content post_id deleted').lean()
+        : Promise.resolve([]),
+      postIds.length > 0
+        ? Post.find({ _id: { $in: postIds } }).select('slug title deleted').lean()
+        : Promise.resolve([]),
+      articleIds.length > 0
+        ? Article.find({ _id: { $in: articleIds } }).select('slug title').lean()
+        : Promise.resolve([]),
+    ]);
+
+    const contextPostIds = comments
+      .map((comment) => comment.post_id)
+      .filter((postId): postId is NonNullable<typeof postId> => Boolean(postId));
+    const contextPosts = contextPostIds.length > 0
+      ? await Post.find({ _id: { $in: contextPostIds } }).select('slug title deleted').lean()
+      : [];
+
+    const postById = new Map(
+      [...directPosts, ...contextPosts].map((post) => [String(post._id), post]),
+    );
+    const commentById = new Map(comments.map((comment) => [String(comment._id), comment]));
+    const articleById = new Map(articles.map((article) => [String(article._id), article]));
+
+    const items = reports.map((report) => {
+      let target: { exists: boolean; title: string | null; excerpt: string | null; href: string | null } = {
+        exists: false,
+        title: null,
+        excerpt: null,
+        href: null,
+      };
+      if (report.target_type === 'comment') {
+        const comment = commentById.get(String(report.target_id));
+        const contextPost = comment?.post_id ? postById.get(String(comment.post_id)) : undefined;
+        if (comment && !comment.deleted) {
+          target = {
+            exists: true,
+            title: contextPost?.title ?? null,
+            excerpt: (comment.content || '').substring(0, 200),
+            href: contextPost && !contextPost.deleted ? `/${contextPost.slug}` : null,
+          };
+        }
+      } else if (report.target_type === 'post') {
+        const post = postById.get(String(report.target_id));
+        if (post && !post.deleted) {
+          target = { exists: true, title: post.title, excerpt: null, href: `/${post.slug}` };
+        }
+      } else {
+        const article = articleById.get(String(report.target_id));
+        if (article) {
+          target = { exists: true, title: article.title, excerpt: null, href: `/articles/${article.slug}` };
+        }
+      }
+
+      return {
+        id: String(report._id),
+        target_type: report.target_type,
+        target_id: String(report.target_id),
+        reason: report.reason,
+        details: report.details,
+        status: report.status,
+        created_at: report.created_at,
+        reporter_username: report.reporter_username,
+        target,
+      };
+    });
+
+    return res.json({
+      reports: items,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    });
+  } catch (error) {
+    console.error('Error listing reports:', error);
+    return res.status(500).json({ error: 'Failed to list reports' });
+  }
+});
+
+router.patch('/reports/:id', async (req, res) => {
+  try {
+    const parsed = updateReportSchema.safeParse(req.body || {});
+    if (!parsed.success) {
+      return res.status(400).json({ code: 'VALIDATION', error: parsed.error.issues.map((i) => i.message).join('; ') });
+    }
+    const report = await Report.findById(req.params.id);
+    if (!report) {
+      return res.status(404).json({ error: 'Report not found' });
+    }
+
+    report.status = parsed.data.status;
+    report.resolved_at = new Date();
+    await report.save();
+
+    if (parsed.data.status === 'dismissed' && report.target_type === 'comment') {
+      await Comment.updateOne(
+        { _id: report.target_id, flag_type: 'user_report' },
+        { $set: { flag_type: null, flag_evidence: null } },
+      );
+    }
+
+    logAudit({
+      admin_id: (req.admin?.id as string) || 'unknown',
+      action: parsed.data.status === 'dismissed' ? 'dismiss_report' : 'action_report',
+      ip: getClientIp(req),
+      metadata: {
+        report_id: report._id.toString(),
+        target_type: report.target_type,
+        target_id: String(report.target_id),
+        reporter_user_id: report.reporter_user_id,
+      },
+      user_agent: req.headers['user-agent'] || '',
+    });
+
+    return res.json({ ok: true, id: report._id, status: report.status });
+  } catch (error) {
+    console.error('Error updating report:', error);
+    return res.status(500).json({ error: 'Failed to update report' });
+  }
 });
 
 // ═══ Stats Endpoints ═══════════════════════════════════════════════

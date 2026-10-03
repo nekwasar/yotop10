@@ -12,6 +12,7 @@ import { CustomDropdown } from '@/components/CustomDropdown';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { BookmarkButton } from '@/components/BookmarkButton';
 import { ShareButton } from '@/components/ShareButton';
+import { ReportButton } from '@/components/ReportButton';
 import { UserLink } from '@/components/UserLink';
 import { ThisVsThatView } from '@/components/ThisVsThatView';
 import { BattleView } from '@/components/BattleView';
@@ -320,6 +321,11 @@ export default function PostDetailClient({
                 {isReplying ? 'Cancel' : 'Reply'}
               </button>
             )}
+            <ReportButton
+              targetType="comment"
+              targetId={comment.id}
+              className="rounded-lg px-2 py-1"
+            />
           </div>
 
           {isReplying && (
@@ -457,6 +463,7 @@ export default function PostDetailClient({
             <div className="flex items-center gap-3">
               <BookmarkButton postId={post.id} />
               <ShareButton slug={slug} title={post.title} postId={post.id} />
+              <ReportButton targetType="post" targetId={post.id} />
               <Link
                 href={`/${slug}/history`}
                 className="text-xs text-zinc-500 hover:text-orange-400 transition"
