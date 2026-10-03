@@ -1032,7 +1032,7 @@ This audit analyzed 39 source files:
 
 ---
 
-## ROM Tracker — Resolution Status (Updated 2026-05-08)
+## ROM Tracker — Resolution Status (Updated 2026-10-03)
 
 ### Resolved ✅
 | Section | Issue | Resolution |
@@ -1065,6 +1065,11 @@ This audit analyzed 39 source files:
 | NEW (2026-09-15) | Layout `openGraph.url` hardcoded to apex `https://yotop10.com` | ✅ Env-driven (`NEXT_PUBLIC_SITE_URL`); structured og:image with width/height/alt/type |
 | NEW (2026-09-15) | OG image generators used Satori-incompatible CSS (`display: -webkit-box`, `WebkitLineClamp`, system fonts) | ✅ Rewritten: Satori-safe primitives (`lib/seo/ogImageLayout.tsx`), Geist TTF via module-scope loader (`lib/seo/ogFonts.ts`), `export const alt`, immutable cache headers |
 | NEW (2026-09-15) | Article detail page CSR-only — title "Article Not Found" while metadata succeeded | ✅ Refactored to SSR-fetch + `initialArticle` prop, matching post page pattern |
+| NEW (2026-10-03) | Grace counter (425) keyed by frontend container IP blocked cookie-less SSR — pages rendered empty despite a full DB | ✅ SSR sends `X-Internal-Request` (`INTERNAL_API_SECRET`), `isInternalRequest()` skips the Redis counter (timing-safe, fails closed); `MAX_GRACE_REQUESTS` 10 → 30 (`fingerprint.ts`) |
+| NEW (2026-10-03) | Any transient SSR error was swallowed into an empty array — same empty state as a genuinely empty DB | ✅ `ssrLoad` (3 attempts + backoff, surfaces `failed`/`error`, optional terminal-error predicate); `DataLoadError` + `ReloadButton` on home, articles, explore, hall-of-fame, arguments, category feed |
+| NEW (2026-10-03) | Homepage rails read payload keys the API never sends (`entries`, `terms`) — permanently invisible | ✅ `DesktopHallOfFame` reads `featured`, `DesktopTrending` reads `trending[].query`, unmount-cancelled; contract locked by `DesktopHomeRails.test.tsx` |
+| NEW (2026-10-03) | `DesktopStats` fetched `/stats/platform` — a 404 since the route did not exist | ✅ New public `GET /api/stats/platform` (`routes/stats.ts`, Zod `schemas/stats.ts`, 60s Redis cache, 7 tests); rail validates all four counters before rendering |
+| NEW (2026-10-03) | `/c/[...slug]` called `notFound()` on *any* API failure — outages looked like dead categories | ✅ `ApiError` + `isNotFound` carry the HTTP status; only a real 404 404s, outages show a retry screen and `CategoryFeedClient` shows a feed-retry card instead of "No posts yet" |
 
 ### Still Open ⏳
 | Section | Issue | Notes |

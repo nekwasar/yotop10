@@ -1,9 +1,9 @@
 # RAM.md — Random Access Memory: Current Task State
 
-> **Last updated**: 2026-10-02
+> **Last updated**: 2026-10-03
 > **Working tree**: Clean — committed and pushed (only untracked `ref-yotop10/` + `backend/uploads/migrations-backups/`, both intentionally not committed)
 > **Branch**: main → up to date with origin/main
-> **Latest commits**: `b80830a [M31.6]`, `e62fe9e [M31.5]`, `c984516 [M31.4]`, `43da78e [M31.3]`
+> **Latest commits**: `dabc49f [M31.16]`, `edf8041 [M31.15]`, `5a28578 [M31.14]`, `695aba6 [M31.13]`, `3ee1812 [M31.12]`
 
 ---
 
@@ -20,8 +20,8 @@ All gates run **inside the dev container** (`docker exec yotop10_dev`), which no
 | Frontend lint | ✅ 0 errors, 0 warnings |
 | Backend build (`tsc`) | ✅ 0 errors |
 | Frontend build (`next build`) | ✅ exit 0 (via `Dockerfile.frontend` prod image build) |
-| Backend tests (vitest) | ✅ 50 files, 700 passed, 4 skipped |
-| Frontend tests (vitest) | ✅ 11 files, 84 passed |
+| Backend tests (vitest) | ✅ 52 files, 713 passed, 4 skipped |
+| Frontend tests (vitest) | ✅ 17 files, 120 passed |
 | Prod stack (compose `-p yotop10`) | ✅ 7/7 containers healthy |
 | Dev stack (compose `-p yotop10dev`) | ✅ `yotop10_dev` up, :3200 / :8200 200 |
 
@@ -30,16 +30,19 @@ All gates run **inside the dev container** (`docker exec yotop10_dev`), which no
 ## What Has Been Done
 
 ### Recent commits (top of main):
-1. **[M31.6]** Docker: ES healthcheck `start_period` 30s→90s, nginx `depends_on` frontend, dev image ships lint+test configs
-2. **[M31.5]** Tablet nav: top-bar search/bell moved to `.show-desktop` (≥980px) — kills duplicate icons vs bottom nav
-3. **[M31.4]** Move design template PDF from root into docs/handbook
-4. **[M31.1]–[M31.3]** YoTop10 handbook (7 chapters, print CSS, PDF/EPUB pipeline)
-5. **[M30.1]–[M30.8]** OG image overhaul (light cards, www domain, a11y alt)
-6. **[M29.1]–[M29.4]** Ranking order config + `/admin/config` UI
-7. **[M28.1]–[M28.2]** Preloader skeletons + notification dot badge
-8. **[M00.8]** Lower nav hide breakpoint to 980px, uncomment DynamicIsland hydration fix
-9. **[M00.7]** Remove faulty SW, fix responsive nav with plain CSS, comment out bottom nav
-10. **Various** — post cards v2/v3, admin SSR, moderator system (M17), loading skeletons
+1. **[M31.16]** `/c/[...slug]` 404s only on a real 404 — outages render a retry screen (`ApiError` + `isNotFound`, `ssrLoad` terminal-error predicate)
+2. **[M31.15]** New public `GET /api/stats/platform` (Zod + 60s Redis cache) behind the always-hidden DesktopStats rail
+3. **[M31.14]** Homepage rails read the payloads the API actually returns (`featured`, `trending[].query`)
+4. **[M31.13]** Categories: check `r.ok` + array shape before rendering
+5. **[M31.12]** Arguments: stop the mount refetch from blanking server-rendered posts
+6. **[M31.11]** Homepage: all 5 feeds through `ssrLoad`, browser API base fallback fixed, outage state
+7. **[M31.10]** SSR failures render a retry state instead of a false empty state
+8. **[M31.9]** Fingerprint grace: exempt SSR via shared secret, cap 10 → 30 (root-cause fix for B5)
+9. **[M31.8]** Gitignore `ref-yotop10/` + `backend/uploads/migrations-backups/`
+10. **[M31.7]** Docs sync: ram.md health table, M31.5/M31.6 log, Docker runbook
+11. **[M31.5]–[M31.6]** Tablet nav duplicate icons; Docker bring-up fixes (ES healthcheck, nginx depends_on, dev image ships lint+test configs)
+12. **[M31.1]–[M31.4]** YoTop10 handbook (7 chapters, print CSS, PDF/EPUB pipeline) + design template PDF moved into docs/handbook
+13. **[M30.1]–[M30.8]** OG image overhaul (light cards, www domain, a11y alt)
 
 ### Milestones completed (all checked ✅):
 M1 (Foundation), M2 (Schema), M3 (Submit), M4 (Feed), M5 (Post Detail), M6 (Categories), M7 (Comments), M9 (Admin Auth), M10 (Admin Dashboard), M11 (User System), M12 (Search), M13 (Arguments), M14 (Hall of Fame), M15 (Identity), M17 (Moderator System)
@@ -84,6 +87,55 @@ Hardcoded JWT, orphaned setInterval, $regex injection, stub 200s, health check o
 ---
 
 ## Latest Verification
+
+- **Empty-state sweep (M31.7–M31.17, 2026-10-03)** — reported symptom: every page could render
+  an empty state ("Be the first to rank your top 10", "No articles yet", "No active debates")
+  on reload despite a populated DB; homepage worst.
+  **Root cause (live-reproduced before the fix)**: `fingerprint.ts` counted every cookie-less
+  request against one per-IP Redis grace budget keyed by the frontend container's IP, so SSR
+  burned it instantly — 14 cookie-less calls returned `200×10` then `425×4`, Redis held
+  `grace:::ffff:172.18.0.3 = 25`, and 6 rapid homepage reloads produced 44,853-byte pages with
+  2× `Welcome to YoTop10` while HTTP said 200 and all 5 backend calls said 425. 14 distinct
+  contributors were then enumerated and fixed:
+  1. **[M31.9]** SSR sends `X-Internal-Request` (`INTERNAL_API_SECRET`, required in both compose
+     files); `isInternalRequest()` mints an anonymous identity without touching the counter
+     (timing-safe, fails closed). `MAX_GRACE_REQUESTS` 10 → 30. +6 backend, +3 frontend tests.
+  2. **[M31.10]** `ssrLoad` (3 attempts, 200/400ms backoff, `{data,failed}`) + `useInitialFailure`
+     + `DataLoadError` + `ReloadButton` on `/articles`, `/explore`, `/hall-of-fame`.
+  3. **[M31.11]** Homepage: all 5 feeds through `ssrLoad`; `getBaseUrl()` no longer falls back to
+     `http://backend:8000/api` in the browser (that hostname does not resolve client-side);
+     `contentUnavailable` renders an outage screen with `ReloadButton`.
+  4. **[M31.12]** `/arguments` mount refetch no longer `catch → setPosts([])`; query-key guard
+     skips the identical immediate refetch; empty branch renders `DataLoadError` when `failed`.
+  5. **[M31.13]** `/categories` checks `r.ok` + `Array.isArray` + retry button (was `as any`).
+  6. **[M31.14]** `DesktopHallOfFame` read `entries` (API sends `featured`), `DesktopTrending`
+     read `terms` (API sends `trending[].query`); both unmount-cancelled + contract tests.
+  7. **[M31.15]** New public `GET /api/stats/platform` (Zod `schemas/stats.ts`, 60s Redis cache,
+     cache best-effort) — `DesktopStats` had been calling a route that never existed, plus
+     `.toLocaleString()` hardening. **Test-harness bug found here**: `beforeEach(() => x.mockReset())`
+     returns the Mock, which vitest records as an onTestFinished cleanup hook and *calls* after
+     the test — that was the phantom second `apiFetch` and the bogus "425 Too Early" failures.
+  8. **[M31.16]** `ApiError` + `isNotFound` carry the HTTP status (message format unchanged for
+     the 5 screens parsing `API Error: (\d+)`); `ssrLoad` gained `error` + `isTerminal`; `/c/[...slug]`
+     404s only on a real 404, outages show a retry screen, bare `/c` is a missing page.
+  **Gates (in-container, 2026-10-03)**: backend tsc ✅ lint ✅ 0/0 build ✅ 52 files / 713 tests ✅;
+  frontend tsc ✅ lint ✅ 0/0 build ✅ (prod image, exit 0) 17 files / 120 tests ✅.
+  Note: `npx next build` inside `yotop10_dev` is **not** a valid gate — it fights the running
+  `frontend-dev` pm2 process for `.next` (leaves `ENOENT prerender-manifest.json`); use the
+  `Dockerfile.frontend` prod image build, and repair the dev server with
+  `pm2 stop frontend-dev && rm -rf .next && pm2 start frontend-dev`.
+  **Prod verification (`docker compose -p yotop10 up -d --build`, 6/6 healthy)**:
+  - 35 cookie-less backend calls → `200×30` then `425` (cap 30); wrong `X-Internal-Request`
+    → 425 (fails closed); real secret → 200 immediately after exhaustion.
+  - 70-request SSR burst (20× `/` plus 10× each `/articles`, `/explore`, `/arguments`,
+    `/c/sports`, `/hall-of-fame`, 8 workers, 16.1s): **70/70 HTTP 200, byte-identical per page
+    (276,015 / 65,191 / 84,965 / 135,617 / 96,950 / 59,724), zero false-empty markers.**
+  - `GET /api/stats/platform` 200 on :8100 and through the frontend rewrite; `refresh=nope` → 400.
+  - `/c/sports` → `Sports & Athletics — YoTop10`; `/c/nope-cat-xyz` → `Category Not Found`
+    (no failure card, no empty list); backend stopped → `Category — YoTop10` + retry card.
+  - Commits `972a90a`…`dabc49f` ([M31.9]–[M31.16]) pushed to `origin/main`; docs synced in this
+    [M31.17] commit (`bugs.md` B5 closed, `rom.md` +5 resolved rows, `product_spec.md` §6,
+    `detailed.md` endpoint contract).
 
 - **Abuse response (M20.1–M20.3, 2026-09-14)** — bot flood (19 accounts/24h in pairs, zero-cluster
   fp collisions, 36-second handle squat) met with: simple math challenge + per-IP rate limits on

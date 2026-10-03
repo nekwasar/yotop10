@@ -130,11 +130,24 @@ All counters update automatically after each action.
 - URL: `/c/[slug]`
 - Posts filtered by specific category
 - Same sorting: newest first
+- **404 only for a real 404**: the backend `GET /api/categories/:slug` 404 (or a bare `/c`) renders Not Found. A 425/5xx/network failure renders a retry screen instead — an outage must never look like a dead category, and it must never render "No posts yet". If the category loads but the feed does not, the category header stays and the feed area shows a retry card.
 
 ### Browse Categories
 - URL: `/categories`
 - Shows all available categories
 - Click to filter feed by category
+
+### Homepage Platform Rail
+- Counts shown: posts, debates, curators, facts
+- Source: `GET /api/stats/platform` (public, Redis-cached ~60s)
+- Optional `refresh=1` bypasses the cache; any other value is `400 VALIDATION`
+- Failure hides the rail; a payload missing a counter hides it too (never a zeroed/garbled card)
+
+### API Endpoints
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | /api/stats/platform | public | `{ total_posts, total_debates, total_users, total_facts }` — see `docs/detailed.md` for the full contract |
 
 ---
 

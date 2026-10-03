@@ -1,6 +1,6 @@
 # Bug Tracker
 
-> Last updated: 2026-05-05 — Post slug-based category migration + global check-title + reconciler implementation.
+> Last updated: 2026-10-03 — M31 empty-state sweep ([M31.9]–[M31.16]) closed B5.
 
 ## Open
 
@@ -17,7 +17,6 @@
 | # | Area | Description | Priority |
 |---|---|---|---|
 | B4 | Dead comments routes | Comments router is mounted at `/api/comments` with routes like `GET /api/comments/posts/:id/comments`. But comments are also served from the posts router at `/api/posts/:idOrSlug/comments`. Two code paths. The comments router's `/posts/:id/comments` and `POST /posts/:id/comments` were already removed. Remaining: `GET /api/comments/comments/:id` (double-comments URL) for PATCH/DELETE/SPARK. These work but the URL pattern is unclean. **Fix**: mount comments router at `/api/comments` with clean paths `/:id`, `/:id/spark` (no `/comments/comments` prefix). | Medium |
-| B5 | Fingerprint middleware cross-contamination | Admin routes are exempt from fingerprint middleware (since `86a06bf`). But regular user routes AND post detail SSR share one Redis grace period counter per IP. 3 requests across all endpoints, then everything blocks. Post detail page SSR fetches 2-3 API calls internally, consuming the grace period before the browser even renders. **Fix**: increase grace period to 10 requests, or add per-endpoint grace counters, or detect SSR via User-Agent and bypass. | High |
 
 ### Frontend
 
@@ -41,6 +40,21 @@
 | # | Area | Description | Priority |
 |---|---|---|---|
 | B13 | Elasticsearch unused | ES is connected at startup but has zero indexes, zero search endpoints, zero data flowing into it. It's a running container consuming memory with no purpose. **Fix**: either implement M12 search, or disable ES container in dev compose to save resources. | Low |
+
+---
+
+## Recently Fixed (2026-10-03 — M31 empty-state sweep, [M31.9]–[M31.16])
+
+| Fix | Description |
+|-----|-------------|
+| `[972a90a]` | **B5 (was High)** SSR exempt from the fingerprint grace counter: SSR requests send `X-Internal-Request` with `INTERNAL_API_SECRET`, backend `isInternalRequest()` mints an anonymous identity without touching Redis; cap 10 → 30 |
+| `4372481` | Shared `ssrLoad` retry (3 attempts, backoff) + `DataLoadError`/`ReloadButton` on `/articles`, `/explore`, `/hall-of-fame` |
+| `cc4a1e0` | Homepage: all 5 feeds through `ssrLoad`, `getBaseUrl` no longer falls back to `backend:8000` in the browser, outage screen instead of "Welcome to YoTop10" |
+| `3ee1812` | `/arguments`: no mount refetch over SSR data; failure keeps the retry affordance instead of blanking to `[]` |
+| `695aba6` | `/categories`: check `r.ok` + array shape before rendering |
+| `5a28578` | `DesktopHallOfFame` reads `featured` (was `entries`), `DesktopTrending` reads `trending[].query` (was `terms`) |
+| `edf8041` | New `GET /api/stats/platform` (Zod + 60s Redis cache) behind the always-hidden DesktopStats rail |
+| `dabc49f` | `/c/[...slug]` 404s only on an explicit 404; outages render a retry screen, not a dead link |
 
 ---
 
