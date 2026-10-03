@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Icon } from './icons/Icon';
+import { UserLink } from './UserLink';
 
 interface ImageUploaderProps {
   currentUrl?: string | null;
@@ -132,7 +133,7 @@ export function ImageUploader({ currentUrl, onUpload, label = 'Cover Image', cla
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-zinc-900/90 p-3 text-center">
               <Icon name="ImageOff" size={20} className="text-zinc-600" />
               <p className="text-xs text-zinc-400 max-w-[90%] truncate">{preview}</p>
-              <p className="text-2xs text-zinc-600">Preview failed — image may still save. Try direct link ending in .jpg/.png/.webp or <a href={preview} target="_blank" rel="noopener noreferrer" className="underline text-orange-400">open URL</a>.</p>
+              <p className="text-2xs text-zinc-600">Preview failed — image may still save. Try direct link ending in .jpg/.png/.webp or <UserLink href={preview} className="underline text-orange-400">open URL</UserLink>.</p>
             </div>
           )}
           <button

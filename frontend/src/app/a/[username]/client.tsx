@@ -11,6 +11,7 @@ import { useAuthStore } from '@/stores/auth';
 import { useRateLimitStore } from '@/stores/rateLimit';
 import { SecureMyAuthority } from '@/components/SecureMyAuthority';
 import { toPublicSlug } from '@/lib/username';
+import { UserLink } from '@/components/UserLink';
 
 interface UserProfile {
   username: string;
@@ -326,9 +327,9 @@ export default function UserProfileClient({ initialProfile }: { initialProfile: 
               <div className="rounded-2xl border border-white/5 bg-white/[0.03] p-5">
                 <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-500 mb-3 flex items-center gap-2"><Icon name="Link" size={12} /> Links</h2>
                 <div className="flex flex-col gap-2">
-                  {profile.links.medium && <a href={`https://medium.com/@${profile.links.medium}`} target="_blank" rel="me noopener" className="flex items-center gap-2 rounded-xl border border-white/5 bg-white/5 px-3 py-2.5 text-sm text-zinc-300 hover:text-white hover:bg-white/10 transition"><Icon name="Link" size={14} className="text-zinc-500" /> medium.com/@{profile.links.medium}</a>}
-                  {profile.links.x && <a href={`https://x.com/${profile.links.x}`} target="_blank" rel="me noopener" className="flex items-center gap-2 rounded-xl border border-white/5 bg-white/5 px-3 py-2.5 text-sm text-zinc-300 hover:text-white hover:bg-white/10 transition"><Icon name="Link" size={14} className="text-zinc-500" /> x.com/{profile.links.x}</a>}
-                  {profile.links.github && <a href={`https://github.com/${profile.links.github}`} target="_blank" rel="me noopener" className="flex items-center gap-2 rounded-xl border border-white/5 bg-white/5 px-3 py-2.5 text-sm text-zinc-300 hover:text-white hover:bg-white/10 transition"><Icon name="Link" size={14} className="text-zinc-500" /> github.com/{profile.links.github}</a>}
+                  {profile.links.medium && <UserLink href={`https://medium.com/@${profile.links.medium}`} extraRel="me" className="flex items-center gap-2 rounded-xl border border-white/5 bg-white/5 px-3 py-2.5 text-sm text-zinc-300 hover:text-white hover:bg-white/10 transition"><Icon name="Link" size={14} className="text-zinc-500" /> medium.com/@{profile.links.medium}</UserLink>}
+                  {profile.links.x && <UserLink href={`https://x.com/${profile.links.x}`} extraRel="me" className="flex items-center gap-2 rounded-xl border border-white/5 bg-white/5 px-3 py-2.5 text-sm text-zinc-300 hover:text-white hover:bg-white/10 transition"><Icon name="Link" size={14} className="text-zinc-500" /> x.com/{profile.links.x}</UserLink>}
+                  {profile.links.github && <UserLink href={`https://github.com/${profile.links.github}`} extraRel="me" className="flex items-center gap-2 rounded-xl border border-white/5 bg-white/5 px-3 py-2.5 text-sm text-zinc-300 hover:text-white hover:bg-white/10 transition"><Icon name="Link" size={14} className="text-zinc-500" /> github.com/{profile.links.github}</UserLink>}
                 </div>
               </div>
             </div>

@@ -12,6 +12,7 @@ import { CustomDropdown } from '@/components/CustomDropdown';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { BookmarkButton } from '@/components/BookmarkButton';
 import { ShareButton } from '@/components/ShareButton';
+import { UserLink } from '@/components/UserLink';
 import { ThisVsThatView } from '@/components/ThisVsThatView';
 import { BattleView } from '@/components/BattleView';
 import { CounterListSection } from '@/components/CounterListSection';
@@ -388,9 +389,9 @@ export default function PostDetailClient({
             ))}
             {items[0]?.source_url && (
               <div className="text-center mt-8">
-                <a href={items[0].source_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm text-orange-400 hover:text-orange-300 transition">
+                <UserLink href={items[0].source_url} className="inline-flex items-center gap-1.5 text-sm text-orange-400 hover:text-orange-300 transition">
                   <Icon name="ExternalLink" size={14} /> View Source
-                </a>
+                </UserLink>
               </div>
             )}
             <div className="flex items-center justify-center gap-3 mt-8">
@@ -531,15 +532,13 @@ export default function PostDetailClient({
                     )}
                     <div className="flex items-center gap-3">
                       {item.source_url && (
-                        <a
+                        <UserLink
                           href={item.source_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
                           className="inline-flex items-center gap-1 text-xs text-orange-400 hover:text-orange-300 transition"
                         >
                           <Icon name="ExternalLink" size={11} />
                           Source
-                        </a>
+                        </UserLink>
                       )}
                       <button
                         onClick={() => toggleItemDropdown(item.id)}

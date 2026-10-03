@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { BookmarkButton } from '@/components/BookmarkButton';
 import { ShareButton } from '@/components/ShareButton';
+import { UserLink } from '@/components/UserLink';
 import { ArticleDetailSkeleton } from '@/components/ArticleDetailSkeleton';
 import { Icon } from '@/components/icons/Icon';
 import { relativeTime } from '@/lib/dates';
@@ -119,9 +120,9 @@ export default function ArticleDetailClient({ slug, initialArticle }: ArticleDet
             <ul className="space-y-2">
               {article.sources.map((source, idx) => (
                 <li key={idx}>
-                  <a href={source.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm text-orange-400 hover:text-orange-300 transition">
+                  <UserLink href={source.url} className="inline-flex items-center gap-1.5 text-sm text-orange-400 hover:text-orange-300 transition">
                     <Icon name="ExternalLink" size={12} /> {source.title || source.url}
-                  </a>
+                  </UserLink>
                 </li>
               ))}
             </ul>

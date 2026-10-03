@@ -9,6 +9,7 @@ import { BookmarkButton } from './BookmarkButton';
 import { ShareButton } from './ShareButton';
 import { relativeTime } from '@/lib/dates';
 import { toPublicSlug } from '@/lib/username';
+import { UserLink } from '@/components/UserLink';
 
 interface ListItem {
   id: string;
@@ -158,9 +159,9 @@ export function ThisVsThatView({ slug, post, items }: ThisVsThatViewProps) {
             {sideA?.justification || ''}
           </p>
           {sideA?.source_url && (
-            <a href={sideA.source_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-orange-400 hover:text-orange-300 transition">
+            <UserLink href={sideA.source_url} className="inline-flex items-center gap-1 text-xs text-orange-400 hover:text-orange-300 transition">
               <Icon name="ExternalLink" size={11} /> Source
-            </a>
+            </UserLink>
           )}
           <div className="mt-4 flex items-center justify-between pt-4 border-t border-white/5">
             <button
@@ -210,9 +211,9 @@ export function ThisVsThatView({ slug, post, items }: ThisVsThatViewProps) {
             {sideB?.justification || ''}
           </p>
           {sideB?.source_url && (
-            <a href={sideB.source_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-orange-400 hover:text-orange-300 transition">
+            <UserLink href={sideB.source_url} className="inline-flex items-center gap-1 text-xs text-orange-400 hover:text-orange-300 transition">
               <Icon name="ExternalLink" size={11} /> Source
-            </a>
+            </UserLink>
           )}
           <div className="mt-4 flex items-center justify-between pt-4 border-t border-white/5">
             <button
