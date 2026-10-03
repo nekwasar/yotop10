@@ -125,9 +125,8 @@ Source: `docs/plans-m32-ugc-search-compliance.md`, `docs/milestones.md` M32, `do
 - **Public report flow** — `POST /api/reports` (Zod-validated, audit-logged) landing in the
   existing admin flag queues (M32.4)
 - **AI-assisted badge** — optional author-toggled `Post.ai_assisted` flag + UI badge (M32.8)
-- **Authorship structured data** — `ProfilePage` + `Person` on `/a/[username]`,
-  `Article` + `author` on `/articles/[slug]`, `Comment`/`DiscussionForumPosting` on post
-  pages with comments (M32.3, M32.5)
+- **Discussion structured data** — `Comment`/`DiscussionForumPosting` JSON-LD on post pages
+  with comments (M32.5)
 - **Synthetic-author guard test** — blocks `any_seed`/seed content from prod datasets (M32.6)
 
 ---

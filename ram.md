@@ -3,7 +3,7 @@
 > **Last updated**: 2026-10-03
 > **Working tree**: Clean — committed and pushed (only untracked `ref-yotop10/` + `backend/uploads/migrations-backups/`, both intentionally not committed)
 > **Branch**: main → up to date with origin/main
-> **Latest commits**: `39a0546 [M32.2]`, `61af11b [M32.2]`, `ee8da1d [M32.9]`, `a91c8fe [M32.1 docs]`, `cec40df [M32.1]`
+> **Latest commits**: `f36dfbd [M32.3]`, `ad93544 [M32.2 docs]`, `39a0546 [M32.2]`, `61af11b [M32.2]`, `ee8da1d [M32.9]`
 > **Active milestone**: **M32 — UGC & Search Compliance** (planned 2026-10-03, plan in `docs/plans-m32-ugc-search-compliance.md`)
 
 ---
@@ -22,7 +22,7 @@ All gates run **inside the dev container** (`docker exec yotop10_dev`), which no
 | Backend build (`tsc`) | ✅ 0 errors |
 | Frontend build (`next build`) | ✅ exit 0 (scratch-dir `NODE_ENV=production` build + `Dockerfile.frontend` prod image) |
 | Backend tests (vitest) | ✅ 55 files, 781 passed, 4 skipped |
-| Frontend tests (vitest) | ✅ 20 files, 156 passed |
+| Frontend tests (vitest) | ✅ 22 files, 173 passed |
 | Prod stack (compose `-p yotop10`) | ✅ 7/7 containers healthy |
 | Dev stack (compose `-p yotop10dev`) | ✅ `yotop10_dev` up, :3200 / :8200 200 |
 
@@ -65,9 +65,9 @@ Hardcoded JWT, orphaned setInterval, $regex injection, stub 200s, health check o
 | 2.10 | Non-null assertion after findById | `!` in posts.ts:488 |
 
 ### Unfinished features:
-- **M32** — UGC & Search Compliance: 9 tasks (M32.1–M32.9), approved 2026-10-03, 3 of 9 done
+- **M32** — UGC & Search Compliance: 9 tasks (M32.1–M32.9), approved 2026-10-03, 4 of 9 done
   (M32.1 link qualification `cec40df`, M32.9 unique identity URLs `ee8da1d`, M32.2 index
-  hygiene `61af11b` + `39a0546`)
+  hygiene `61af11b` + `39a0546`, M32.3 authorship structured data `f36dfbd`)
 - **M5.6** — Counter-List System (The Arena): challenge/rebuttal, comparison engine, SEO governance
 - **M10.7** — Categories Management frontend: tree view, drag-drop, bulk ops, analytics
 - **M10.14** — Admin UI components: StatsChart, CategoryTree, UserBadge, SearchInput, DateRangePicker, ExportButton, ConfirmDialog
@@ -84,8 +84,8 @@ Hardcoded JWT, orphaned setInterval, $regex injection, stub 200s, health check o
 
 1. **M32 — UGC & Search Compliance** *(ACTIVE, approved 2026-10-03)* — 9 tasks, execute in
    this order: ~~`M32.1` link qualification~~ ✅ `cec40df` → ~~`M32.9` unique identity URLs~~
-   ✅ `ee8da1d` → ~~`M32.2` index hygiene~~ ✅ `61af11b` + `39a0546` → `M32.3`
-   authorship/structured data → `M32.4`
+   ✅ `ee8da1d` → ~~`M32.2` index hygiene~~ ✅ `61af11b` + `39a0546` → ~~`M32.3`
+   authorship/structured data~~ ✅ `f36dfbd` → `M32.4`
    guidelines + report flow → `M32.8` AI-assisted badge → `M32.5` discussion structured data →
    `M32.6` guard tests → `M32.7` Search Console verification + docs. Full plan:
    `docs/plans-m32-ugc-search-compliance.md`.
@@ -126,15 +126,36 @@ user-placed links `rel="ugc"`/`nofollow`.
 no `rel="ugc"` anywhere in the frontend (F1), all 17 profiles indexable with no `robots` meta
 and no sitemap filter (F2), and the noindex/sitemap rule mismatch (F3).
 
-**Status**: 3 of 9 tasks done — **M32.1** link qualification (`cec40df` + `a91c8fe` docs),
+**Status**: 4 of 9 tasks done — **M32.1** link qualification (`cec40df` + `a91c8fe` docs),
 **M32.9** unique identity URLs (`ee8da1d`), **M32.2** index hygiene (`61af11b` + `39a0546`,
-D4 extended to articles per `docs/product_spec.md` §22.2). Each task = one gated, pushed
-commit `[M32.n]`, docs synced per AGENTS.md §3.0. Next: `M32.3` authorship/structured data.
+D4 extended to articles per `docs/product_spec.md` §22.2), **M32.3** authorship structured
+data (`f36dfbd`). Each task = one gated, pushed commit `[M32.n]`, docs synced per
+AGENTS.md §3.0. Next: `M32.4` guidelines + public reporting.
 
 ---
 
 ## Latest Verification
 
+- **M32.3 authorship structured data (2026-10-03)** — commit `f36dfbd` (8 files, +461).
+  Gates: frontend tsc 0 / lint 0-0 / **173 tests** (22 files); backend unchanged but re-run:
+  tsc 0 / lint 0-0 / **781 tests**; scratch-dir production `next build` exit 0.
+  New `frontend/src/lib/seo/structuredData.ts` builds `ProfilePage` + `Person`
+  (name = `toPublicSlug`, url, bio, image, `sameAs` from the three visible social links,
+  member-since as `OrganizationMembership.startDate`, all omitted when absent — no invented
+  fields) and `Article` (headline, 160-char description mirroring the meta description,
+  image/cover, `datePublished`/`dateModified`, `articleSection`, `author` Person → profile
+  URL); `components/AuthorCard.tsx` renders the standardized byline: avatar →
+  `By {name}` → profile link → `Member since {date}` → `History` →
+  `/a/{slug}#post-history` (anchor added to the profile posts tab). Wired on
+  `/a/[username]` and `/articles/[slug]` (member-since via one cached
+  `GET /users/{author}` read, `revalidate: 3600`); post pages untouched (plan scope).
+  Tests: `structuredData.test.ts` (13) + `AuthorCard.test.tsx` (4) assert exact schema
+  shapes, the byline↔JSON-LD URL equivalence and that empty optionals stay absent.
+  Live production-build probe: profile emits `ProfilePage`/`Person` with
+  `@id …#profile`/`…#person`; article emits `"@type":"Article"` with
+  `"author":{"@type":"Person","name":"cyprianzube","url":"https://yotop10.com/a/cyprianzube"}`,
+  byline/`History` anchors and `id="post-history"` all resolve, `robots` still
+  `noindex, follow` (M32.2 unchanged).
 - **M32.2 index hygiene (2026-10-03)** — commits `61af11b` (20 files, +1190) + `39a0546`
   (D4 on articles). In-container gates: backend tsc 0 / lint 0-0 / **781 tests** (55 files,
   4 skipped); frontend tsc 0 / lint 0-0 / **156 tests** (20 files); frontend production build

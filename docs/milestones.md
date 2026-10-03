@@ -2040,11 +2040,11 @@ These features from the old social platform are NOT part of V1:
 
 ---
 
-## M32 — UGC & Search Compliance (IN PROGRESS — 3 of 9 done, 2026-10-03)
+## M32 — UGC & Search Compliance (IN PROGRESS — 4 of 9 done, 2026-10-03)
 
 > Research-backed plan for Google people-first / UGC / scaled-content compliance.
 > Full plan + audit evidence: `docs/plans-m32-ugc-search-compliance.md`.
-> Status: M32.1 (`cec40df`) + M32.9 (`ee8da1d`) + M32.2 (`61af11b` + `39a0546`) shipped.
+> Status: M32.1 (`cec40df`) + M32.9 (`ee8da1d`) + M32.2 (`61af11b` + `39a0546`) + M32.3 (`f36dfbd`) shipped.
 > One task = one gated commit `[M32.n]`.
 
 ### Decisions (locked — do not re-litigate)
@@ -2077,10 +2077,10 @@ These features from the old social platform are NOT part of V1:
 - [x] New `GET /posts/sitemap` + `GET /articles/sitemap` (also removes the 50-item cap the sitemaps inherited from `GET /posts?limit=…`)
 
 ### M32.3 — Authorship signals & structured data
-- [ ] `ProfilePage` + `Person` JSON-LD on `/a/[username]`
-- [ ] `Article` JSON-LD with `author` on `/articles/[slug]`
-- [ ] Standardized author card: byline → profile → member-since → history
-- [ ] JSON-LD mirrors visible content (structured-data general policy); Rich Results Test-clean
+- [x] `ProfilePage` + `Person` JSON-LD on `/a/[username]`
+- [x] `Article` JSON-LD with `author` on `/articles/[slug]`
+- [x] Standardized author card: byline → profile → member-since → history
+- [x] JSON-LD mirrors visible content (structured-data general policy); Rich Results Test-clean
 
 ### M32.4 — Abuse policy + public reporting
 - [ ] `/docs/guidelines` — anti-spam policy, moderation rules, anonymity policy, AI-assisted disclosure (D5), how to report

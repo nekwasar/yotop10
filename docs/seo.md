@@ -107,8 +107,8 @@ Google does NOT support IndexNow. For Google, use Search Console (below).
 
 Audit of Google's people-first / UGC / scaled-content policies against this build. Full plan
 + evidence: `docs/plans-m32-ugc-search-compliance.md`. **M32.1 (link qualification),
-M32.9 (unique identity URLs) and M32.2 (index hygiene) are shipped; every other row is
-still pending.**
+M32.9 (unique identity URLs), M32.2 (index hygiene) and M32.3 (authorship structured
+data) are shipped; every other row is still pending.**
 
 | Gap | Current state | Fix |
 |---|---|---|
@@ -117,7 +117,7 @@ still pending.**
 | No reputation gate on posts | ✅ shipped — `lib/reputation.ts` (D4) + `seoGuard.author_reputable` gate both post **and** article detail responses (fail-closed on unknown author); post `noindex` until author has ≥1 approved post ∧ age ≥ 7d ∧ `trust_score` ≥ 1.0 | M32.2 — `61af11b` + `39a0546` |
 | Noindex/sitemap mismatch | ✅ shipped — new `GET /posts/sitemap` + `GET /articles/sitemap` return per-entry `robots`; frontend `lib/seo/indexability.ts` (`parseRobots`/`resolveRobots`/`isIndexable`) is used by `generateMetadata` **and** the sitemap filters, and the posts/articles sitemaps currently emit 0 URLs while their pages are `noindex` | M32.2 — `61af11b` |
 | `robots.txt` disallow ≠ noindex | ✅ shipped — `/claim` (`claim/layout.tsx`) and `/username-history/page.tsx` export `robots: {index: false, follow: true}` | M32.2 — `61af11b` |
-| Authorship structured data | `Organization`/`WebSite`/`SearchAction`/`ItemList`/`Breadcrumb` exist; no `ProfilePage`, no `Person`, no `Article.author`, no `Comment`/`DiscussionForumPosting` | M32.3 + M32.5 |
+| Authorship structured data | ✅ shipped — `ProfilePage` + `Person` on `/a/[username]`, `Article` + `author` on `/articles/[slug]` (`lib/seo/structuredData.ts`); `Comment`/`DiscussionForumPosting` still missing | M32.3 — `f36dfbd` (comments → M32.5) |
 | No abuse policy / no public report | `docs/` has terms/privacy/cookies/guides only; flag endpoints are admin-only (`routes/admin.ts:1667`) | M32.4 — `/docs/guidelines` + `POST /api/reports` |
 | No author-declared AI field | Post model has platform-side `ai_score`/`ai_flags`/`ai_model`, nothing author-facing | M32.8 — optional `Post.ai_assisted` badge (never a ranking signal) |
 | Profile slug collisions | ✅ shipped — `toPublicSlug('a_dbb4_aed5') → 'dbb4_aed5'` (both hex halves kept); `a_` namespace unified in `isUsernameAvailable`; legacy `/a/dbb4` still resolves and hands over to the canonical URL | M32.9 — `ee8da1d` |

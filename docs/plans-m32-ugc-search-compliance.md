@@ -1,7 +1,7 @@
 # M32 — UGC & Search Compliance Plan
 **Date**: 2026-10-03
-**Status**: 🔄 In progress — 3 of 9 tasks done
-**Milestone**: M32 (commits: `[M32.0]` docs, `[M32.1]`, `[M32.9]`, `[M32.2]`; next free = `[M32.3]`)
+**Status**: 🔄 In progress — 4 of 9 tasks done
+**Milestone**: M32 (commits: `[M32.0]` docs, `[M32.1]`, `[M32.9]`, `[M32.2]`, `[M32.3]`; next free = `[M32.4]`)
 **Supersedes**: nothing — new milestone
 **Decided by**: product owner, on 2026-10-03 (all four open questions answered: adopt the
 recommended option in every case)
@@ -92,7 +92,7 @@ One task = one commit = `[M32.n] Description`, gated and pushed per AGENTS.md §
 | M32.1 Qualify user-placed links | ✅ done | `cec40df [M32.1]` |
 | M32.9 Unique identity URLs | ✅ done | `ee8da1d [M32.9]` |
 | M32.2 Index hygiene | ✅ done | `61af11b [M32.2]` + `39a0546` (D4 on articles) |
-| M32.3 Authorship / structured data | ⏳ pending | — |
+| M32.3 Authorship / structured data | ✅ done | `f36dfbd [M32.3]` |
 | M32.4 Guidelines + public reporting | ⏳ pending | — |
 | M32.8 AI-assisted disclosure | ⏳ pending | — |
 | M32.5 Discussion structured data | ⏳ pending | — |
@@ -161,6 +161,21 @@ One task = one commit = `[M32.n] Description`, gated and pushed per AGENTS.md §
 - **Tests**: JSON-LD parse + schema-type assertions; markup must mirror visible content
   (Google structured-data general policy).
 - **Acceptance**: Rich Results Test-clean JSON-LD; no fabricated credentials anywhere.
+- **Status**: ✅ shipped `f36dfbd [M32.3]`. New `frontend/src/lib/seo/structuredData.ts`
+  (pure builders + `profilePath`/`visibleAuthorName`, 13 tests) emits `ProfilePage` + `Person`
+  on `/a/[username]` and `Article` + `author` on `/articles/[slug]`; every field mirrors
+  visible content and optional fields are omitted rather than invented (no bio/image/links →
+  no `description`/`image`/`sameAs`; no `publisher`, `aggregateRating` or
+  `interactionStatistic` anywhere). New `components/AuthorCard.tsx` (4 tests) standardizes the
+  article byline: avatar → `By {name}` → profile → `Member since {date}` → `History` →
+  `/a/{slug}#post-history` (anchor added to the profile posts tab). Member-since comes from
+  one cached `GET /users/{author}` read in the article server component
+  (`revalidate: 3600`) — no backend change. Post pages were intentionally left alone (the
+  plan's file list scopes this task to profile + article + author components; post bylines
+  already link byline → profile → history). Verified on a production build:
+  profile emits `@type: ProfilePage` + `mainEntity: Person`, article emits
+  `"author": {"@type": "Person", "name": …, "url": "https://yotop10.com/a/…"}`, and the
+  M32.2 `robots` behaviour is unchanged.
 
 ### M32.4 — Abuse policy + public reporting (D1/D5, F6, F7)
 - **Change**: `/docs/guidelines` page — anti-spam policy, moderation rules, anonymity policy,

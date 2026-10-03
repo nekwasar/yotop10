@@ -856,13 +856,14 @@ All core platform features, admin dashboard, backend infrastructure, and fronten
 
 ---
 
-## 22. Search & UGC Compliance (M32 — In progress, 3/9)
+## 22. Search & UGC Compliance (M32 — In progress, 4/9)
 
 > Added 2026-10-03 after research into Google's people-first content, UGC and
 > scaled-content-abuse policies. Full plan + audit evidence:
 > `docs/plans-m32-ugc-search-compliance.md`. Status: §22.4 (link qualification, `cec40df`),
-> the identity-URL rule in §22.6 (`ee8da1d`) and the §22.2 indexation rules (`61af11b` +
-> `39a0546`) are shipped; everything else is planned.
+> the identity-URL rule in §22.6 (`ee8da1d`), the §22.2 indexation rules (`61af11b` +
+> `39a0546`) and the §22.5 profile/article structured data (`f36dfbd`) are shipped;
+> everything else is planned.
 
 ### 22.1 Content & identity policy (locked)
 
@@ -908,14 +909,18 @@ Implemented in one rule engine: `backend/src/lib/seoGuard.ts` (`shouldNoIndex` +
   `frontend/src/components/UserLink.tsx` (`UGC_LINK_REL`).
 - Internal `<Link>` anchors are unaffected.
 
-### 22.5 Structured data (planned additions)
+### 22.5 Structured data (profile/article shipped — `f36dfbd`; comments → M32.5)
 
-| Surface | Markup |
-|---|---|
-| `/a/[username]` | `ProfilePage` + `Person` (bio, member-since, url) |
-| `/articles/[slug]` | `Article` with `author` → profile URL |
-| `/[slug]` with comments | `Comment` / `DiscussionForumPosting` (visible content only) |
-| existing (unchanged) | `Organization` + `WebSite` + `SearchAction`, `ItemList`, `BreadcrumbList` |
+Builders live in `frontend/src/lib/seo/structuredData.ts`; every field mirrors visible
+content (Google structured-data general policy).
+
+| Surface | Markup | Status |
+|---|---|---|
+| `/a/[username]` | `ProfilePage` + `Person` (name, url, bio, image, `sameAs` from the visible links, member-since as `OrganizationMembership.startDate`) | ✅ shipped `f36dfbd` |
+| `/articles/[slug]` | `Article` with `author` → profile URL (headline, description, dates, image, `articleSection`) | ✅ shipped `f36dfbd` |
+| author byline (article) | standardized `AuthorCard`: byline → profile link → member-since → history (`/a/{slug}#post-history`) | ✅ shipped `f36dfbd` |
+| `/[slug]` with comments | `Comment` / `DiscussionForumPosting` (visible content only) | planned → M32.5 |
+| existing (unchanged) | `Organization` + `WebSite` + `SearchAction`, `ItemList`, `BreadcrumbList` | ✅ |
 
 ### 22.6 Policy surface & reporting (planned)
 

@@ -1074,7 +1074,7 @@ This audit analyzed 39 source files:
 ### New architectural decisions — M32 UGC & Search Compliance (2026-10-03)
 | ID | Decision | Why / source |
 |----|----------|--------------|
-| D1 | Anonymous-but-accountable: no real-name requirement; byline → permanent profile (history, approval rate, trust tier) is the authorship signal | Google people-first doc "Who"; Reddit-style pseudonyms are compliant |
+| D1 | Anonymous-but-accountable: no real-name requirement; byline → permanent profile (history, approval rate, trust tier) is the authorship signal — ✅ shipped `f36dfbd` (AuthorCard byline + `ProfilePage`/`Person` + `Article.author` JSON-LD) | Google people-first doc "Who"; Reddit-style pseudonyms are compliant |
 | D2 | No fabricated identity: never AI headshots, fake credentials, or synthetic (`any_seed`) authors in prod | QRG §4.5.3 "fake owner or content creator profiles" = Lowest quality |
 | D3 | AI vs human is never an index/rank/moderation signal — judge the content | Google: "appropriate use of AI or automation is not against our guidelines"; scaled-content abuse is method-agnostic |
 | D4 | Reputation-gated indexation: `noindex` unless author has ≥1 approved post ∧ age ≥ 7d ∧ `trust_score` ≥ 1.0 (auto-lift) — ✅ shipped `61af11b` + `39a0546`, posts **and** articles | Google *Prevent user-generated spam*: "consider adding the noindex tag on posts that come from users that don't have any reputation" |
