@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { API } from '@/lib/api';
 import { DataCard } from '@/components/DataCard';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
+import { DataLoadError } from '@/components/DataLoadError';
 import { Icon } from '@/components/icons/Icon';
 import type { Post } from '@/lib/api/types';
 
@@ -23,13 +24,16 @@ interface CategoryFeedClientProps {
   initialCategory: Category;
   initialPosts: Post[];
   initialHasMore: boolean;
+  /** SSR got the category but not the feed — show a retry, not an empty state. */
+  initialPostsFailed?: boolean;
 }
 
-export default function CategoryFeedClient({ slug, initialCategory, initialPosts, initialHasMore }: CategoryFeedClientProps) {
+export default function CategoryFeedClient({ slug, initialCategory, initialPosts, initialHasMore, initialPostsFailed = false }: CategoryFeedClientProps) {
   const [posts, setPosts] = useState<Post[]>(initialPosts);
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [page, setPage] = useState(1);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [postsFailed, setPostsFailed] = useState(initialPostsFailed);
   const category = initialCategory;
 
   const loadMore = () => {
@@ -41,8 +45,9 @@ export default function CategoryFeedClient({ slug, initialCategory, initialPosts
         setPosts((prev) => [...prev, ...(data.posts || [])]);
         setPage(nextPage);
         setHasMore(data.pagination?.page ? data.pagination.page < (data.pagination.totalPages || 1) : false);
+        setPostsFailed(false);
       })
-      .catch(() => {})
+      .catch(() => setPostsFailed(true))
       .finally(() => setLoadingMore(false));
   };
 
@@ -97,7 +102,14 @@ export default function CategoryFeedClient({ slug, initialCategory, initialPosts
           { label: 'Categories', href: '/categories' },
           { label: category?.name || slug || 'Category', href: `/c/${slug}` },
         ]} />
-        {posts.length === 0 ? (
+        {postsFailed && posts.length === 0 ? (
+          <div className="py-8">
+            <DataLoadError
+              title="Couldn't load posts for this category"
+              onRetry={() => window.location.reload()}
+            />
+          </div>
+        ) : posts.length === 0 ? (
           <div className="py-16 text-center sm:py-20">
             <div className="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-white/5 sm:h-16 sm:w-16">
               <Icon name="FileText" size={24} className="text-zinc-600 sm:size-7" />
@@ -119,7 +131,15 @@ export default function CategoryFeedClient({ slug, initialCategory, initialPosts
               ))}
             </div>
 
-            {hasMore && (
+            {postsFailed ? (
+              <div className="pt-4">
+                <DataLoadError
+                  title="Couldn't load more posts"
+                  onRetry={loadMore}
+                  retrying={loadingMore}
+                />
+              </div>
+            ) : hasMore && (
               <div className="pt-6 text-center sm:pt-8">
                 <button
                   onClick={loadMore}

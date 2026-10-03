@@ -25,8 +25,34 @@ describe('ssrLoad', () => {
 
     const result = await ssrLoad(load, 2);
 
-    expect(result).toEqual({ data: null, failed: true });
+    expect(result.data).toBeNull();
+    expect(result.failed).toBe(true);
+    expect((result.error as Error).message).toBe('down');
     expect(load).toHaveBeenCalledTimes(2);
+  });
+
+  it('stops retrying immediately on a terminal error', async () => {
+    const load = vi.fn().mockRejectedValue(new Error('API Error: 404 Not Found'));
+
+    const result = await ssrLoad(load, 3, (error) => (error as Error).message.includes('404'));
+
+    expect(result.failed).toBe(true);
+    expect(result.data).toBeNull();
+    expect((result.error as Error).message).toContain('404');
+    expect(load).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps retrying non-terminal errors when a predicate is supplied', async () => {
+    const load = vi.fn()
+      .mockRejectedValueOnce(new Error('ECONNREFUSED'))
+      .mockRejectedValueOnce(new Error('ECONNREFUSED'))
+      .mockResolvedValueOnce({ ok: true });
+
+    const result = await ssrLoad(load, 3, (error) => (error as Error).message.includes('404'));
+
+    expect(result.failed).toBe(false);
+    expect(result.data).toEqual({ ok: true });
+    expect(load).toHaveBeenCalledTimes(3);
   });
 
   it('never claims the list is empty when the load itself failed', async () => {

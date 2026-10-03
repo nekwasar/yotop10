@@ -5,6 +5,29 @@ export function getBaseUrl(): string {
   return '/api';
 }
 
+/**
+ * Carries the HTTP status that produced the failure so callers can tell a
+ * definitive "does not exist" (404) apart from a transient outage (425/5xx/
+ * network). The message format is unchanged on purpose — a few screens parse
+ * `API Error: <status>` out of it.
+ */
+export class ApiError extends Error {
+  readonly status?: number;
+  readonly endpoint: string;
+
+  constructor(message: string, endpoint: string, status?: number) {
+    super(message);
+    this.name = 'ApiError';
+    this.endpoint = endpoint;
+    this.status = status;
+  }
+}
+
+/** True only for an explicit HTTP 404 — never for a network/5xx failure. */
+export function isNotFound(error: unknown): boolean {
+  return error instanceof ApiError && error.status === 404;
+}
+
 export async function apiFetch<T>(
   endpoint: string,
   options?: RequestInit,
@@ -66,17 +89,17 @@ export async function apiFetch<T>(
     }
   } catch (err) {
     // Network error (ECONNREFUSED, DNS failure, etc.) — backend unreachable
-    throw new Error(`API Network Error: ${url} - ${(err as Error).message}`);
+    throw new ApiError(`API Network Error: ${url} - ${(err as Error).message}`, url);
   }
 
   if (response.status === 425) {
     // Do not retry FormData (upload) — body stream may be consumed, and grace retry would create churn
     if (isFormData) {
       const t = await response.text().catch(() => '');
-      throw new Error(`API Error: 425 Too Early - ${t}`);
+      throw new ApiError(`API Error: 425 Too Early - ${t}`, url, 425);
     }
     if (retryCount >= MAX_RETRIES) {
-      throw new Error(`API Error: 425 Too Early - Max retries (${MAX_RETRIES}) exceeded`);
+      throw new ApiError(`API Error: 425 Too Early - Max retries (${MAX_RETRIES}) exceeded`, url, 425);
     }
     await new Promise(r => setTimeout(r, 500));
     return apiFetch(endpoint, options, retryCount + 1);
@@ -84,16 +107,16 @@ export async function apiFetch<T>(
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(`API Error: ${response.status} ${response.statusText} - ${errorText}`);
+    throw new ApiError(`API Error: ${response.status} ${response.statusText} - ${errorText}`, url, response.status);
   }
 
   const text = await response.text();
   if (!text || text.trim() === '') {
-    throw new Error(`API Error: Empty response body from ${url}`);
+    throw new ApiError(`API Error: Empty response body from ${url}`, url, response.status);
   }
   try {
     return JSON.parse(text) as T;
   } catch {
-    throw new Error(`API Error: Invalid JSON response from ${url}`);
+    throw new ApiError(`API Error: Invalid JSON response from ${url}`, url, response.status);
   }
 }
