@@ -24,13 +24,29 @@ export function DesktopHallOfFame({ className = '' }: { className?: string }) {
   const [entries, setEntries] = useState<HofEntry[]>([]);
 
   useEffect(() => {
+    // Cancelled before the dynamic import resolves, so an unmounted rail never
+    // issues a stray request (and never rejects a promise nobody is awaiting).
+    let cancelled = false;
+
     (async () => {
       try {
         const { apiFetch } = await import('@/lib/api/client');
-        const data = await apiFetch<{ entries: HofEntry[] }>('/hall-of-fame?limit=3');
-        setEntries(data.entries?.slice(0, 3) || []);
-      } catch { /* ignore */ }
+        if (cancelled) return;
+        // The endpoint returns `{ featured: [...] }` and has no limit param —
+        // it used to read `entries`, which never exists, so this section never
+        // rendered even when the table was full.
+        const data = await apiFetch<{ featured?: HofEntry[] }>('/hall-of-fame');
+        if (cancelled) return;
+        setEntries((data.featured || []).slice(0, 3));
+      } catch {
+        // Optional homepage rail: a failure hides the section rather than
+        // rendering an empty card.
+      }
     })();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   if (entries.length === 0) return null;

@@ -8,13 +8,29 @@ export function DesktopTrending({ className = '' }: { className?: string }) {
   const [trending, setTrending] = useState<string[]>([]);
 
   useEffect(() => {
+    // Cancelled before the dynamic import resolves, so an unmounted rail never
+    // issues a stray request (and never rejects a promise nobody is awaiting).
+    let cancelled = false;
+
     (async () => {
       try {
         const { apiFetch } = await import('@/lib/api/client');
-        const data = await apiFetch<{ terms: string[] }>('/search/trending');
-        setTrending(data.terms?.slice(0, 6) || []);
-      } catch { /* ignore */ }
+        if (cancelled) return;
+        // The endpoint returns `{ trending: [{ query, count }] }`, not
+        // `{ terms: string[] }` — reading `terms` always yielded undefined, so
+        // this section never rendered.
+        const data = await apiFetch<{ trending?: Array<{ query: string }> }>('/search/trending');
+        if (cancelled) return;
+        setTrending((data.trending || []).map((item) => item.query).slice(0, 6));
+      } catch {
+        // Optional homepage rail: a failure hides the section rather than
+        // rendering an empty card.
+      }
     })();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   if (trending.length === 0) return null;
