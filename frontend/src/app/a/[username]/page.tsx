@@ -5,12 +5,14 @@ import UserProfileClient from './client';
 import { toPublicSlug } from '@/lib/username';
 import { absoluteUrl } from '@/lib/urls';
 import { buildProfileMetadata, OG_IMAGE_HEIGHT, OG_IMAGE_WIDTH } from '@/lib/seo/metadata';
+import { resolveProfileRobots } from '@/lib/seo/indexability';
 
 export const runtime = 'nodejs';
 
 interface UserProfile {
   username: string;
   canonical_url?: string;
+  robots?: string | null;
   profile_image_url?: string | null;
   bio?: string;
   links?: { medium?: string; x?: string; github?: string };
@@ -19,6 +21,7 @@ interface UserProfile {
   stats: {
     member_since: string;
     total_posts: number;
+    approved_posts?: number;
     total_comments: number;
     approval_rate: number | null;
     verified?: boolean;
@@ -64,7 +67,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const dynamicOgImageUrl = absoluteUrl(`/a/${publicSlug}/opengraph-image`);
     const image = { url: dynamicOgImageUrl, width: OG_IMAGE_WIDTH, height: OG_IMAGE_HEIGHT, alt: `${u.username} on YoTop10`, type: 'image/png' };
 
-    return buildProfileMetadata({
+    const base = buildProfileMetadata({
       username: u.username,
       displayName: u.username,
       description,
@@ -73,6 +76,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       postCount: u.stats.total_posts,
       trustScore: typeof u.trust_score === 'number' ? u.trust_score : undefined,
     });
+
+    return {
+      ...base,
+      robots: resolveProfileRobots({
+        robots: u.robots,
+        bio: u.bio,
+        approved_posts: u.stats.approved_posts ?? u.stats.total_posts,
+      }),
+    };
   } catch {
     return { title: 'User Not Found' };
   }

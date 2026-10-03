@@ -4,6 +4,7 @@ import ArticleDetailClient from './client';
 import { API } from '@/lib/api';
 import { absoluteUrl } from '@/lib/urls';
 import { buildArticleMetadata, OG_IMAGE_HEIGHT, OG_IMAGE_WIDTH } from '@/lib/seo/metadata';
+import { resolveRobots, ARTICLE_MIN_CONTENT_LENGTH } from '@/lib/seo/indexability';
 
 export const runtime = 'nodejs';
 
@@ -19,11 +20,14 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
     const data = await API.getArticle(slug, { noCount: true });
     const article = data.article;
 
-    const ageHours = (Date.now() - new Date(article.created_at).getTime()) / 3600000;
-    const isStale = (article.comment_count === 0 || !article.comment_count) && (article.view_count === 0 || !article.view_count) && ageHours > 48;
-    const isThin = ((article.body?.length || 0) < 200) && ageHours > 24;
-    const isUnpublished = article.status !== 'approved';
-    const isNoindex = isStale || isThin || isUnpublished;
+    const robots = resolveRobots(article.robots, {
+      status: article.status,
+      created_at: article.created_at,
+      comment_count: article.comment_count,
+      view_count: article.view_count,
+      content_length: article.body?.length || 0,
+      min_content_length: ARTICLE_MIN_CONTENT_LENGTH,
+    });
 
     const description = article.body?.substring(0, 160) ?? '';
     const dynamicOgImageUrl = absoluteUrl(`/articles/${slug}/opengraph-image`);
@@ -50,10 +54,7 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
 
     return {
       ...base,
-      robots: {
-        index: !isNoindex,
-        follow: true,
-      },
+      robots,
     };
   } catch {
     return { title: 'Article Not Found', robots: { index: false, follow: true } };

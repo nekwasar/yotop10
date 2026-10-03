@@ -1,4 +1,5 @@
 import { absoluteUrl } from '@/lib/urls';
+import { isIndexable } from '@/lib/seo/indexability';
 
 function escapeXml(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -6,21 +7,26 @@ function escapeXml(s: string): string {
 
 export const revalidate = 300;
 
+interface SitemapArticle {
+  slug: string;
+  lastmod?: string | null;
+  robots?: string | null;
+}
+
 export async function GET() {
   const apiBase = process.env.INTERNAL_API_URL || 'http://backend:8000/api';
-  let articles: Array<{ slug: string; updated_at?: string; created_at: string }> = [];
+  let articles: SitemapArticle[] = [];
 
   try {
-    const res = await fetch(`${apiBase}/articles?limit=1000`, { cache: 'no-store' });
+    const res = await fetch(`${apiBase}/articles/sitemap`, { cache: 'no-store' });
     if (res.ok) {
-      const data = await res.json();
-      articles = data.articles || [];
+      const data = await res.json() as { articles?: SitemapArticle[] };
+      articles = (data.articles || []).filter((a) => isIndexable(a.robots));
     }
   } catch { /* sitemap generation must not crash */ }
 
   const urls = articles.map(a => {
-    const lastmod = a.updated_at || a.created_at;
-    const date = lastmod ? new Date(lastmod).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+    const date = a.lastmod ? new Date(a.lastmod).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
     return `  <url>
     <loc>${escapeXml(absoluteUrl(`/articles/${a.slug}`))}</loc>
     <lastmod>${date}</lastmod>

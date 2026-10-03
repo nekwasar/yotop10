@@ -17,6 +17,7 @@ import { issuePowChallenge, verifyPowChallenge } from '../lib/proofOfWork';
 import { initIdentitySchema } from '../schemas/identity';
 import { isIdentityMature } from '../lib/identityMaturity';
 import { toPublicSlug, toCustomShort, toDefaultShort, isDefaultFormat } from '../lib/username';
+import { isThinProfile, profileRobots } from '../lib/seoGuard';
 
 const router: Router = Router();
 
@@ -399,11 +400,42 @@ router.patch('/me', ...validateDisplayName as any[], async (req, res) => {
  */
 router.get('/sitemap', async (_req, res) => {
   try {
-    const users = await User.find({}).select('username custom_display_name updated_at').lean();
-    const list = users.map(u => ({
-      username: (u.custom_display_name || u.username) as string,
-      updated_at: (u as unknown as { updated_at?: Date }).updated_at || (u as unknown as { created_at?: Date }).created_at,
-    }));
+    const users = await User.find({})
+      .select('user_id username custom_display_name bio created_at updated_at')
+      .lean();
+    const userIds = users
+      .map((u) => (u as unknown as { user_id?: string }).user_id)
+      .filter((id): id is string => typeof id === 'string' && id.length > 0);
+
+    const approvedCounts = await Post.aggregate([
+      { $match: { author_id: { $in: userIds }, status: 'approved', deleted: { $ne: true } } },
+      { $group: { _id: '$author_id', count: { $sum: 1 } } },
+    ]);
+    const countByAuthor = new Map<string, number>();
+    for (const row of approvedCounts as Array<{ _id?: unknown; count?: number }>) {
+      if (typeof row._id === 'string') countByAuthor.set(row._id, Number(row.count) || 0);
+    }
+
+    const list = users
+      .map((u) => {
+        const record = u as unknown as {
+          user_id?: string;
+          username?: string;
+          custom_display_name?: string;
+          bio?: string;
+          created_at?: Date;
+          updated_at?: Date;
+        };
+        return {
+          username: (record.custom_display_name || record.username) as string,
+          updated_at: record.updated_at || record.created_at,
+          bio: record.bio || '',
+          approved_posts: countByAuthor.get(record.user_id || '') ?? 0,
+        };
+      })
+      .filter((u) => !isThinProfile({ bio: u.bio, approved_posts: u.approved_posts }))
+      .map(({ username, updated_at }) => ({ username, updated_at }));
+
     res.json({ users: list });
   } catch {
     res.json({ users: [] });
@@ -506,12 +538,15 @@ router.get('/:username', async (req, res) => {
     // Category name map for resolving post categories
     const catNameMap = await getCategoryNameMap();
 
+    const profileBio = (user as unknown as { bio?: string }).bio || "";
+
     // Return public profile data
     res.json({
       username: currentUsername,
       canonical_url: `/a/${cleanCurrentUsername}`,
+      robots: profileRobots({ bio: profileBio, approved_posts: postsApproved }),
       profile_image_url: user.profile_image_url || null,
-      bio: (user as unknown as { bio?: string }).bio || "",
+      bio: profileBio,
       links: (user as unknown as { links?: Record<string, string> }).links || {},
       trust_score: isOwnProfile ? user.trust_score : undefined,
       trust_level: trustLevel,
@@ -519,6 +554,7 @@ router.get('/:username', async (req, res) => {
       stats: {
         member_since: user.created_at,
         total_posts: isOwnProfile ? postCount : postsApproved,
+        approved_posts: postsApproved,
         total_comments: userComments.length,
         approval_rate: approvalRate >= 0 ? Math.round(approvalRate * 100) : null,
         total_views: totalViews,

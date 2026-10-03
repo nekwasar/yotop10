@@ -4,7 +4,8 @@ import { body, validationResult } from 'express-validator';
 import crypto from 'crypto';
 import mongoose from 'mongoose';
 import { Post, generateUniqueSlug } from '../models/Post';
-import { shouldNoIndex } from '../lib/seoGuard';
+import { shouldNoIndex, robotsFor } from '../lib/seoGuard';
+import { fetchAuthorReputations } from '../lib/reputation';
 import { ListItem } from '../models/ListItem';
 import { Category } from '../models/Category';
 import { getCategoryNameMap } from '../lib/categoryCache';
@@ -337,6 +338,50 @@ router.get('/check-title', async (req, res) => {
   }
 });
 
+router.get('/sitemap', async (_req, res) => {
+  try {
+    const posts = await Post.find({ status: 'approved', deleted: { $ne: true } })
+      .select('slug created_at updated_at bumped_at comment_count view_count intro author_id meta_robots')
+      .sort({ created_at: -1 })
+      .limit(5000)
+      .lean();
+
+    const reputations = await fetchAuthorReputations(
+      posts.map((post) => (post as { author_id?: string }).author_id),
+    );
+
+    const items = posts.map((post) => {
+      const record = post as Record<string, unknown>;
+      const createdAt = new Date(String(record.created_at));
+      const ageHours = (Date.now() - createdAt.getTime()) / 3600000;
+      const reputation = reputations.get(String(record.author_id));
+      const noindex = shouldNoIndex({
+        comment_count: Number(record.comment_count) || 0,
+        view_count: Number(record.view_count) || 0,
+        content_length: String(record.intro || '').length,
+        status: 'approved',
+        age_hours: ageHours,
+        author_reputable: reputation ? reputation.reputable : false,
+      });
+      const metaRobots = typeof record.meta_robots === 'string' && record.meta_robots.length > 0
+        ? record.meta_robots
+        : null;
+      const lastmod = record.updated_at || record.bumped_at || record.created_at;
+
+      return {
+        slug: String(record.slug),
+        lastmod: lastmod ? new Date(String(lastmod)).toISOString() : null,
+        robots: metaRobots || robotsFor(noindex),
+      };
+    });
+
+    res.json({ posts: items });
+  } catch (error) {
+    console.error('Error building posts sitemap:', error);
+    res.status(500).json({ error: 'Failed to build posts sitemap' });
+  }
+});
+
 const RESERVED_SLUGS = new Set([
   'admin', 'api', 'login', 'search', 'settings', 'profile',
   'categories', 'c', 'auth', 'submit', 'explore', 'articles',
@@ -441,17 +486,19 @@ router.get('/:idOrSlug', async (req, res) => {
       await redis.set(viewKey, '1', { EX: 1800 });
     }
 
-    // Compute SEO robots
     const ageHours = (Date.now() - new Date(post.created_at as string).getTime()) / 3600000;
+    const reputations = await fetchAuthorReputations([post.author_id]);
+    const reputation = reputations.get(String(post.author_id));
     const seoSignals = {
       comment_count: post.comment_count as number,
       view_count: post.view_count as number,
       content_length: (post.intro as string)?.length || 0,
       status: post.status as string,
       age_hours: ageHours,
+      author_reputable: reputation ? reputation.reputable : false,
     };
     const noindex = shouldNoIndex(seoSignals);
-    const robots = (post as Record<string, unknown>).meta_robots || (noindex ? 'noindex, follow' : 'index, follow');
+    const robots = (post as Record<string, unknown>).meta_robots || robotsFor(noindex);
 
     // Get list items for this post
     const listItems = await ListItem.find({ post_id: post._id })

@@ -3,8 +3,12 @@ import express from 'express';
 import request from 'supertest';
 
 vi.mock('../models/Post', () => ({
-  Post: { find: vi.fn(), findOne: vi.fn(), findById: vi.fn(), findByIdAndUpdate: vi.fn(), create: vi.fn() },
+  Post: { find: vi.fn(), findOne: vi.fn(), findById: vi.fn(), findByIdAndUpdate: vi.fn(), create: vi.fn(), aggregate: vi.fn() },
   generateUniqueSlug: vi.fn(() => 'test-slug-abc123'),
+}));
+
+vi.mock('../models/User', () => ({
+  User: { find: vi.fn(), findOne: vi.fn() },
 }));
 
 vi.mock('../models/ListItem', () => ({
@@ -30,7 +34,21 @@ vi.mock('../lib/titleSimilarityV2', () => ({
 }));
 
 import { atomicCheckRateLimit } from '../lib/redis';
+import { Post } from '../models/Post';
+import { User } from '../models/User';
 import postsRouter from '../routes/posts';
+
+const asMock = (fn: unknown): ReturnType<typeof vi.fn> => fn as ReturnType<typeof vi.fn>;
+
+const chain = <T>(value: T): Record<string, unknown> => {
+  const c: Record<string, unknown> = {};
+  c.sort = () => c;
+  c.select = () => c;
+  c.limit = () => c;
+  c.lean = () => Promise.resolve(value);
+  c.then = (onOk: (v: T) => unknown, onErr?: (e: unknown) => unknown) => Promise.resolve(value).then(onOk, onErr);
+  return c;
+};
 
 function createApp() {
   const app = express();
@@ -95,5 +113,70 @@ describe('POST /api/posts — rate limit integrity', () => {
     expect(res.status).toBe(429);
     expect(res.body.error).toContain('Rate limit exceeded');
     expect(res.body.error).not.toContain('NaN');
+  });
+});
+
+describe('GET /api/posts/sitemap — index hygiene (M32.2, D4)', () => {
+  const app = createApp();
+  const daysAgo = (days: number) => new Date(Date.now() - days * 86400000);
+
+  const healthyPost = {
+    slug: 'healthy-post-abc123',
+    created_at: daysAgo(30),
+    updated_at: daysAgo(29),
+    bumped_at: null,
+    comment_count: 5,
+    view_count: 120,
+    intro: 'A long enough intro that clears the thin-content threshold without any trouble. It keeps going with a few extra words for safety.',
+    author_id: 'u1',
+    meta_robots: null,
+  };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    asMock(Post.aggregate).mockResolvedValue([{ _id: 'u1', count: 3 }]);
+    asMock(User.find).mockReturnValue(chain([
+      { user_id: 'u1', created_at: daysAgo(60), trust_score: 1.5 },
+    ]));
+  });
+
+  it('emits index, follow for an approved post by a reputable author', async () => {
+    asMock(Post.find).mockReturnValue(chain([healthyPost]));
+
+    const res = await request(app).get('/api/posts/sitemap');
+    expect(res.status).toBe(200);
+    expect(res.body.posts).toHaveLength(1);
+    expect(res.body.posts[0].slug).toBe('healthy-post-abc123');
+    expect(res.body.posts[0].robots).toBe('index, follow');
+    expect(typeof res.body.posts[0].lastmod).toBe('string');
+  });
+
+  it('noindexes an otherwise healthy post when the author has no reputation', async () => {
+    asMock(Post.find).mockReturnValue(chain([healthyPost]));
+    asMock(User.find).mockReturnValue(chain([]));
+
+    const res = await request(app).get('/api/posts/sitemap');
+    expect(res.status).toBe(200);
+    expect(res.body.posts[0].robots).toBe('noindex, follow');
+  });
+
+  it('noindexes a stale post even when the author is reputable', async () => {
+    asMock(Post.find).mockReturnValue(chain([
+      { ...healthyPost, slug: 'stale-post-def456', comment_count: 0, view_count: 0, created_at: daysAgo(10) },
+    ]));
+
+    const res = await request(app).get('/api/posts/sitemap');
+    expect(res.status).toBe(200);
+    expect(res.body.posts[0].robots).toBe('noindex, follow');
+  });
+
+  it('keeps an explicit meta_robots override', async () => {
+    asMock(Post.find).mockReturnValue(chain([
+      { ...healthyPost, slug: 'manual-noindex-ghi789', meta_robots: 'noindex, follow' },
+    ]));
+
+    const res = await request(app).get('/api/posts/sitemap');
+    expect(res.status).toBe(200);
+    expect(res.body.posts[0].robots).toBe('noindex, follow');
   });
 });

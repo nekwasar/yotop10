@@ -1,4 +1,5 @@
 import { absoluteUrl } from '@/lib/urls';
+import { isIndexable } from '@/lib/seo/indexability';
 
 function escapeXml(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -6,24 +7,26 @@ function escapeXml(s: string): string {
 
 export const revalidate = 300;
 
+interface SitemapPost {
+  slug: string;
+  lastmod?: string | null;
+  robots?: string | null;
+}
+
 export async function GET() {
   const apiBase = process.env.INTERNAL_API_URL || 'http://backend:8000/api';
-  let posts: Array<{ slug: string; bumped_at?: string; created_at: string; meta_robots?: string | null }> = [];
+  let posts: SitemapPost[] = [];
 
   try {
-    const res = await fetch(`${apiBase}/posts?limit=1000`, { cache: 'no-store' });
+    const res = await fetch(`${apiBase}/posts/sitemap`, { cache: 'no-store' });
     if (res.ok) {
-      const data = await res.json();
-      posts = (data.posts || []).filter((p: { meta_robots?: string | null }) => {
-        if (!p.meta_robots) return true;
-        return !p.meta_robots.startsWith('noindex');
-      });
+      const data = await res.json() as { posts?: SitemapPost[] };
+      posts = (data.posts || []).filter((p) => isIndexable(p.robots));
     }
   } catch { /* sitemap generation must not crash */ }
 
   const urls = posts.map(p => {
-    const lastmod = p.bumped_at || p.created_at;
-    const date = lastmod ? new Date(lastmod).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+    const date = p.lastmod ? new Date(p.lastmod).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
     return `  <url>
     <loc>${escapeXml(absoluteUrl(p.slug))}</loc>
     <lastmod>${date}</lastmod>

@@ -41,6 +41,7 @@ export interface Post {
   category_slug: string;
   category_name?: string;
   status?: string;
+  robots?: string | null;
   format?: 'list_only' | 'hero_list' | 'full_list';
   hero_image_url?: string | null;
   topItems?: Array<{ rank: number; title: string }>;
@@ -135,6 +136,7 @@ export interface Article {
   bookmark_count: number;
   category_slug: string;
   category_name?: string;
+  robots?: string | null;
   created_at: string;
   updated_at: string;
   published_at?: string;

@@ -14,7 +14,7 @@ const chain = <T>(value: T): Record<string, unknown> => {
 
 const accounts: Array<Record<string, unknown>> = [
   { user_id: 'u1', username: 'a_dbb4_aed5', custom_display_name: undefined, short_username: 'a_dbb4', trust_level: 'neutral', created_at: new Date('2026-10-01T00:00:00Z') },
-  { user_id: 'u2', username: 'a_dbb4_7f2c', custom_display_name: undefined, short_username: 'a_dbb4', trust_level: 'neutral', created_at: new Date('2026-10-01T00:00:00Z') },
+  { user_id: 'u2', username: 'a_dbb4_7f2c', custom_display_name: undefined, short_username: 'a_dbb4', trust_level: 'neutral', bio: 'I rank things for a living', created_at: new Date('2026-10-01T00:00:00Z') },
   { user_id: 'u3', username: 'cyprianzube', custom_display_name: undefined, trust_level: 'scholar', created_at: new Date('2026-10-01T00:00:00Z') },
 ];
 
@@ -94,6 +94,18 @@ vi.mock('../lib/proofOfWork', () => ({
 vi.mock('../lib/identityMaturity', () => ({ isIdentityMature: vi.fn(() => true) }));
 
 import usersRouter from '../routes/users';
+import { User } from '../models/User';
+import { Post } from '../models/Post';
+
+const asMock = (fn: unknown): ReturnType<typeof vi.fn> => fn as ReturnType<typeof vi.fn>;
+
+const setUserFindResult = (accounts: Array<Record<string, unknown>>) => {
+  asMock(User.find).mockReturnValue(chain(accounts));
+};
+
+const setPostAggregateResults = (first: unknown) => {
+  asMock(Post.aggregate).mockResolvedValue([]).mockResolvedValueOnce(first);
+};
 
 function createApp() {
   const app = express();
@@ -146,5 +158,76 @@ describe('GET /users/:username profile resolution', () => {
   it('404s for an unknown slug', async () => {
     const res = await request(app).get('/users/nope_not_here');
     expect(res.status).toBe(404);
+  });
+});
+
+describe('GET /users/:username profile robots (M32.2, D7)', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  const app = createApp();
+
+  it('noindexes a profile with no bio and no approved posts', async () => {
+    const res = await request(app).get('/users/dbb4_aed5');
+    expect(res.status).toBe(200);
+    expect(res.body.robots).toBe('noindex, follow');
+    expect(res.body.stats.approved_posts).toBe(0);
+  });
+
+  it('indexes a profile once an approved post exists', async () => {
+    setPostAggregateResults([{ _id: 'approved', count: 5 }]);
+    const res = await request(app).get('/users/cyprianzube');
+    expect(res.status).toBe(200);
+    expect(res.body.robots).toBe('index, follow');
+    expect(res.body.stats.approved_posts).toBe(5);
+    expect(res.body.stats.total_posts).toBe(5);
+  });
+
+  it('indexes a profile with only a bio', async () => {
+    const res = await request(app).get('/users/dbb4_7f2c');
+    expect(res.status).toBe(200);
+    expect(res.body.robots).toBe('index, follow');
+  });
+});
+
+describe('GET /users/sitemap thin-profile filter (M32.2, D7)', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  const app = createApp();
+
+  const account = (overrides: Record<string, unknown>) => ({
+    user_id: 'u0',
+    username: 'a_placeholder_0000',
+    bio: '',
+    created_at: new Date('2026-01-01T00:00:00.000Z'),
+    updated_at: new Date('2026-01-02T00:00:00.000Z'),
+    ...overrides,
+  });
+
+  it('drops profiles with no bio and no approved posts', async () => {
+    setUserFindResult([
+      account({ user_id: 'uThin', username: 'a_thin_xxxx', bio: '' }),
+      account({ user_id: 'uBio', username: 'a_bio_xxxx', bio: 'I rank things' }),
+      account({ user_id: 'uPosts', username: 'a_posts_xxxx', bio: '' }),
+    ]);
+    setPostAggregateResults([{ _id: 'uPosts', count: 3 }]);
+
+    const res = await request(app).get('/users/sitemap');
+    expect(res.status).toBe(200);
+    const usernames = res.body.users.map((u: { username: string }) => u.username);
+    expect(usernames).toEqual(['a_bio_xxxx', 'a_posts_xxxx']);
+    expect(usernames).not.toContain('a_thin_xxxx');
+  });
+
+  it('returns an empty list when every profile is thin', async () => {
+    setUserFindResult([account({ user_id: 'uOnly', username: 'a_only_yyyy', bio: '   ' })]);
+    setPostAggregateResults([]);
+
+    const res = await request(app).get('/users/sitemap');
+    expect(res.status).toBe(200);
+    expect(res.body.users).toEqual([]);
   });
 });

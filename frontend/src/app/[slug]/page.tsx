@@ -6,6 +6,7 @@ import { RESERVED_ROUTES } from '@/lib/reservedRoutes';
 import { absoluteUrl } from '@/lib/urls';
 import { toPublicSlug } from '@/lib/username';
 import { buildArticleMetadata, OG_IMAGE_HEIGHT, OG_IMAGE_WIDTH } from '@/lib/seo/metadata';
+import { resolveRobots } from '@/lib/seo/indexability';
 
 export const runtime = 'nodejs';
 
@@ -26,11 +27,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const post = data.post;
     const description = post.intro?.substring(0, 160) ?? '';
 
-    const ageHours = (Date.now() - new Date(post.created_at).getTime()) / 3600000;
-    const isStale = (post.comment_count === 0 || !post.comment_count) && (post.view_count === 0 || !post.view_count) && ageHours > 48;
-    const isThin = ((post.intro?.length || 0) < 100) && ageHours > 24;
-    const isUnpublished = post.status !== 'approved';
-    const isNoindex = isStale || isThin || isUnpublished;
+    const robots = resolveRobots(post.robots, {
+      status: post.status,
+      created_at: post.created_at,
+      comment_count: post.comment_count,
+      view_count: post.view_count,
+      content_length: post.intro?.length || 0,
+    });
 
     const dynamicOgImageUrl = absoluteUrl(`/${slug}/opengraph-image`);
     const image = {
@@ -57,10 +60,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
     return {
       ...base,
-      robots: {
-        index: !isNoindex,
-        follow: true,
-      },
+      robots,
     };
   } catch {
     return { title: 'Post Not Found', robots: { index: false, follow: true } };

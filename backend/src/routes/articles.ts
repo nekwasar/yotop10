@@ -4,6 +4,7 @@ import { body, validationResult } from 'express-validator';
 import crypto from 'crypto';
 import { Article } from '../models/Article';
 import { redis } from '../lib/redis';
+import { shouldNoIndex, robotsFor, ARTICLE_MIN_CONTENT_LENGTH } from '../lib/seoGuard';
 import { logAudit } from '../lib/auditWriter';
 import { getClientIp, getFingerprintIdentity } from '../middleware/fingerprint';
 import { shouldCountView } from '../lib/viewCounting';
@@ -131,6 +132,42 @@ router.get('/', async (req, res) => {
   }
 });
 
+router.get('/sitemap', async (_req, res) => {
+  try {
+    const articles = await Article.find({ status: 'approved' })
+      .select('slug created_at updated_at comment_count view_count body')
+      .sort({ created_at: -1 })
+      .limit(5000)
+      .lean();
+
+    const items = articles.map((article) => {
+      const record = article as Record<string, unknown>;
+      const createdAt = new Date(String(record.created_at));
+      const ageHours = (Date.now() - createdAt.getTime()) / 3600000;
+      const noindex = shouldNoIndex({
+        comment_count: Number(record.comment_count) || 0,
+        view_count: Number(record.view_count) || 0,
+        content_length: String(record.body || '').length,
+        status: 'approved',
+        age_hours: ageHours,
+        min_content_length: ARTICLE_MIN_CONTENT_LENGTH,
+      });
+      const lastmod = record.updated_at || record.created_at;
+
+      return {
+        slug: String(record.slug),
+        lastmod: lastmod ? new Date(String(lastmod)).toISOString() : null,
+        robots: robotsFor(noindex),
+      };
+    });
+
+    res.json({ articles: items });
+  } catch (error) {
+    console.error('Error building articles sitemap:', error);
+    res.status(500).json({ error: 'Failed to build articles sitemap' });
+  }
+});
+
 // GET /api/articles/:slug — Single article by slug
 router.get('/:slug', async (req, res) => {
   try {
@@ -161,6 +198,16 @@ router.get('/:slug', async (req, res) => {
       await redis.set(viewKey, '1', { EX: 1800 });
     }
 
+    const ageHours = (Date.now() - new Date(article.created_at).getTime()) / 3600000;
+    const robots = robotsFor(shouldNoIndex({
+      comment_count: article.comment_count || 0,
+      view_count: article.view_count || 0,
+      content_length: (article.body || '').length,
+      status: article.status,
+      age_hours: ageHours,
+      min_content_length: ARTICLE_MIN_CONTENT_LENGTH,
+    }));
+
     res.json({
       article: {
         id: article._id,
@@ -181,6 +228,7 @@ router.get('/:slug', async (req, res) => {
         status: article.status,
         created_at: article.created_at,
         updated_at: article.updated_at,
+        robots,
       },
     });
   } catch (error) {

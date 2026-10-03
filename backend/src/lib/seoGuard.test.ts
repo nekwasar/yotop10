@@ -1,5 +1,13 @@
 import { describe, it, expect } from 'vitest';
-import { shouldNoIndex, SeoSignals } from './seoGuard';
+import {
+  shouldNoIndex,
+  robotsFor,
+  isThinProfile,
+  profileRobots,
+  SeoSignals,
+  DEFAULT_MIN_CONTENT_LENGTH,
+  ARTICLE_MIN_CONTENT_LENGTH,
+} from './seoGuard';
 
 describe('seoGuard', () => {
   describe('shouldNoIndex', () => {
@@ -133,6 +141,112 @@ describe('seoGuard', () => {
         age_hours: 48,
       };
       expect(shouldNoIndex(signals)).toBe(false);
+    });
+
+    it('returns true when the author fails the reputation gate (D4)', () => {
+      const signals: SeoSignals = {
+        comment_count: 50,
+        view_count: 5000,
+        content_length: 800,
+        status: 'approved',
+        age_hours: 72,
+        author_reputable: false,
+      };
+      expect(shouldNoIndex(signals)).toBe(true);
+    });
+
+    it('returns false when the author passes the reputation gate (D4)', () => {
+      const signals: SeoSignals = {
+        comment_count: 5,
+        view_count: 100,
+        content_length: 800,
+        status: 'approved',
+        age_hours: 72,
+        author_reputable: true,
+      };
+      expect(shouldNoIndex(signals)).toBe(false);
+    });
+
+    it('does not gate on reputation when it was not evaluated', () => {
+      const signals: SeoSignals = {
+        comment_count: 50,
+        view_count: 5000,
+        content_length: 800,
+        status: 'approved',
+        age_hours: 72,
+      };
+      expect(signals.author_reputable).toBeUndefined();
+      expect(shouldNoIndex(signals)).toBe(false);
+    });
+
+    it('uses the article content threshold when provided', () => {
+      const signals: SeoSignals = {
+        comment_count: 1,
+        view_count: 10,
+        content_length: 150,
+        status: 'approved',
+        age_hours: 72,
+        min_content_length: ARTICLE_MIN_CONTENT_LENGTH,
+      };
+      expect(shouldNoIndex(signals)).toBe(true);
+    });
+
+    it('indexes article-length content at the article threshold boundary', () => {
+      const signals: SeoSignals = {
+        comment_count: 1,
+        view_count: 10,
+        content_length: ARTICLE_MIN_CONTENT_LENGTH,
+        status: 'approved',
+        age_hours: 72,
+        min_content_length: ARTICLE_MIN_CONTENT_LENGTH,
+      };
+      expect(shouldNoIndex(signals)).toBe(false);
+    });
+
+    it('exposes a 100-character default content threshold', () => {
+      expect(DEFAULT_MIN_CONTENT_LENGTH).toBe(100);
+      expect(ARTICLE_MIN_CONTENT_LENGTH).toBe(200);
+    });
+  });
+
+  describe('robotsFor', () => {
+    it('keeps noindex directives followable', () => {
+      expect(robotsFor(true)).toBe('noindex, follow');
+    });
+
+    it('emits an indexable directive otherwise', () => {
+      expect(robotsFor(false)).toBe('index, follow');
+    });
+  });
+
+  describe('isThinProfile', () => {
+    it('is thin with no bio and no approved posts (D7)', () => {
+      expect(isThinProfile({ bio: '', approved_posts: 0 })).toBe(true);
+      expect(isThinProfile({ bio: '   ', approved_posts: 0 })).toBe(true);
+      expect(isThinProfile({ bio: undefined, approved_posts: 0 })).toBe(true);
+      expect(isThinProfile({ bio: null, approved_posts: 0 })).toBe(true);
+    });
+
+    it('is not thin when a bio exists', () => {
+      expect(isThinProfile({ bio: 'I rank things', approved_posts: 0 })).toBe(false);
+    });
+
+    it('is not thin when approved posts exist', () => {
+      expect(isThinProfile({ bio: '', approved_posts: 1 })).toBe(false);
+    });
+  });
+
+  describe('profileRobots', () => {
+    it('noindexes thin profiles but keeps them followable (D7)', () => {
+      expect(profileRobots({ bio: '', approved_posts: 0 })).toBe('noindex, follow');
+    });
+
+    it('indexes profiles with an approved post', () => {
+      expect(profileRobots({ bio: '', approved_posts: 3 })).toBe('index, follow');
+    });
+
+    it('indexes profiles with a bio', () => {
+      expect(profileRobots({ bio: 'hello', approved_posts: 0 })).toBe('index, follow');
     });
   });
 });
