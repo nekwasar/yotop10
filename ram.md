@@ -3,7 +3,7 @@
 > **Last updated**: 2026-10-03
 > **Working tree**: Clean — committed and pushed (only untracked `ref-yotop10/` + `backend/uploads/migrations-backups/`, both intentionally not committed)
 > **Branch**: main → up to date with origin/main
-> **Latest commits**: `f36dfbd [M32.3]`, `ad93544 [M32.2 docs]`, `39a0546 [M32.2]`, `61af11b [M32.2]`, `ee8da1d [M32.9]`
+> **Latest commits**: `af5c1ed [M32.4]`, `522d53a [M32.3 docs]`, `f36dfbd [M32.3]`, `ad93544 [M32.2 docs]`, `39a0546 [M32.2]`
 > **Active milestone**: **M32 — UGC & Search Compliance** (planned 2026-10-03, plan in `docs/plans-m32-ugc-search-compliance.md`)
 
 ---
@@ -21,8 +21,8 @@ All gates run **inside the dev container** (`docker exec yotop10_dev`), which no
 | Frontend lint | ✅ 0 errors, 0 warnings |
 | Backend build (`tsc`) | ✅ 0 errors |
 | Frontend build (`next build`) | ✅ exit 0 (scratch-dir `NODE_ENV=production` build + `Dockerfile.frontend` prod image) |
-| Backend tests (vitest) | ✅ 55 files, 781 passed, 4 skipped |
-| Frontend tests (vitest) | ✅ 22 files, 173 passed |
+| Backend tests (vitest) | ✅ 57 files (56 passed, 1 skipped), 798 passed, 4 skipped |
+| Frontend tests (vitest) | ✅ 24 files, 188 passed |
 | Prod stack (compose `-p yotop10`) | ✅ 7/7 containers healthy |
 | Dev stack (compose `-p yotop10dev`) | ✅ `yotop10_dev` up, :3200 / :8200 200 |
 
@@ -65,9 +65,10 @@ Hardcoded JWT, orphaned setInterval, $regex injection, stub 200s, health check o
 | 2.10 | Non-null assertion after findById | `!` in posts.ts:488 |
 
 ### Unfinished features:
-- **M32** — UGC & Search Compliance: 9 tasks (M32.1–M32.9), approved 2026-10-03, 4 of 9 done
+- **M32** — UGC & Search Compliance: 9 tasks (M32.1–M32.9), approved 2026-10-03, 5 of 9 done
   (M32.1 link qualification `cec40df`, M32.9 unique identity URLs `ee8da1d`, M32.2 index
-  hygiene `61af11b` + `39a0546`, M32.3 authorship structured data `f36dfbd`)
+  hygiene `61af11b` + `39a0546`, M32.3 authorship structured data `f36dfbd`, M32.4
+  guidelines + reporting `af5c1ed`)
 - **M5.6** — Counter-List System (The Arena): challenge/rebuttal, comparison engine, SEO governance
 - **M10.7** — Categories Management frontend: tree view, drag-drop, bulk ops, analytics
 - **M10.14** — Admin UI components: StatsChart, CategoryTree, UserBadge, SearchInput, DateRangePicker, ExportButton, ConfirmDialog
@@ -85,8 +86,8 @@ Hardcoded JWT, orphaned setInterval, $regex injection, stub 200s, health check o
 1. **M32 — UGC & Search Compliance** *(ACTIVE, approved 2026-10-03)* — 9 tasks, execute in
    this order: ~~`M32.1` link qualification~~ ✅ `cec40df` → ~~`M32.9` unique identity URLs~~
    ✅ `ee8da1d` → ~~`M32.2` index hygiene~~ ✅ `61af11b` + `39a0546` → ~~`M32.3`
-   authorship/structured data~~ ✅ `f36dfbd` → `M32.4`
-   guidelines + report flow → `M32.8` AI-assisted badge → `M32.5` discussion structured data →
+   authorship/structured data~~ ✅ `f36dfbd` → ~~`M32.4` guidelines + report flow~~ ✅
+   `af5c1ed` → `M32.8` AI-assisted badge → `M32.5` discussion structured data →
    `M32.6` guard tests → `M32.7` Search Console verification + docs. Full plan:
    `docs/plans-m32-ugc-search-compliance.md`.
 2. **Lock in stability** — Fix 5 remaining ROM issues (crash/data integrity)
@@ -126,15 +127,42 @@ user-placed links `rel="ugc"`/`nofollow`.
 no `rel="ugc"` anywhere in the frontend (F1), all 17 profiles indexable with no `robots` meta
 and no sitemap filter (F2), and the noindex/sitemap rule mismatch (F3).
 
-**Status**: 4 of 9 tasks done — **M32.1** link qualification (`cec40df` + `a91c8fe` docs),
+**Status**: 5 of 9 tasks done — **M32.1** link qualification (`cec40df` + `a91c8fe` docs),
 **M32.9** unique identity URLs (`ee8da1d`), **M32.2** index hygiene (`61af11b` + `39a0546`,
 D4 extended to articles per `docs/product_spec.md` §22.2), **M32.3** authorship structured
-data (`f36dfbd`). Each task = one gated, pushed commit `[M32.n]`, docs synced per
-AGENTS.md §3.0. Next: `M32.4` guidelines + public reporting.
+data (`f36dfbd`), **M32.4** abuse policy + public reporting (`af5c1ed`, endpoint docs in
+`docs/product_spec.md` §22.6). Each task = one gated, pushed commit `[M32.n]`, docs synced
+per AGENTS.md §3.0. Next: `M32.8` AI-assisted badge.
 
 ---
 
 ## Latest Verification
+
+- **M32.4 abuse policy + public reporting (2026-10-03)** — commit `af5c1ed` (23 files).
+  Gates: backend tsc 0 / lint 0-0 / **798 tests** (57 files, 4 skipped); frontend tsc 0 /
+  lint 0-0 / **188 tests** (24 files); scratch-dir production `next build` exit 0.
+  New `Report` model + `schemas/report.ts` + `routes/reports.ts`: `POST /api/reports` =
+  require-user → Zod validate → restricted 403 → `atomicCheckRateLimit` 10/h → resolve
+  target (404 when missing/deleted) → self-report 400 → idempotent open-report `200
+  {duplicate:true}` → `201 {report_id}` + `report_content` audit; comment targets also
+  mirror into the legacy flag queue (`flag_type: 'user_report'`, only when currently
+  unflagged). Admin: `GET /api/admin/reports` (status filter incl. `all`, enriched
+  target preview: exists/title/excerpt/href) + `PATCH /api/admin/reports/:id`
+  (actioned/dismissed; dismissing clears a mirrored comment flag; `action_report` /
+  `dismiss_report` audits), permissions `comments:read` / `comments:moderate` registered
+  in `permissionMap.ts` **and** the route list in `permissionGuard.test.ts`.
+  Frontend: `components/ReportButton.tsx` (reason dialog → POST; 401/429/400/duplicate
+  toasts; dialog links to the guidelines) wired into the post header, comment action row
+  and article header; `/docs/guidelines` (7 sections, `robots: index, follow`) linked from
+  the docs index `LEGAL` list, the footer (footer now exposes Docs/Guidelines/Terms/
+  Privacy/Cookies) and `/new`; `/admin/reports` queue page + nav entry (`comments:read`)
+  + `user_report` badge label in the comments queue. Tests: `routes/reports.test.ts`
+  (17: auth, validation, rate limit, self-report, idempotency, comment mirror, admin
+  list/resolve/404/400), `ReportButton.test.tsx` (9), `docs/guidelines/page.test.tsx` (6:
+  metadata indexable + content coverage). Live probes: `POST /api/reports` → 401 and
+  `GET /api/admin/reports` → 401 without credentials (both routes registered); production
+  build serves `/docs/guidelines` 200 with `<meta name="robots" content="index, follow">`,
+  footer/docs-index/`/new` links present, and post + article SSR emit the Report trigger.
 
 - **M32.3 authorship structured data (2026-10-03)** — commit `f36dfbd` (8 files, +461).
   Gates: frontend tsc 0 / lint 0-0 / **173 tests** (22 files); backend unchanged but re-run:

@@ -1083,6 +1083,7 @@ This audit analyzed 39 source files:
 | D7 | Thin profiles `noindex` (empty bio ∧ 0 posts) and excluded from `sitemap-profiles.xml` — ✅ shipped `61af11b` | Google: index UGC by default only when you're happy with its quality |
 | D8 | Keep the 14 machine-named anonymous profiles — real users, contain via D7, do not purge | Purging destroys real users' identity/content (D1) |
 | D9 | Identity URLs must be unique — fix `toPublicSlug` 4-hex collision (`a_dbb4_aed5` → `/a/dbb4`) ✅ shipped `ee8da1d` | A colliding byline breaks the "Who" signal and creates duplicate content |
+| D10 | Public reporting is a first-class `Report` collection + `GET/PATCH /api/admin/reports` queue (comment reports additionally mirror into the legacy comment flag queue) — ✅ shipped `af5c1ed` | The plan assumed reusing admin flag endpoints only; posts and articles have no flag queue, and reviewers need reason/status lifecycle + target previews |
 
 Full plan, audit findings F1–F10 and task breakdown: `docs/plans-m32-ugc-search-compliance.md`.
 

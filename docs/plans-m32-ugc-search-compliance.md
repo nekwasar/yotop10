@@ -1,7 +1,7 @@
 # M32 — UGC & Search Compliance Plan
 **Date**: 2026-10-03
-**Status**: 🔄 In progress — 4 of 9 tasks done
-**Milestone**: M32 (commits: `[M32.0]` docs, `[M32.1]`, `[M32.9]`, `[M32.2]`, `[M32.3]`; next free = `[M32.4]`)
+**Status**: 🔄 In progress — 5 of 9 tasks done
+**Milestone**: M32 (commits: `[M32.0]` docs, `[M32.1]`, `[M32.9]`, `[M32.2]`, `[M32.3]`, `[M32.4]`; next free = `[M32.8]`)
 **Supersedes**: nothing — new milestone
 **Decided by**: product owner, on 2026-10-03 (all four open questions answered: adopt the
 recommended option in every case)
@@ -93,7 +93,7 @@ One task = one commit = `[M32.n] Description`, gated and pushed per AGENTS.md §
 | M32.9 Unique identity URLs | ✅ done | `ee8da1d [M32.9]` |
 | M32.2 Index hygiene | ✅ done | `61af11b [M32.2]` + `39a0546` (D4 on articles) |
 | M32.3 Authorship / structured data | ✅ done | `f36dfbd [M32.3]` |
-| M32.4 Guidelines + public reporting | ⏳ pending | — |
+| M32.4 Guidelines + public reporting | ✅ done | `af5c1ed [M32.4]` |
 | M32.8 AI-assisted disclosure | ⏳ pending | — |
 | M32.5 Discussion structured data | ⏳ pending | — |
 | M32.6 Anti-scaled-content guardrails | ⏳ pending | — |
@@ -186,6 +186,28 @@ One task = one commit = `[M32.n] Description`, gated and pushed per AGENTS.md §
 - **Tests**: endpoint tests (auth, validation, audit log), page renders + is indexable.
 - **Acceptance**: a signed-in user can report a post/comment; the report reaches admin flags;
   guidelines page is reachable from the footer.
+- **Status**: ✅ shipped `af5c1ed [M32.4]`. The report flow was widened beyond the plan
+  text (product owner decision): a new `Report` model + `GET/PATCH /api/admin/reports`
+  queue (`/admin/reports` page) because posts and articles have no pre-existing flag
+  queue, while comment reports **also** mirror into the legacy comment flag queue
+  (`flag_type: 'user_report'`, only when the comment is currently unflagged). Shipped:
+  `backend/src/models/Report.ts`, `schemas/report.ts`, `routes/reports.ts`
+  (`POST /api/reports` — auth → validate → restricted 403 → rate limit 10/h → resolve
+  target → self-report 400 → idempotent open-report 200 → 201 + `report_content` audit),
+  admin list (enriched target preview) + resolve endpoint (dismiss clears the mirrored
+  comment flag; `action_report`/`dismiss_report` audits), `ROUTE_PERMISSIONS`
+  (`GET /reports` → `comments:read`, `PATCH /reports/:id` → `comments:moderate`) with the
+  matching `permissionGuard.test.ts` route entries. Frontend: `ReportButton` (reason
+  dialog → POST, 401/429/400/duplicate messages) wired into the post header, comment
+  action row and article header; `/docs/guidelines` (7 sections, `robots: index, follow`)
+  linked from the docs index, footer (footer now carries Docs/Guidelines/Terms/Privacy/
+  Cookies) and the `/new` submission flow; `/admin/reports` queue with status filter,
+  pagination and Action/Dismiss; `user_report` badge label in the comments queue.
+  Tests: `routes/reports.test.ts` (17) + `ReportButton.test.tsx` (9) +
+  `guidelines/page.test.tsx` (6). Verified live: `POST /api/reports` → 401 unauth,
+  `GET /api/admin/reports` → 401 unauth (routes registered), `/docs/guidelines` 200 with
+  `<meta name="robots" content="index, follow">`, footer/docs-index/`/new` links present,
+  post + article SSR carry the Report trigger.
 
 ### M32.8 — Optional AI-assisted disclosure (D5, F8)
 - **Change**: `Post.ai_assisted: boolean` (default `false`), Zod-validated on create/edit,

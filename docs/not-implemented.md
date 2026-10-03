@@ -120,10 +120,6 @@ Backend endpoints exist (17+ endpoints). Frontend needs:
 
 Source: `docs/plans-m32-ugc-search-compliance.md`, `docs/milestones.md` M32, `docs/product_spec.md` §22.
 
-- `/docs/guidelines` — community & anti-spam policy, moderation rules, anonymity policy,
-  AI-assisted disclosure, how to report content (M32.4)
-- **Public report flow** — `POST /api/reports` (Zod-validated, audit-logged) landing in the
-  existing admin flag queues (M32.4)
 - **AI-assisted badge** — optional author-toggled `Post.ai_assisted` flag + UI badge (M32.8)
 - **Discussion structured data** — `Comment`/`DiscussionForumPosting` JSON-LD on post pages
   with comments (M32.5)

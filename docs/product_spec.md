@@ -856,14 +856,14 @@ All core platform features, admin dashboard, backend infrastructure, and fronten
 
 ---
 
-## 22. Search & UGC Compliance (M32 — In progress, 4/9)
+## 22. Search & UGC Compliance (M32 — In progress, 5/9)
 
 > Added 2026-10-03 after research into Google's people-first content, UGC and
 > scaled-content-abuse policies. Full plan + audit evidence:
 > `docs/plans-m32-ugc-search-compliance.md`. Status: §22.4 (link qualification, `cec40df`),
 > the identity-URL rule in §22.6 (`ee8da1d`), the §22.2 indexation rules (`61af11b` +
-> `39a0546`) and the §22.5 profile/article structured data (`f36dfbd`) are shipped;
-> everything else is planned.
+> `39a0546`), the §22.5 profile/article structured data (`f36dfbd`) and the §22.6 policy
+> surface + reporting (`af5c1ed`) are shipped; everything else is planned.
 
 ### 22.1 Content & identity policy (locked)
 
@@ -922,13 +922,38 @@ content (Google structured-data general policy).
 | `/[slug]` with comments | `Comment` / `DiscussionForumPosting` (visible content only) | planned → M32.5 |
 | existing (unchanged) | `Organization` + `WebSite` + `SearchAction`, `ItemList`, `BreadcrumbList` | ✅ |
 
-### 22.6 Policy surface & reporting (planned)
+### 22.6 Policy surface & reporting (shipped — `af5c1ed`; identity URLs shipped `ee8da1d`)
 
-- **`/docs/guidelines`** — community/anti-spam policy, moderation rules, anonymity policy,
-  AI-assisted disclosure, how to report content. Linked from footer and submission flow.
-- **`POST /api/reports`** (planned, Zod `schemas/reports.ts`, audit-logged) — public
-  report action targeting a post or comment; lands in the existing admin flag queues
-  (`admin.ts` `POST /comments/:id/flag` and bulk flag).
+**Policy surface**
+
+- **`/docs/guidelines`** (shipped, `robots: index, follow`) — anti-spam rules, moderation
+  rules and outcomes, anonymity & accountability (reporters stay confidential), the D5
+  AI-assisted disclosure policy, how to report, consequences of abuse. Linked from the
+  footer (footer now exposes Docs / Community Guidelines / Terms / Privacy / Cookies), the
+  docs index `LEGAL` list, the `/new` submission flow, and the report dialog itself.
+- **`ReportButton`** (`frontend/src/components/ReportButton.tsx`) — reason dialog
+  (spam / harassment / misinformation / illegal / other + optional details ≤ 1000 chars)
+  wired into the post header, every comment action row, and the article header.
+
+**Endpoints** (schemas in `backend/src/schemas/report.ts`)
+
+| Endpoint | Auth / permission | Request | Response |
+|---|---|---|---|
+| `POST /api/reports` | user (`req.user`; 401 without) | Zod `createReportSchema`: `target_type` ∈ `post\|comment\|article`, `target_id` (24-hex), `reason` ∈ `spam\|harassment\|misinformation\|illegal\|other`, optional `details` ≤ 1000 | `201 {ok, report_id}`; `200 {ok, duplicate:true}` when the same user already has an open report for that target; `401` unauthenticated; `403` restricted account; `400 {code:'VALIDATION'}` or self-report `400`; `404` target missing/deleted; `429` over 10 reports/hour/user; `500` |
+| `GET /api/admin/reports` | admin, `comments:read` | query `status` = `open\|actioned\|dismissed\|all` (default `open`), `page`, `limit` ≤ 100 | `{reports: [{id, target_type, target_id, reason, details, status, created_at, reporter_username, target: {exists, title, excerpt, href}}], pagination: {page, limit, total, totalPages}}`; `400` invalid query; `401`/`403` |
+| `PATCH /api/admin/reports/:id` | admin, `comments:moderate` | Zod `updateReportSchema`: `status` ∈ `actioned\|dismissed` | `200 {ok, id, status}`; `400` invalid payload; `401`/`403`; `404` unknown report; `500` |
+
+- **Side effects** — creating a report writes a `report_content` audit entry
+  (`logAudit`, reporter id as actor). Comment reports additionally mirror into the existing
+  comment flag queue when the comment is currently unflagged (`flag_type: 'user_report'`,
+  `flag_evidence = {source, report_id, reporter_user_id, reason, details, reported_at}`);
+  dismissing such a report clears that mirrored flag. Admin resolve writes
+  `action_report` / `dismiss_report` audit entries and stamps `resolved_at`.
+- **Storage** — new `Report` model (`target_type`, `target_id`, `post_id` for comment/post
+  targets, `reporter_user_id`, `reporter_username`, `reason`, `details`, `status`,
+  `resolved_at`) with indexes on `{status, created_at}` and
+  `{reporter_user_id, target_id, status}`. Posts/articles have no pre-existing flag queue,
+  which is why reporting is its own queue rather than admin flag endpoints only.
 - **Identity URLs** (shipped `ee8da1d`) — `toPublicSlug` is collision-free: a default
   identity keeps both hex halves (`a_dbb4_aed5` → `/a/dbb4_aed5`), the `a_` namespace is
   unified in `isUsernameAvailable`, and every historical spelling (`/a/dbb4`,

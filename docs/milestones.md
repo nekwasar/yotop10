@@ -2040,11 +2040,11 @@ These features from the old social platform are NOT part of V1:
 
 ---
 
-## M32 — UGC & Search Compliance (IN PROGRESS — 4 of 9 done, 2026-10-03)
+## M32 — UGC & Search Compliance (IN PROGRESS — 5 of 9 done, 2026-10-03)
 
 > Research-backed plan for Google people-first / UGC / scaled-content compliance.
 > Full plan + audit evidence: `docs/plans-m32-ugc-search-compliance.md`.
-> Status: M32.1 (`cec40df`) + M32.9 (`ee8da1d`) + M32.2 (`61af11b` + `39a0546`) + M32.3 (`f36dfbd`) shipped.
+> Status: M32.1 (`cec40df`) + M32.9 (`ee8da1d`) + M32.2 (`61af11b` + `39a0546`) + M32.3 (`f36dfbd`) + M32.4 (`af5c1ed`) shipped.
 > One task = one gated commit `[M32.n]`.
 
 ### Decisions (locked — do not re-litigate)
@@ -2083,9 +2083,9 @@ These features from the old social platform are NOT part of V1:
 - [x] JSON-LD mirrors visible content (structured-data general policy); Rich Results Test-clean
 
 ### M32.4 — Abuse policy + public reporting
-- [ ] `/docs/guidelines` — anti-spam policy, moderation rules, anonymity policy, AI-assisted disclosure (D5), how to report
-- [ ] Public report action → existing admin flag endpoints (Zod-validated, audit-logged)
-- [ ] Linked from footer + submission flow
+- [x] `/docs/guidelines` — anti-spam policy, moderation rules, anonymity policy, AI-assisted disclosure (D5), how to report
+- [x] Public report action `POST /api/reports` (Zod-validated, audit-logged, rate-limited) → new `Report` collection + `/admin/reports` queue; comment reports also mirror to the existing comment flag queue
+- [x] Linked from footer + submission flow + docs index
 
 ### M32.8 — Optional AI-assisted disclosure
 - [ ] `Post.ai_assisted: boolean` (default `false`), Zod-validated on create/edit
