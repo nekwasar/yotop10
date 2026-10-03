@@ -1079,10 +1079,10 @@ This audit analyzed 39 source files:
 | D3 | AI vs human is never an index/rank/moderation signal — judge the content | Google: "appropriate use of AI or automation is not against our guidelines"; scaled-content abuse is method-agnostic |
 | D4 | Reputation-gated indexation: `noindex` unless author has ≥1 approved post ∧ age ≥ 7d ∧ `trust_score` ≥ 1.0 (auto-lift) | Google *Prevent user-generated spam*: "consider adding the noindex tag on posts that come from users that don't have any reputation" |
 | D5 | Optional author-toggled `Post.ai_assisted` badge + policy statement; never a signal | People-first doc "How": disclose automation where a reader would wonder |
-| D6 | `rel="ugc nofollow noopener noreferrer"` on every user-placed outbound link | Google *Qualify outbound links*; cheapest correct default |
+| D6 | `rel="ugc nofollow noopener noreferrer"` on every user-placed outbound link ✅ shipped `cec40df` | Google *Qualify outbound links*; cheapest correct default |
 | D7 | Thin profiles `noindex` (empty bio ∧ 0 posts) and excluded from `sitemap-profiles.xml` | Google: index UGC by default only when you're happy with its quality |
 | D8 | Keep the 14 machine-named anonymous profiles — real users, contain via D7, do not purge | Purging destroys real users' identity/content (D1) |
-| D9 | Identity URLs must be unique — fix `toPublicSlug` 4-hex collision (`a_dbb4_aed5` → `/a/dbb4`) | A colliding byline breaks the "Who" signal and creates duplicate content |
+| D9 | Identity URLs must be unique — fix `toPublicSlug` 4-hex collision (`a_dbb4_aed5` → `/a/dbb4`) ✅ shipped `ee8da1d` | A colliding byline breaks the "Who" signal and creates duplicate content |
 
 Full plan, audit findings F1–F10 and task breakdown: `docs/plans-m32-ugc-search-compliance.md`.
 

@@ -1,7 +1,7 @@
 # M32 — UGC & Search Compliance Plan
 **Date**: 2026-10-03
-**Status**: 🔄 In progress — 1 of 9 tasks done
-**Milestone**: M32 (commits: `[M32.0]` docs, `[M32.1]` done; next free = `[M32.9]`)
+**Status**: 🔄 In progress — 2 of 9 tasks done
+**Milestone**: M32 (commits: `[M32.0]` docs, `[M32.1]`, `[M32.9]`; next free = `[M32.2]`)
 **Supersedes**: nothing — new milestone
 **Decided by**: product owner, on 2026-10-03 (all four open questions answered: adopt the
 recommended option in every case)
@@ -90,7 +90,7 @@ One task = one commit = `[M32.n] Description`, gated and pushed per AGENTS.md §
 | Task | Status | Commit |
 |------|--------|--------|
 | M32.1 Qualify user-placed links | ✅ done | `cec40df [M32.1]` |
-| M32.9 Unique identity URLs | ⏳ pending | — |
+| M32.9 Unique identity URLs | ✅ done | `ee8da1d [M32.9]` |
 | M32.2 Index hygiene | ⏳ pending | — |
 | M32.3 Authorship / structured data | ⏳ pending | — |
 | M32.4 Guidelines + public reporting | ⏳ pending | — |

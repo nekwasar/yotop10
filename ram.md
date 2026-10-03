@@ -3,7 +3,7 @@
 > **Last updated**: 2026-10-03
 > **Working tree**: Clean — committed and pushed (only untracked `ref-yotop10/` + `backend/uploads/migrations-backups/`, both intentionally not committed)
 > **Branch**: main → up to date with origin/main
-> **Latest commits**: `989fa62 [M31.17]`, `dabc49f [M31.16]`, `edf8041 [M31.15]`, `5a28578 [M31.14]`, `695aba6 [M31.13]`
+> **Latest commits**: `ee8da1d [M32.9]`, `a91c8fe [M32.1 docs]`, `cec40df [M32.1]`, `4fbde88 [M32.0]`, `989fa62 [M31.17]`
 > **Active milestone**: **M32 — UGC & Search Compliance** (planned 2026-10-03, plan in `docs/plans-m32-ugc-search-compliance.md`)
 
 ---
@@ -21,8 +21,8 @@ All gates run **inside the dev container** (`docker exec yotop10_dev`), which no
 | Frontend lint | ✅ 0 errors, 0 warnings |
 | Backend build (`tsc`) | ✅ 0 errors |
 | Frontend build (`next build`) | ✅ exit 0 (scratch-dir `NODE_ENV=production` build + `Dockerfile.frontend` prod image) |
-| Backend tests (vitest) | ✅ 52 files, 713 passed, 4 skipped |
-| Frontend tests (vitest) | ✅ 18 files, 124 passed |
+| Backend tests (vitest) | ✅ 53 files, 736 passed, 4 skipped |
+| Frontend tests (vitest) | ✅ 19 files, 136 passed |
 | Prod stack (compose `-p yotop10`) | ✅ 7/7 containers healthy |
 | Dev stack (compose `-p yotop10dev`) | ✅ `yotop10_dev` up, :3200 / :8200 200 |
 
@@ -65,8 +65,8 @@ Hardcoded JWT, orphaned setInterval, $regex injection, stub 200s, health check o
 | 2.10 | Non-null assertion after findById | `!` in posts.ts:488 |
 
 ### Unfinished features:
-- **M32** — UGC & Search Compliance: 9 tasks (M32.1–M32.9), approved 2026-10-03, 1 of 9 done
-  (M32.1 link qualification `cec40df`)
+- **M32** — UGC & Search Compliance: 9 tasks (M32.1–M32.9), approved 2026-10-03, 2 of 9 done
+  (M32.1 link qualification `cec40df`, M32.9 unique identity URLs `ee8da1d`)
 - **M5.6** — Counter-List System (The Arena): challenge/rebuttal, comparison engine, SEO governance
 - **M10.7** — Categories Management frontend: tree view, drag-drop, bulk ops, analytics
 - **M10.14** — Admin UI components: StatsChart, CategoryTree, UserBadge, SearchInput, DateRangePicker, ExportButton, ConfirmDialog
@@ -82,10 +82,11 @@ Hardcoded JWT, orphaned setInterval, $regex injection, stub 200s, health check o
 ## Next Steps (Priority Suggestion)
 
 1. **M32 — UGC & Search Compliance** *(ACTIVE, approved 2026-10-03)* — 9 tasks, execute in
-   this order: ~~`M32.1` link qualification~~ ✅ `cec40df` → `M32.9` unique identity URLs → `M32.2` index
-   hygiene → `M32.3` authorship/structured data → `M32.4` guidelines + report flow →
-   `M32.8` AI-assisted badge → `M32.5` discussion structured data → `M32.6` guard tests →
-   `M32.7` Search Console verification + docs. Full plan: `docs/plans-m32-ugc-search-compliance.md`.
+   this order: ~~`M32.1` link qualification~~ ✅ `cec40df` → ~~`M32.9` unique identity URLs~~
+   ✅ `ee8da1d` → `M32.2` index hygiene → `M32.3` authorship/structured data → `M32.4`
+   guidelines + report flow → `M32.8` AI-assisted badge → `M32.5` discussion structured data →
+   `M32.6` guard tests → `M32.7` Search Console verification + docs. Full plan:
+   `docs/plans-m32-ugc-search-compliance.md`.
 2. **Lock in stability** — Fix 5 remaining ROM issues (crash/data integrity)
 3. **Complete admin UI** — Categories tree view, remaining components
 4. **Build the Arena** — M5.6 Counter-List System (major feature)
@@ -117,18 +118,33 @@ user-placed links `rel="ugc"`/`nofollow`.
 | D6 | **`rel="ugc nofollow noopener noreferrer"`** on every user-placed outbound link |
 | D7 | **Thin profiles noindexed** — empty bio ∧ 0 approved posts, and excluded from `sitemap-profiles.xml` |
 | D8 | **Keep the 14 machine-named anonymous profiles** (real users) — contain via D7, do not purge |
-| D9 | **Unique identity URLs** — fix `toPublicSlug` 4-hex collision (`a_dbb4_aed5` → `/a/dbb4`) |
+| D9 | **Unique identity URLs** — fix `toPublicSlug` 4-hex collision (`a_dbb4_aed5` → `/a/dbb4`) ✅ shipped `ee8da1d` |
 
 **Audit findings F1–F10** (file-level evidence in the plan doc §3), the biggest being:
 no `rel="ugc"` anywhere in the frontend (F1), all 17 profiles indexable with no `robots` meta
 and no sitemap filter (F2), and the noindex/sitemap rule mismatch (F3).
 
-**Status**: plan approved, no code written yet. Each task = one gated, pushed commit
-`[M32.n]`, docs synced per AGENTS.md §3.0.
+**Status**: 2 of 9 tasks done — **M32.1** link qualification (`cec40df` + `a91c8fe` docs) and
+**M32.9** unique identity URLs (`ee8da1d`). Each task = one gated, pushed commit `[M32.n]`,
+docs synced per AGENTS.md §3.0. Next: `M32.2` index hygiene.
 
 ---
 
 ## Latest Verification
+
+- **M32.1 + M32.9 (2026-10-03)** — gates in-container: backend tsc 0 / lint 0-0 / **736 tests**;
+  frontend tsc 0 / lint 0-0 / **136 tests**; frontend production build exit 0 (scratch-dir
+  `NODE_ENV=production npx next build`, 3m32s). Live on the dev stack (same DB as prod):
+  `GET /api/users/dbb4` → `canonical_url: /a/dbb4_aed5`; `/a/cyprianzube` unchanged;
+  `sitemap-profiles.xml` emits `/a/dbb4_aed5`, `/a/a726_8c7f`, … ; canonical profile URLs
+  render with **zero** meta-refresh tags (no loop); legacy `/a/dbb4` serves a
+  `meta http-equiv=refresh` hand-off to the canonical URL plus `rel=canonical` (page-level
+  `redirect()` cannot set a status because App Router has already flushed the stream — the
+  same app-wide reason every `notFound()` returns 200).
+- **Fast build gate adopted**: scratch-dir build in `yotop10_dev` (~3.5 min) as the per-commit
+  gate, `Dockerfile.frontend` image build (~11.5 min) as the definitive one — never build in
+  place at `/app/frontend`, and always force `NODE_ENV=production` (the container exports
+  `NODE_ENV=development`, which fails `next build` at the `/404` prerender).
 
 - **Empty-state sweep (M31.7–M31.17, 2026-10-03)** — reported symptom: every page could render
   an empty state ("Be the first to rank your top 10", "No articles yet", "No active debates")

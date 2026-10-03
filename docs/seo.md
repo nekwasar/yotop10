@@ -106,11 +106,12 @@ Google does NOT support IndexNow. For Google, use Search Console (below).
 ## Open gaps (M32 — planned 2026-10-03)
 
 Audit of Google's people-first / UGC / scaled-content policies against this build. Full plan
-+ evidence: `docs/plans-m32-ugc-search-compliance.md`. **None of this is built yet.**
++ evidence: `docs/plans-m32-ugc-search-compliance.md`. **M32.1 (link qualification) and
+M32.9 (unique identity URLs) are shipped; every other row is still pending.**
 
 | Gap | Current state | Fix |
 |---|---|---|
-| User-placed outbound links unqualified | No `rel="ugc"`/`nofollow` anywhere in `frontend/src`; list-item `source_url` links carry only `noopener noreferrer` (`app/[slug]/client.tsx:391,535`), profile links none | M32.1 — `rel="ugc nofollow noopener noreferrer"` on every user link |
+| User-placed outbound links unqualified | ✅ shipped — every user link goes through `components/UserLink.tsx` (`rel="ugc nofollow noopener noreferrer"`) | M32.1 — `cec40df` |
 | Profile index bloat | `sitemap-profiles.xml` lists **all** users (17 today, 14 machine-named) with no filter; profile pages have **no `robots` meta** | M32.2 — `noindex` thin profiles (empty bio ∧ 0 posts) + server-side sitemap filter |
 | No reputation gate on posts | Thin/stale heuristic exists (`app/[slug]/page.tsx:27-33`) but nothing uses author reputation | M32.2 — `noindex` until author has ≥1 approved post ∧ age ≥ 7d ∧ `trust_score` ≥ 1.0 |
 | Noindex/sitemap mismatch | `sitemap-posts.xml` filters only API `meta_robots`, so it can list pages the page marks `noindex` | M32.2 — one shared quality helper for metadata **and** sitemaps |
@@ -118,7 +119,7 @@ Audit of Google's people-first / UGC / scaled-content policies against this buil
 | Authorship structured data | `Organization`/`WebSite`/`SearchAction`/`ItemList`/`Breadcrumb` exist; no `ProfilePage`, no `Person`, no `Article.author`, no `Comment`/`DiscussionForumPosting` | M32.3 + M32.5 |
 | No abuse policy / no public report | `docs/` has terms/privacy/cookies/guides only; flag endpoints are admin-only (`routes/admin.ts:1667`) | M32.4 — `/docs/guidelines` + `POST /api/reports` |
 | No author-declared AI field | Post model has platform-side `ai_score`/`ai_flags`/`ai_model`, nothing author-facing | M32.8 — optional `Post.ai_assisted` badge (never a ranking signal) |
-| Profile slug collisions | `toPublicSlug('a_dbb4_aed5') → 'dbb4'` (4-hex) | M32.9 — unique identity URLs |
+| Profile slug collisions | ✅ shipped — `toPublicSlug('a_dbb4_aed5') → 'dbb4_aed5'` (both hex halves kept); `a_` namespace unified in `isUsernameAvailable`; legacy `/a/dbb4` still resolves and hands over to the canonical URL | M32.9 — `ee8da1d` |
 | Synthetic authors could reach prod | `scripts/seedPosts.ts` mints `any_seed` with `status: 'approved'` (0 in prod today) | M32.6 — guard test + documented no-bulk-AI rule |
 
 Ranking-relevant policy summary used for this audit: Google has **no real-name or

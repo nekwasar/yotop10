@@ -856,11 +856,12 @@ All core platform features, admin dashboard, backend infrastructure, and fronten
 
 ---
 
-## 22. Search & UGC Compliance (M32 — Planned)
+## 22. Search & UGC Compliance (M32 — In progress, 2/9)
 
 > Added 2026-10-03 after research into Google's people-first content, UGC and
 > scaled-content-abuse policies. Full plan + audit evidence:
-> `docs/plans-m32-ugc-search-compliance.md`. Status: approved, not yet built.
+> `docs/plans-m32-ugc-search-compliance.md`. Status: §22.4 (link qualification, `cec40df`)
+> and the identity-URL rule in §22.6 (`ee8da1d`) are shipped; everything else is planned.
 
 ### 22.1 Content & identity policy (locked)
 
@@ -893,10 +894,12 @@ All core platform features, admin dashboard, backend infrastructure, and fronten
 - Surfaced in `/docs/guidelines` ("posts may be AI-assisted; moderation may be automated").
 - **Never** read by indexation, metadata or moderation logic.
 
-### 22.4 Link qualification (planned)
+### 22.4 Link qualification (shipped)
 
-- Every user-placed outbound link (list-item `source_url`, profile `links.medium|x|github`)
-  renders `rel="ugc nofollow noopener noreferrer"`.
+- Every user-placed outbound link (list-item `source_url`, this-vs-that sides, article
+  sources, profile `links.medium|x|github`, image preview) renders
+  `rel="ugc nofollow noopener noreferrer"` through the shared
+  `frontend/src/components/UserLink.tsx` (`UGC_LINK_REL`).
 - Internal `<Link>` anchors are unaffected.
 
 ### 22.5 Structured data (planned additions)
@@ -915,8 +918,10 @@ All core platform features, admin dashboard, backend infrastructure, and fronten
 - **`POST /api/reports`** (planned, Zod `schemas/reports.ts`, audit-logged) — public
   report action targeting a post or comment; lands in the existing admin flag queues
   (`admin.ts` `POST /comments/:id/flag` and bulk flag).
-- **Identity URLs** — `toPublicSlug` must be collision-free so two anonymous accounts can
-  never share one profile URL.
+- **Identity URLs** (shipped `ee8da1d`) — `toPublicSlug` is collision-free: a default
+  identity keeps both hex halves (`a_dbb4_aed5` → `/a/dbb4_aed5`), the `a_` namespace is
+  unified in `isUsernameAvailable`, and every historical spelling (`/a/dbb4`,
+  `/a/a_dbb4_aed5`) still resolves to the same account.
 
 ### 22.7 Guardrails
 

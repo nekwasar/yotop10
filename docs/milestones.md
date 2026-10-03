@@ -2040,11 +2040,11 @@ These features from the old social platform are NOT part of V1:
 
 ---
 
-## M32 — UGC & Search Compliance (PLANNED 2026-10-03)
+## M32 — UGC & Search Compliance (IN PROGRESS — 2 of 9 done, 2026-10-03)
 
 > Research-backed plan for Google people-first / UGC / scaled-content compliance.
 > Full plan + audit evidence: `docs/plans-m32-ugc-search-compliance.md`.
-> Status: approved, 0 of 9 tasks done. One task = one gated commit `[M32.n]`.
+> Status: M32.1 (`cec40df`) + M32.9 (`ee8da1d`) shipped. One task = one gated commit `[M32.n]`.
 
 ### Decisions (locked — do not re-litigate)
 - [x] D1 Anonymous but accountable — no real-name rule; byline → permanent profile with history/approval-rate/trust tier is the "Who"
@@ -2063,9 +2063,9 @@ These features from the old social platform are NOT part of V1:
 - [x] Component tests assert the exact `rel` value
 
 ### M32.9 — Unique identity URLs
-- [ ] `toPublicSlug` collision-free for `a_xxxx_xxxx` accounts (unique, stable, resolvable)
-- [ ] Historical public slugs keep resolving (alias/redirect); `cyprianzube` unchanged
-- [ ] Uniqueness unit test over ≥10k synthetic usernames
+- [x] `toPublicSlug` collision-free for `a_xxxx_xxxx` accounts (unique, stable, resolvable)
+- [x] Historical public slugs keep resolving (alias/redirect); `cyprianzube` unchanged
+- [x] Uniqueness unit test over ≥10k synthetic usernames
 
 ### M32.2 — Index hygiene
 - [ ] Single shared quality/noindex helper used by `generateMetadata` **and** every sitemap route
