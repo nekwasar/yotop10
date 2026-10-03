@@ -18,9 +18,10 @@ import { DesktopHallOfFame } from '@/components/DesktopHallOfFame';
 import { DesktopStats } from '@/components/DesktopStats';
 import CtaButton from '@/components/CtaButton';
 import { Icon } from '@/components/icons/Icon';
+import { ReloadButton } from '@/components/ReloadButton';
+import { apiFetch } from '@/lib/api/client';
+import { ssrLoad } from '@/lib/api/ssr';
 import type { PostsResponse } from '@/lib/api/types';
-
-const API_BASE = process.env.INTERNAL_API_URL || 'http://localhost:8000/api';
 
 interface CategoryItem {
   name: string;
@@ -55,16 +56,6 @@ interface ArticleItem {
   reading_time?: number;
   author_username?: string;
   author_display_name?: string;
-}
-
-async function fetchJson<T>(url: string, fallback: T): Promise<T> {
-  try {
-    const res = await fetch(url, { cache: 'no-store' });
-    if (!res.ok) return fallback;
-    return await res.json();
-  } catch {
-    return fallback;
-  }
 }
 
 export const metadata: Metadata = {
@@ -106,13 +97,19 @@ export const metadata: Metadata = {
 export const runtime = 'nodejs';
 
 export default async function Home() {
-  const [postsData, catsData, argsData, artsData, factsData] = await Promise.all([
-    fetchJson<PostsResponse>(`${API_BASE}/posts?post_type=top_list%2Cbest_of%2Cworst_of`, { posts: [] }),
-    fetchJson<{ categories: CategoryItem[] }>(`${API_BASE}/categories`, { categories: [] }),
-    fetchJson<{ arguments: DebateItem[] }>(`${API_BASE}/arguments?limit=12`, { arguments: [] }),
-    fetchJson<{ articles: ArticleItem[] }>(`${API_BASE}/articles?limit=8`, { articles: [] }),
-    fetchJson<PostsResponse>(`${API_BASE}/posts?post_type=fact_drop&limit=10`, { posts: [] }),
+  const [postsRes, catsRes, argsRes, artsRes, factsRes] = await Promise.all([
+    ssrLoad(() => apiFetch<PostsResponse>('/posts?post_type=top_list%2Cbest_of%2Cworst_of', { cache: 'no-store' })),
+    ssrLoad(() => apiFetch<{ categories: CategoryItem[] }>('/categories', { cache: 'no-store' })),
+    ssrLoad(() => apiFetch<{ arguments: DebateItem[] }>('/arguments?limit=12', { cache: 'no-store' })),
+    ssrLoad(() => apiFetch<{ articles: ArticleItem[] }>('/articles?limit=8', { cache: 'no-store' })),
+    ssrLoad(() => apiFetch<PostsResponse>('/posts?post_type=fact_drop&limit=10', { cache: 'no-store' })),
   ]);
+
+  const postsData: PostsResponse = postsRes.data ?? { posts: [] };
+  const catsData = catsRes.data ?? { categories: [] };
+  const argsData = argsRes.data ?? { arguments: [] };
+  const artsData = artsRes.data ?? { articles: [] };
+  const factsData: PostsResponse = factsRes.data ?? { posts: [] };
 
   // Deduplicate by title — never show the same content twice
   const uniqueByTitle = <T extends { title: string }>(items: T[]): T[] => {
@@ -132,6 +129,28 @@ export default async function Home() {
   const facts = uniqueByTitle(factsData.posts || []);
 
   const hasContent = posts.length > 0 || debates.length > 0 || categories.some(c => c.post_count > 0) || articles.length > 0;
+
+  // Every primary feed failed: the database was never consulted, so falling
+  // through to "Be the first to submit a list" would be a lie.
+  const contentUnavailable = postsRes.failed && argsRes.failed && artsRes.failed;
+
+  if (contentUnavailable) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[80vh] px-6 text-center">
+        <div className="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-3xl bg-white/5">
+          <Icon name="CloudOff" size={36} className="text-zinc-600" />
+        </div>
+        <h2 className="mb-2 text-xl font-bold text-white">Something went wrong</h2>
+        <p className="mb-8 max-w-md text-sm text-zinc-500 leading-relaxed">
+          We couldn&apos;t load the homepage right now. Check your connection and try again.
+        </p>
+        <ReloadButton
+          label="Try again"
+          className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-6 py-3 text-sm text-zinc-300 transition hover:border-white/20 hover:text-white"
+        />
+      </div>
+    );
+  }
 
   if (!hasContent) {
     return (
