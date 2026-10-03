@@ -856,15 +856,15 @@ All core platform features, admin dashboard, backend infrastructure, and fronten
 
 ---
 
-## 22. Search & UGC Compliance (M32 — In progress, 6/9, M32.8 deferred)
+## 22. Search & UGC Compliance (M32 — In progress, 7/9)
 
 > Added 2026-10-03 after research into Google's people-first content, UGC and
 > scaled-content-abuse policies. Full plan + audit evidence:
 > `docs/plans-m32-ugc-search-compliance.md`. Status: §22.4 (link qualification, `cec40df`),
 > the identity-URL rule in §22.6 (`ee8da1d`), the §22.2 indexation rules (`61af11b` +
 > `39a0546`), the §22.5 profile/article **and discussion** structured data (`f36dfbd`,
-> `e791134`) and the §22.6 policy surface + reporting (`af5c1ed`) are shipped; §22.3
-> (M32.8) is deferred by the product owner, §22.7 is planned.
+> `e791134`), the §22.6 policy surface + reporting (`af5c1ed`) and the §22.3 AI-assisted
+> disclosure (`4d04b5d`) are shipped; §22.7 is planned.
 
 ### 22.1 Content & identity policy (locked)
 
@@ -895,12 +895,25 @@ Implemented in one rule engine: `backend/src/lib/seoGuard.ts` (`shouldNoIndex` +
 | Sitemaps | must be a strict subset of indexable URLs — produced from one shared quality helper (`GET /posts/sitemap`, `GET /articles/sitemap`, `GET /users/sitemap`) |
 | Already noindex (unchanged) | `/search`, `/saved`, `/notifications`, `/pending` |
 
-### 22.3 AI-assisted disclosure (planned API/schema change)
+### 22.3 AI-assisted disclosure (shipped — `4d04b5d`)
 
-- `Post.ai_assisted: boolean` — default `false`, Zod-validated on create/edit, author-toggled
-  at submit time, rendered as a voluntary badge on post/article detail.
-- Surfaced in `/docs/guidelines` ("posts may be AI-assisted; moderation may be automated").
-- **Never** read by indexation, metadata or moderation logic.
+- `Post.ai_assisted: boolean` and `Article.ai_assisted: boolean` — default `false`,
+  author-toggled at submit, rendered as a voluntary badge on post/article detail only.
+- **Create** — `POST /api/posts`, `POST /api/posts/:slug/counter`, `POST /api/articles`:
+  optional body field `ai_assisted: boolean` validated by `parseAiAssistedCreate`
+  (`backend/src/schemas/content.ts`), defaults to `false`. Non-boolean values →
+  `400 { error: "ai_assisted: …" }`.
+- **Edit** — admin `PATCH /api/admin/posts/:id` and `PATCH /api/admin/articles/:id`:
+  `ai_assisted` accepted only when present, strict boolean via `parseAiAssistedPatch`;
+  invalid → `400 { code: 'VALIDATION', error: … }`. Field is excluded from the audit
+  metadata (the edit reason already carries the author notification).
+- **UI** — checkbox on all five submit forms (4 post types + article; drafts round-trip the
+  flag, counter branches send it) and both admin edit forms; badge rendered by
+  `frontend/src/components/AssistedBadge.tsx` (`Sparkles` icon, "AI-assisted", tooltip).
+- Surfaced in `/docs/guidelines` §5: disclose with the AI-assisted checkbox when you submit.
+- **Never** read by indexation, metadata, search indexing or moderation logic (D3):
+  `SeoSignals` carries no such field, ES `indexPost` whitelists its fields, and tests pin
+  `generateMetadata` (post page) and `shouldNoIndex` outputs across flag values.
 
 ### 22.4 Link qualification (shipped)
 

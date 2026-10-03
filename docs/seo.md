@@ -106,9 +106,9 @@ Google does NOT support IndexNow. For Google, use Search Console (below).
 ## Open gaps (M32 — planned 2026-10-03)
 
 Audit of Google's people-first / UGC / scaled-content policies against this build. Full plan
-+ evidence: `docs/plans-m32-ugc-search-compliance.md`. **M32.1 (link qualification),
-M32.9 (unique identity URLs), M32.2 (index hygiene) and M32.3 (authorship structured
-data) are shipped; every other row is still pending.**
++ evidence: `docs/plans-m32-ugc-search-compliance.md`. **M32.1, M32.9, M32.2, M32.3, M32.4,
+M32.5 and M32.8 are shipped; only the synthetic-author guard (M32.6) and verification (M32.7)
+remain.**
 
 | Gap | Current state | Fix |
 |---|---|---|
@@ -120,7 +120,7 @@ data) are shipped; every other row is still pending.**
 | Authorship structured data | ✅ shipped — `ProfilePage` + `Person` on `/a/[username]`, `Article` + `author` on `/articles/[slug]` (`lib/seo/structuredData.ts`) | M32.3 — `f36dfbd` |
 | No discussion markup | ✅ shipped — `DiscussionForumPosting` + `comment: [Comment]` on `/[slug]` whenever comments are visible (markup mirrors exactly what the client renders; comment-less posts emit nothing) | M32.5 — `e791134` |
 | No abuse policy / no public report | ✅ shipped — `/docs/guidelines` (indexable: anti-spam, moderation, anonymity, D5 AI disclosure, how to report) linked from footer/docs index/`/new`; `POST /api/reports` (auth, Zod, rate-limited 10/h, `report_content` audit) with an admin queue at `/admin/reports` and comment-flag mirroring | M32.4 — `af5c1ed` |
-| No author-declared AI field | Post model has platform-side `ai_score`/`ai_flags`/`ai_model`, nothing author-facing | M32.8 — optional `Post.ai_assisted` badge (never a ranking signal) — deferred 2026-10-03 by the product owner |
+| No author-declared AI field | ✅ shipped — `Post`/`Article` `ai_assisted` (default `false`), Zod-validated on create/edit, author checkbox on all submit forms + admin edit forms, "AI-assisted" badge on detail pages only; never a ranking/indexation signal (D3) | M32.8 — `4d04b5d` |
 | Profile slug collisions | ✅ shipped — `toPublicSlug('a_dbb4_aed5') → 'dbb4_aed5'` (both hex halves kept); `a_` namespace unified in `isUsernameAvailable`; legacy `/a/dbb4` still resolves and hands over to the canonical URL | M32.9 — `ee8da1d` |
 | Synthetic authors could reach prod | `scripts/seedPosts.ts` mints `any_seed` with `status: 'approved'` (0 in prod today) | M32.6 — guard test + documented no-bulk-AI rule |
 

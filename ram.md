@@ -3,7 +3,7 @@
 > **Last updated**: 2026-10-03
 > **Working tree**: Clean — committed and pushed (only untracked `ref-yotop10/` + `backend/uploads/migrations-backups/`, both intentionally not committed)
 > **Branch**: main → up to date with origin/main
-> **Latest commits**: `e791134 [M32.5]`, `0f6e63d [M32.4 docs]`, `af5c1ed [M32.4]`, `522d53a [M32.3 docs]`, `f36dfbd [M32.3]`
+> **Latest commits**: `4d04b5d [M32.8]`, `f36fef0 [M32.5 docs]`, `e791134 [M32.5]`, `0f6e63d [M32.4 docs]`, `af5c1ed [M32.4]`
 > **Active milestone**: **M32 — UGC & Search Compliance** (planned 2026-10-03, plan in `docs/plans-m32-ugc-search-compliance.md`)
 
 ---
@@ -21,8 +21,8 @@ All gates run **inside the dev container** (`docker exec yotop10_dev`), which no
 | Frontend lint | ✅ 0 errors, 0 warnings |
 | Backend build (`tsc`) | ✅ 0 errors |
 | Frontend build (`next build`) | ✅ exit 0 (scratch-dir `NODE_ENV=production` build + `Dockerfile.frontend` prod image) |
-| Backend tests (vitest) | ✅ 57 files (56 passed, 1 skipped), 798 passed, 4 skipped |
-| Frontend tests (vitest) | ✅ 25 files, 203 passed |
+| Backend tests (vitest) | ✅ 58 files (57 passed, 1 skipped), 810 passed, 4 skipped |
+| Frontend tests (vitest) | ✅ 26 files, 208 passed |
 | Prod stack (compose `-p yotop10`) | ✅ 7/7 containers healthy |
 | Dev stack (compose `-p yotop10dev`) | ✅ `yotop10_dev` up, :3200 / :8200 200 |
 
@@ -65,11 +65,11 @@ Hardcoded JWT, orphaned setInterval, $regex injection, stub 200s, health check o
 | 2.10 | Non-null assertion after findById | `!` in posts.ts:488 |
 
 ### Unfinished features:
-- **M32** — UGC & Search Compliance: 9 tasks (M32.1–M32.9), approved 2026-10-03, 6 of 9 done
+- **M32** — UGC & Search Compliance: 9 tasks (M32.1–M32.9), approved 2026-10-03, 7 of 9 done
   (M32.1 link qualification `cec40df`, M32.9 unique identity URLs `ee8da1d`, M32.2 index
   hygiene `61af11b` + `39a0546`, M32.3 authorship structured data `f36dfbd`, M32.4
-  guidelines + reporting `af5c1ed`, M32.5 discussion structured data `e791134`);
-  **M32.8 deferred** by the product owner 2026-10-03 (stays planned, not in the queue)
+  guidelines + reporting `af5c1ed`, M32.5 discussion structured data `e791134`, M32.8
+  AI-assisted disclosure `4d04b5d`); remaining: M32.6 guard tests, M32.7 verification
 - **M5.6** — Counter-List System (The Arena): challenge/rebuttal, comparison engine, SEO governance
 - **M10.7** — Categories Management frontend: tree view, drag-drop, bulk ops, analytics
 - **M10.14** — Admin UI components: StatsChart, CategoryTree, UserBadge, SearchInput, DateRangePicker, ExportButton, ConfirmDialog
@@ -88,10 +88,9 @@ Hardcoded JWT, orphaned setInterval, $regex injection, stub 200s, health check o
    this order: ~~`M32.1` link qualification~~ ✅ `cec40df` → ~~`M32.9` unique identity URLs~~
    ✅ `ee8da1d` → ~~`M32.2` index hygiene~~ ✅ `61af11b` + `39a0546` → ~~`M32.3`
    authorship/structured data~~ ✅ `f36dfbd` → ~~`M32.4` guidelines + report flow~~ ✅
-   `af5c1ed` → ~~`M32.5` discussion structured data~~ ✅ `e791134` → `M32.6` guard tests →
-   `M32.7` Search Console verification + docs. **`M32.8` deferred** (product owner,
-   2026-10-03 — skip the AI-assisted badge for now). Full plan:
-   `docs/plans-m32-ugc-search-compliance.md`.
+   `af5c1ed` → ~~`M32.5` discussion structured data~~ ✅ `e791134` → ~~`M32.8` AI-assisted
+   badge~~ ✅ `4d04b5d` → `M32.6` guard tests → `M32.7` Search Console verification + docs.
+   Full plan: `docs/plans-m32-ugc-search-compliance.md`.
 2. **Lock in stability** — Fix 5 remaining ROM issues (crash/data integrity)
 3. **Complete admin UI** — Categories tree view, remaining components
 4. **Build the Arena** — M5.6 Counter-List System (major feature)
@@ -129,18 +128,34 @@ user-placed links `rel="ugc"`/`nofollow`.
 no `rel="ugc"` anywhere in the frontend (F1), all 17 profiles indexable with no `robots` meta
 and no sitemap filter (F2), and the noindex/sitemap rule mismatch (F3).
 
-**Status**: 6 of 9 tasks done — **M32.1** link qualification (`cec40df` + `a91c8fe` docs),
+**Status**: 7 of 9 tasks done — **M32.1** link qualification (`cec40df` + `a91c8fe` docs),
 **M32.9** unique identity URLs (`ee8da1d`), **M32.2** index hygiene (`61af11b` + `39a0546`,
 D4 extended to articles per `docs/product_spec.md` §22.2), **M32.3** authorship structured
 data (`f36dfbd`), **M32.4** abuse policy + public reporting (`af5c1ed`, endpoint docs in
-`docs/product_spec.md` §22.6), **M32.5** discussion structured data (`e791134`). Each task
-= one gated, pushed commit `[M32.n]`, docs synced per AGENTS.md §3.0. **M32.8 deferred**
-by the product owner 2026-10-03 (stays planned, not in the queue). Next: `M32.6`
+`docs/product_spec.md` §22.6), **M32.5** discussion structured data (`e791134`),
+**M32.8** AI-assisted disclosure (`4d04b5d`, spec in `docs/product_spec.md` §22.3). Each task
+= one gated, pushed commit `[M32.n]`, docs synced per AGENTS.md §3.0. Next: `M32.6`
 anti-scaled-content guard tests.
 
 ---
 
 ## Latest Verification
+
+- **M32.8 AI-assisted disclosure (2026-10-03)** — commit `4d04b5d` (23 files: 19 modified,
+  4 new). Backend: `Post.ai_assisted`/`Article.ai_assisted` (default `false`), new Zod
+  `schemas/content.ts` (`parseAiAssistedCreate` defaults the flag; `parseAiAssistedPatch`
+  strict-boolean when present) wired into `POST /api/posts`, `POST /api/posts/:slug/counter`,
+  `POST /api/articles` (400 on bad values) and admin `PATCH /posts/:id` +
+  `PATCH /articles/:id`. Frontend: `ai_assisted` on `Post`/`Article`/`PostSubmission`/
+  `ArticleSubmission`, checkbox on all 5 submit forms (drafts round-trip it; counter branches
+  send it), checkbox on both admin edit forms (post form `?fields=` gained `ai_assisted`),
+  shared `components/AssistedBadge.tsx` badge on post + article detail, guidelines §5 points
+  at the real control. D3 tests: `seoGuard.test.ts` +2 (indexation identical across flag
+  values), `[slug]/page.test.tsx` +2 (`generateMetadata` deep-equals incl. legacy posts),
+  `AssistedBadge.test.tsx` 3, `schemas/content.test.ts` 10. Gates: backend tsc 0 / lint 0-0 /
+  **810 tests** (58 files, 4 skipped) / build 0; frontend tsc 0 / lint 0-0 / **208 tests**
+  (26 files) / scratch-dir production `next build` exit 0. ES `indexPost` field whitelist and
+  `SeoSignals` deliberately exclude the flag (never a signal).
 
 - **M32.5 discussion structured data (2026-10-03)** — commit `e791134` (4 files, +346).
   Frontend-only: `buildDiscussionForumPostingJsonLd` + `visibleComments` in

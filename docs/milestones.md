@@ -2040,11 +2040,11 @@ These features from the old social platform are NOT part of V1:
 
 ---
 
-## M32 — UGC & Search Compliance (IN PROGRESS — 6 of 9 done, 2026-10-03)
+## M32 — UGC & Search Compliance (IN PROGRESS — 7 of 9 done, 2026-10-03)
 
 > Research-backed plan for Google people-first / UGC / scaled-content compliance.
 > Full plan + audit evidence: `docs/plans-m32-ugc-search-compliance.md`.
-> Status: M32.1 (`cec40df`) + M32.9 (`ee8da1d`) + M32.2 (`61af11b` + `39a0546`) + M32.3 (`f36dfbd`) + M32.4 (`af5c1ed`) + M32.5 (`e791134`) shipped; **M32.8 deferred** by the product owner 2026-10-03 (stays planned, not in the active queue).
+> Status: M32.1 (`cec40df`) + M32.9 (`ee8da1d`) + M32.2 (`61af11b` + `39a0546`) + M32.3 (`f36dfbd`) + M32.4 (`af5c1ed`) + M32.5 (`e791134`) + M32.8 (`4d04b5d`) shipped.
 > One task = one gated commit `[M32.n]`.
 
 ### Decisions (locked — do not re-litigate)
@@ -2087,10 +2087,10 @@ These features from the old social platform are NOT part of V1:
 - [x] Public report action `POST /api/reports` (Zod-validated, audit-logged, rate-limited) → new `Report` collection + `/admin/reports` queue; comment reports also mirror to the existing comment flag queue
 - [x] Linked from footer + submission flow + docs index
 
-### M32.8 — Optional AI-assisted disclosure — ⏸ deferred 2026-10-03 (product owner: skip for now; items stay unchecked until it is re-authorised)
-- [ ] `Post.ai_assisted: boolean` (default `false`), Zod-validated on create/edit
-- [ ] Voluntary badge on post/article detail; policy text in `/docs/guidelines`
-- [ ] Test proving indexation/metadata ignore the field (D3)
+### M32.8 — Optional AI-assisted disclosure
+- [x] `Post.ai_assisted: boolean` (default `false`), Zod-validated on create/edit (also on `Article`, including the counter-post path)
+- [x] Voluntary badge on post/article detail; policy text in `/docs/guidelines`
+- [x] Test proving indexation/metadata ignore the field (D3)
 
 ### M32.5 — Discussion structured data
 - [x] `Comment`/`DiscussionForumPosting` JSON-LD on post pages with visible comments only (required props present, comment-less/blank posts emit nothing)

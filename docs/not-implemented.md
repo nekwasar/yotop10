@@ -120,7 +120,6 @@ Backend endpoints exist (17+ endpoints). Frontend needs:
 
 Source: `docs/plans-m32-ugc-search-compliance.md`, `docs/milestones.md` M32, `docs/product_spec.md` §22.
 
-- **AI-assisted badge** — optional author-toggled `Post.ai_assisted` flag + UI badge (M32.8 — deferred 2026-10-03, not in the active queue)
 - **Synthetic-author guard test** — blocks `any_seed`/seed content from prod datasets (M32.6)
 
 ---

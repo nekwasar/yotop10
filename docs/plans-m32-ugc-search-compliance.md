@@ -1,7 +1,7 @@
 # M32 — UGC & Search Compliance Plan
 **Date**: 2026-10-03
-**Status**: 🔄 In progress — 6 of 9 tasks done (M32.8 deferred by product owner 2026-10-03)
-**Milestone**: M32 (commits: `[M32.0]` docs, `[M32.1]`, `[M32.9]`, `[M32.2]`, `[M32.3]`, `[M32.4]`, `[M32.5]`; next free = `[M32.6]`)
+**Status**: 🔄 In progress — 7 of 9 tasks done
+**Milestone**: M32 (commits: `[M32.0]` docs, `[M32.1]`, `[M32.9]`, `[M32.2]`, `[M32.3]`, `[M32.4]`, `[M32.5]`, `[M32.8]`; next free = `[M32.6]`)
 **Supersedes**: nothing — new milestone
 **Decided by**: product owner, on 2026-10-03 (all four open questions answered: adopt the
 recommended option in every case)
@@ -82,9 +82,9 @@ heuristic on posts/articles, noindex on `/search`, `/saved`, `/notifications`, `
 
 ## 4. Tasks
 
-Execution order: **M32.1 → M32.9 → M32.2 → M32.3 → M32.4 → M32.5 → M32.6 → M32.7**, with
-**M32.8 deferred** (product owner, 2026-10-03: skip the AI-assisted badge for now — it stays
-planned, not in the active queue).
+Execution order: **M32.1 → M32.9 → M32.2 → M32.3 → M32.4 → M32.5 → M32.8 → M32.6 → M32.7**
+(M32.8 was briefly deferred then re-authorised by the product owner on 2026-10-03 and
+pulled ahead of M32.6).
 One task = one commit = `[M32.n] Description`, gated and pushed per AGENTS.md §3.0.
 
 **Progress**
@@ -97,7 +97,7 @@ One task = one commit = `[M32.n] Description`, gated and pushed per AGENTS.md §
 | M32.3 Authorship / structured data | ✅ done | `f36dfbd [M32.3]` |
 | M32.4 Guidelines + public reporting | ✅ done | `af5c1ed [M32.4]` |
 | M32.5 Discussion structured data | ✅ done | `e791134 [M32.5]` |
-| M32.8 AI-assisted disclosure | ⏸ deferred (kept planned) | — |
+| M32.8 AI-assisted disclosure | ✅ done | `4d04b5d [M32.8]` |
 | M32.6 Anti-scaled-content guardrails | ⏳ pending | — |
 | M32.7 Search Console + docs | ⏳ pending | — |
 
@@ -220,6 +220,23 @@ One task = one commit = `[M32.n] Description`, gated and pushed per AGENTS.md §
 - **Tests**: schema validation, create/update round-trip, badge render when true / absent when
   false, and an explicit test that indexation logic ignores the field (D3).
 - **Acceptance**: toggling the flag changes only the badge; no metadata/indexation difference.
+- **Status**: ✅ shipped `4d04b5d [M32.8]`. Backend: `Post.ai_assisted` + `Article.ai_assisted`
+  (default `false`), Zod `schemas/content.ts` (`parseAiAssistedCreate` defaults the flag,
+  `parseAiAssistedPatch` requires a boolean when the key is present) wired into
+  `POST /api/posts`, `POST /api/posts/:slug/counter`, `POST /api/articles` (400 on invalid
+  values) and the admin `PATCH /posts/:id` + `PATCH /articles/:id` edit paths. Frontend:
+  `ai_assisted` on the 3 API types, checkbox on all five submit forms (4 post types + article;
+  drafts round-trip the flag, counter branches send it too), checkbox on both admin edit forms
+  (the post form's `?fields=` projection gained `ai_assisted`), and a shared
+  `components/AssistedBadge.tsx` (blue pill, `Sparkles` icon, `title` tooltip) rendered on post
+  and article detail — badge only, nothing else changes. Guidelines §5 now points at the real
+  control ("AI-assisted checkbox when you submit … AI-assisted badge"). D3 proofs:
+  `seoGuard.test.ts` (indexation decision identical with/without the flag, indexable and
+  noindex cases) + `page.test.tsx` (`generateMetadata` deep-equals across flag values,
+  including legacy posts without the field) + `AssistedBadge.test.tsx` (3 tests). Profile list
+  badge not applicable — milestones scope the badge to detail pages. Tests: `schemas/content.test.ts`
+  (10), FE `AssistedBadge.test.tsx` (3), `page.test.tsx` +2 (now 6), and the existing
+  guidelines test gained checkbox/badge assertions.
 
 ### M32.5 — Discussion structured data (F5)
 - **Change**: `Comment`/`DiscussionForumPosting` JSON-LD on post pages with comments, only
