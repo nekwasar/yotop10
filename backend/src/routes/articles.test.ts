@@ -6,6 +6,22 @@ vi.mock('../models/Article', () => ({
   Article: { find: vi.fn(), findOne: vi.fn(), findByIdAndUpdate: vi.fn(), countDocuments: vi.fn() },
 }));
 
+vi.mock('../models/Post', () => ({
+  Post: { aggregate: vi.fn(async () => [{ _id: 'u1', count: 3 }]) },
+}));
+
+vi.mock('../models/User', () => ({
+  User: {
+    find: vi.fn(() => ({
+      select: () => ({
+        lean: () => Promise.resolve([
+          { user_id: 'u1', created_at: new Date(Date.now() - 60 * 86400000), trust_score: 1.5 },
+        ]),
+      }),
+    })),
+  },
+}));
+
 vi.mock('../lib/redis', () => ({
   redis: { get: vi.fn(async () => null), set: vi.fn(async () => 'OK') },
 }));
@@ -22,6 +38,7 @@ vi.mock('../lib/viewCounting', () => ({ shouldCountView: vi.fn(() => false) }));
 vi.mock('../lib/uploadUrl', () => ({ isAcceptedImageUrl: vi.fn(() => true) }));
 
 import { Article } from '../models/Article';
+import { User } from '../models/User';
 import articlesRouter from '../routes/articles';
 
 const asMock = (fn: unknown): ReturnType<typeof vi.fn> => fn as ReturnType<typeof vi.fn>;
@@ -50,6 +67,9 @@ describe('GET /api/articles/sitemap — index hygiene (M32.2)', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    asMock(User.find).mockReturnValue(chain([
+      { user_id: 'u1', created_at: daysAgo(60), trust_score: 1.5 },
+    ]));
   });
 
   it('emits index, follow for a substantial approved article', async () => {
@@ -60,6 +80,7 @@ describe('GET /api/articles/sitemap — index hygiene (M32.2)', () => {
       comment_count: 2,
       view_count: 40,
       body: longBody,
+      author_id: 'u1',
     }]));
 
     const res = await request(app).get('/api/articles/sitemap');
@@ -78,6 +99,7 @@ describe('GET /api/articles/sitemap — index hygiene (M32.2)', () => {
       comment_count: 0,
       view_count: 0,
       body: 'short body',
+      author_id: 'u1',
     }]));
 
     const res = await request(app).get('/api/articles/sitemap');
@@ -93,11 +115,29 @@ describe('GET /api/articles/sitemap — index hygiene (M32.2)', () => {
       comment_count: 0,
       view_count: 0,
       body: 'short body',
+      author_id: 'u1',
     }]));
 
     const res = await request(app).get('/api/articles/sitemap');
     expect(res.status).toBe(200);
     expect(res.body.articles[0].robots).toBe('index, follow');
+  });
+
+  it('noindexes a substantial article whose author has no reputation (D4)', async () => {
+    asMock(Article.find).mockReturnValue(chain([{
+      slug: 'untrusted-article-jkl012',
+      created_at: daysAgo(30),
+      updated_at: daysAgo(20),
+      comment_count: 9,
+      view_count: 500,
+      body: longBody,
+      author_id: 'uUnknown',
+    }]));
+    asMock(User.find).mockReturnValue(chain([]));
+
+    const res = await request(app).get('/api/articles/sitemap');
+    expect(res.status).toBe(200);
+    expect(res.body.articles[0].robots).toBe('noindex, follow');
   });
 });
 
@@ -129,6 +169,9 @@ describe('GET /api/articles/:slug robots (M32.2)', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    asMock(User.find).mockReturnValue(chain([
+      { user_id: 'u1', created_at: daysAgo(60), trust_score: 1.5 },
+    ]));
   });
 
   it('returns index, follow for an approved substantial article', async () => {
@@ -149,6 +192,20 @@ describe('GET /api/articles/:slug robots (M32.2)', () => {
     })));
 
     const res = await request(app).get('/api/articles/thin-article-def456');
+    expect(res.status).toBe(200);
+    expect(res.body.article.robots).toBe('noindex, follow');
+  });
+
+  it('returns noindex, follow when the author fails the reputation gate (D4)', async () => {
+    asMock(Article.findOne).mockReturnValue(chain(article({
+      slug: 'untrusted-article-jkl012',
+      comment_count: 12,
+      view_count: 900,
+      author_id: 'uUnknown',
+    })));
+    asMock(User.find).mockReturnValue(chain([]));
+
+    const res = await request(app).get('/api/articles/untrusted-article-jkl012');
     expect(res.status).toBe(200);
     expect(res.body.article.robots).toBe('noindex, follow');
   });

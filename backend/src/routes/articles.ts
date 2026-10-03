@@ -5,6 +5,7 @@ import crypto from 'crypto';
 import { Article } from '../models/Article';
 import { redis } from '../lib/redis';
 import { shouldNoIndex, robotsFor, ARTICLE_MIN_CONTENT_LENGTH } from '../lib/seoGuard';
+import { fetchAuthorReputations } from '../lib/reputation';
 import { logAudit } from '../lib/auditWriter';
 import { getClientIp, getFingerprintIdentity } from '../middleware/fingerprint';
 import { shouldCountView } from '../lib/viewCounting';
@@ -135,15 +136,20 @@ router.get('/', async (req, res) => {
 router.get('/sitemap', async (_req, res) => {
   try {
     const articles = await Article.find({ status: 'approved' })
-      .select('slug created_at updated_at comment_count view_count body')
+      .select('slug created_at updated_at comment_count view_count body author_id')
       .sort({ created_at: -1 })
       .limit(5000)
       .lean();
+
+    const reputations = await fetchAuthorReputations(
+      articles.map((article) => (article as { author_id?: string }).author_id),
+    );
 
     const items = articles.map((article) => {
       const record = article as Record<string, unknown>;
       const createdAt = new Date(String(record.created_at));
       const ageHours = (Date.now() - createdAt.getTime()) / 3600000;
+      const reputation = reputations.get(String(record.author_id));
       const noindex = shouldNoIndex({
         comment_count: Number(record.comment_count) || 0,
         view_count: Number(record.view_count) || 0,
@@ -151,6 +157,7 @@ router.get('/sitemap', async (_req, res) => {
         status: 'approved',
         age_hours: ageHours,
         min_content_length: ARTICLE_MIN_CONTENT_LENGTH,
+        author_reputable: reputation ? reputation.reputable : false,
       });
       const lastmod = record.updated_at || record.created_at;
 
@@ -199,6 +206,8 @@ router.get('/:slug', async (req, res) => {
     }
 
     const ageHours = (Date.now() - new Date(article.created_at).getTime()) / 3600000;
+    const reputations = await fetchAuthorReputations([article.author_id]);
+    const reputation = reputations.get(String(article.author_id));
     const robots = robotsFor(shouldNoIndex({
       comment_count: article.comment_count || 0,
       view_count: article.view_count || 0,
@@ -206,6 +215,7 @@ router.get('/:slug', async (req, res) => {
       status: article.status,
       age_hours: ageHours,
       min_content_length: ARTICLE_MIN_CONTENT_LENGTH,
+      author_reputable: reputation ? reputation.reputable : false,
     }));
 
     res.json({
