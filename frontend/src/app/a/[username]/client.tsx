@@ -358,7 +358,7 @@ export default function UserProfileClient({ initialProfile }: { initialProfile: 
 
       {/* ─── Posts Tab ─── */}
       {activeTab === 'posts' && (
-        <div>
+        <div id="post-history">
           {/* Status filter pills (own profile only) */}
           {isOwn && profile.posts.length > 0 && (
             <div className="flex flex-wrap gap-3 mb-6">

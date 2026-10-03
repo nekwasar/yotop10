@@ -6,6 +6,8 @@ import { toPublicSlug } from '@/lib/username';
 import { absoluteUrl } from '@/lib/urls';
 import { buildProfileMetadata, OG_IMAGE_HEIGHT, OG_IMAGE_WIDTH } from '@/lib/seo/metadata';
 import { resolveProfileRobots } from '@/lib/seo/indexability';
+import { buildProfilePageJsonLd } from '@/lib/seo/structuredData';
+import { JsonLd } from '@/components/JsonLd';
 
 export const runtime = 'nodejs';
 
@@ -120,5 +122,19 @@ export default async function UserProfileServer({ params }: PageProps) {
     redirect(profile.canonical_url);
   }
 
-  return <UserProfileClient initialProfile={profile} />;
+  return (
+    <>
+      <JsonLd
+        data={buildProfilePageJsonLd({
+          username: profile.username,
+          bio: profile.bio,
+          profile_image_url: profile.profile_image_url,
+          links: profile.links,
+          created_at: profile.created_at,
+          member_since: profile.stats.member_since,
+        })}
+      />
+      <UserProfileClient initialProfile={profile} />
+    </>
+  );
 }

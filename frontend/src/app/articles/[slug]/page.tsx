@@ -1,10 +1,12 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import ArticleDetailClient from './client';
-import { API } from '@/lib/api';
+import { API, apiFetch } from '@/lib/api';
 import { absoluteUrl } from '@/lib/urls';
 import { buildArticleMetadata, OG_IMAGE_HEIGHT, OG_IMAGE_WIDTH } from '@/lib/seo/metadata';
 import { resolveRobots, ARTICLE_MIN_CONTENT_LENGTH } from '@/lib/seo/indexability';
+import { buildArticleJsonLd } from '@/lib/seo/structuredData';
+import { JsonLd } from '@/components/JsonLd';
 
 export const runtime = 'nodejs';
 
@@ -77,5 +79,35 @@ export default async function ArticleDetailPage({ params }: ArticlePageProps) {
     notFound();
   }
 
-  return <ArticleDetailClient slug={slug} initialArticle={initialArticle} />;
+  const authorProfile = await apiFetch<{ stats?: { member_since?: string } }>(
+    `/users/${initialArticle.author_username}`,
+    { next: { revalidate: 3600 } },
+  ).catch(() => null);
+
+  return (
+    <>
+      <JsonLd
+        data={buildArticleJsonLd({
+          slug: initialArticle.slug,
+          title: initialArticle.title,
+          body: initialArticle.body,
+          cover_image: initialArticle.cover_image,
+          category_name: initialArticle.category_name,
+          category_slug: initialArticle.category_slug,
+          created_at: initialArticle.created_at,
+          updated_at: initialArticle.updated_at,
+          published_at: initialArticle.published_at,
+          author: {
+            username: initialArticle.author_username,
+            displayName: initialArticle.author_display_name,
+          },
+        })}
+      />
+      <ArticleDetailClient
+        slug={slug}
+        initialArticle={initialArticle}
+        authorMemberSince={authorProfile?.stats?.member_since ?? null}
+      />
+    </>
+  );
 }

@@ -8,6 +8,7 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { BookmarkButton } from '@/components/BookmarkButton';
 import { ShareButton } from '@/components/ShareButton';
 import { UserLink } from '@/components/UserLink';
+import { AuthorCard } from '@/components/AuthorCard';
 import { ArticleDetailSkeleton } from '@/components/ArticleDetailSkeleton';
 import { Icon } from '@/components/icons/Icon';
 import { relativeTime } from '@/lib/dates';
@@ -29,9 +30,10 @@ const WORDS_PER_MIN = 265;
 interface ArticleDetailClientProps {
   slug: string;
   initialArticle: Article;
+  authorMemberSince?: string | null;
 }
 
-export default function ArticleDetailClient({ slug, initialArticle }: ArticleDetailClientProps) {
+export default function ArticleDetailClient({ slug, initialArticle, authorMemberSince }: ArticleDetailClientProps) {
   const [article, setArticle] = useState<Article>(initialArticle);
   const [error, setError] = useState<string | null>(null);
 
@@ -79,19 +81,21 @@ export default function ArticleDetailClient({ slug, initialArticle }: ArticleDet
         {/* Author bar + actions at the top */}
         <div className="flex items-center justify-between mt-6 pb-8 border-b border-white/5">
           <div className="flex items-center gap-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-orange-500 to-red-600 text-sm font-bold text-white shrink-0">
-              {(article.author_display_name || 'A')[0].toUpperCase()}
-            </div>
-            <div>
-              <p className="text-sm font-medium text-white">{article.author_display_name}</p>
-              <div className="flex items-center gap-2 text-xs text-zinc-500">
-                <span suppressHydrationWarning>{relativeTime(article.created_at)}</span>
-                <span className="text-zinc-700">&middot;</span>
-                <span>{readingTime} min read</span>
-                <span className="text-zinc-700">&middot;</span>
-                <span className="inline-flex items-center gap-1"><Icon name="Eye" size={12} /> {article.view_count}</span>
-              </div>
-            </div>
+            <AuthorCard
+              username={article.author_username}
+              displayName={article.author_display_name}
+              memberSince={authorMemberSince}
+              meta={
+                <>
+                  <span className="text-zinc-700">&middot;</span>
+                  <span suppressHydrationWarning>{relativeTime(article.created_at)}</span>
+                  <span className="text-zinc-700">&middot;</span>
+                  <span>{readingTime} min read</span>
+                  <span className="text-zinc-700">&middot;</span>
+                  <span className="inline-flex items-center gap-1"><Icon name="Eye" size={12} /> {article.view_count}</span>
+                </>
+              }
+            />
             {article.fact_check_status && article.fact_check_status !== 'unverified' && (
               <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-2xs font-mono ${factCheckStyles[article.fact_check_status] || factCheckStyles.unverified}`}>
                 <Icon name={article.fact_check_status === 'verified' ? 'ShieldCheck' : 'TriangleAlert'} size={11} />
