@@ -856,12 +856,13 @@ All core platform features, admin dashboard, backend infrastructure, and fronten
 
 ---
 
-## 22. Search & UGC Compliance (M32 — In progress, 2/9)
+## 22. Search & UGC Compliance (M32 — In progress, 3/9)
 
 > Added 2026-10-03 after research into Google's people-first content, UGC and
 > scaled-content-abuse policies. Full plan + audit evidence:
-> `docs/plans-m32-ugc-search-compliance.md`. Status: §22.4 (link qualification, `cec40df`)
-> and the identity-URL rule in §22.6 (`ee8da1d`) are shipped; everything else is planned.
+> `docs/plans-m32-ugc-search-compliance.md`. Status: §22.4 (link qualification, `cec40df`),
+> the identity-URL rule in §22.6 (`ee8da1d`) and the §22.2 indexation rules (`61af11b` +
+> `39a0546`) are shipped; everything else is planned.
 
 ### 22.1 Content & identity policy (locked)
 
@@ -877,14 +878,19 @@ All core platform features, admin dashboard, backend infrastructure, and fronten
 - **Spam containment** — thin/untrusted UGC is `noindex` until it earns reputation;
   user-placed links are never treated as our endorsements.
 
-### 22.2 Indexation rules (planned)
+### 22.2 Indexation rules (shipped — `61af11b` + `39a0546`)
+
+Implemented in one rule engine: `backend/src/lib/seoGuard.ts` (`shouldNoIndex` +
+`min_content_length` + `author_reputable` + `profileRobots`) with the D4 reputation check in
+`backend/src/lib/reputation.ts`, mirrored for metadata/sitemaps by
+`frontend/src/lib/seo/indexability.ts`.
 
 | Surface | Rule |
 |---|---|
-| Post / article | indexable only if author has **≥1 approved post ∧ account age ≥ 7 days ∧ `trust_score` ≥ 1.0**; otherwise `noindex, follow` (auto-lifts) |
+| Post / article | indexable only if author has **≥1 approved post ∧ account age ≥ 7 days ∧ `trust_score` ≥ 1.0**; otherwise `noindex, follow` (auto-lifts; unknown author = fail closed) |
 | Profile | `noindex` when bio is empty **and** 0 approved posts; excluded from `sitemap-profiles.xml` |
 | `/claim`, `/username-history` | `meta robots: noindex, follow` (robots.txt `disallow` alone is insufficient) |
-| Sitemaps | must be a strict subset of indexable URLs — produced from one shared quality helper |
+| Sitemaps | must be a strict subset of indexable URLs — produced from one shared quality helper (`GET /posts/sitemap`, `GET /articles/sitemap`, `GET /users/sitemap`) |
 | Already noindex (unchanged) | `/search`, `/saved`, `/notifications`, `/pending` |
 
 ### 22.3 AI-assisted disclosure (planned API/schema change)

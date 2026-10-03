@@ -106,16 +106,17 @@ Google does NOT support IndexNow. For Google, use Search Console (below).
 ## Open gaps (M32 — planned 2026-10-03)
 
 Audit of Google's people-first / UGC / scaled-content policies against this build. Full plan
-+ evidence: `docs/plans-m32-ugc-search-compliance.md`. **M32.1 (link qualification) and
-M32.9 (unique identity URLs) are shipped; every other row is still pending.**
++ evidence: `docs/plans-m32-ugc-search-compliance.md`. **M32.1 (link qualification),
+M32.9 (unique identity URLs) and M32.2 (index hygiene) are shipped; every other row is
+still pending.**
 
 | Gap | Current state | Fix |
 |---|---|---|
 | User-placed outbound links unqualified | ✅ shipped — every user link goes through `components/UserLink.tsx` (`rel="ugc nofollow noopener noreferrer"`) | M32.1 — `cec40df` |
-| Profile index bloat | `sitemap-profiles.xml` lists **all** users (17 today, 14 machine-named) with no filter; profile pages have **no `robots` meta** | M32.2 — `noindex` thin profiles (empty bio ∧ 0 posts) + server-side sitemap filter |
-| No reputation gate on posts | Thin/stale heuristic exists (`app/[slug]/page.tsx:27-33`) but nothing uses author reputation | M32.2 — `noindex` until author has ≥1 approved post ∧ age ≥ 7d ∧ `trust_score` ≥ 1.0 |
-| Noindex/sitemap mismatch | `sitemap-posts.xml` filters only API `meta_robots`, so it can list pages the page marks `noindex` | M32.2 — one shared quality helper for metadata **and** sitemaps |
-| `robots.txt` disallow ≠ noindex | `/claim`, `/username-history` disallowed in `robots.ts` but not `noindex` | M32.2 — meta `noindex, follow` |
+| Profile index bloat | ✅ shipped — `/users/:username` returns `robots`; thin profiles (empty bio ∧ 0 approved posts) are `noindex, follow` and `/users/sitemap` drops them, so `sitemap-profiles.xml` emits only `cyprianzube` (of 17 users) | M32.2 — `61af11b` |
+| No reputation gate on posts | ✅ shipped — `lib/reputation.ts` (D4) + `seoGuard.author_reputable` gate both post **and** article detail responses (fail-closed on unknown author); post `noindex` until author has ≥1 approved post ∧ age ≥ 7d ∧ `trust_score` ≥ 1.0 | M32.2 — `61af11b` + `39a0546` |
+| Noindex/sitemap mismatch | ✅ shipped — new `GET /posts/sitemap` + `GET /articles/sitemap` return per-entry `robots`; frontend `lib/seo/indexability.ts` (`parseRobots`/`resolveRobots`/`isIndexable`) is used by `generateMetadata` **and** the sitemap filters, and the posts/articles sitemaps currently emit 0 URLs while their pages are `noindex` | M32.2 — `61af11b` |
+| `robots.txt` disallow ≠ noindex | ✅ shipped — `/claim` (`claim/layout.tsx`) and `/username-history/page.tsx` export `robots: {index: false, follow: true}` | M32.2 — `61af11b` |
 | Authorship structured data | `Organization`/`WebSite`/`SearchAction`/`ItemList`/`Breadcrumb` exist; no `ProfilePage`, no `Person`, no `Article.author`, no `Comment`/`DiscussionForumPosting` | M32.3 + M32.5 |
 | No abuse policy / no public report | `docs/` has terms/privacy/cookies/guides only; flag endpoints are admin-only (`routes/admin.ts:1667`) | M32.4 — `/docs/guidelines` + `POST /api/reports` |
 | No author-declared AI field | Post model has platform-side `ai_score`/`ai_flags`/`ai_model`, nothing author-facing | M32.8 — optional `Post.ai_assisted` badge (never a ranking signal) |

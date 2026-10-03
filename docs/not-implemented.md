@@ -125,15 +125,9 @@ Source: `docs/plans-m32-ugc-search-compliance.md`, `docs/milestones.md` M32, `do
 - **Public report flow** — `POST /api/reports` (Zod-validated, audit-logged) landing in the
   existing admin flag queues (M32.4)
 - **AI-assisted badge** — optional author-toggled `Post.ai_assisted` flag + UI badge (M32.8)
-- **Reputation-based indexation** — shared quality/noindex helper: posts below
-  ≥1 approved post ∧ age ≥ 7d ∧ `trust_score` ≥ 1.0 are `noindex`; thin profiles
-  (empty bio ∧ 0 posts) `noindex` and dropped from `sitemap-profiles.xml` (M32.2)
-- **`meta robots: noindex`** on `/claim` and `/username-history` (M32.2)
-- **`rel="ugc nofollow noopener noreferrer"`** on all user-placed outbound links (M32.1)
 - **Authorship structured data** — `ProfilePage` + `Person` on `/a/[username]`,
   `Article` + `author` on `/articles/[slug]`, `Comment`/`DiscussionForumPosting` on post
   pages with comments (M32.3, M32.5)
-- **Unique profile slugs** — fix `toPublicSlug` 4-hex collision (M32.9)
 - **Synthetic-author guard test** — blocks `any_seed`/seed content from prod datasets (M32.6)
 
 ---

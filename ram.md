@@ -3,7 +3,7 @@
 > **Last updated**: 2026-10-03
 > **Working tree**: Clean — committed and pushed (only untracked `ref-yotop10/` + `backend/uploads/migrations-backups/`, both intentionally not committed)
 > **Branch**: main → up to date with origin/main
-> **Latest commits**: `ee8da1d [M32.9]`, `a91c8fe [M32.1 docs]`, `cec40df [M32.1]`, `4fbde88 [M32.0]`, `989fa62 [M31.17]`
+> **Latest commits**: `39a0546 [M32.2]`, `61af11b [M32.2]`, `ee8da1d [M32.9]`, `a91c8fe [M32.1 docs]`, `cec40df [M32.1]`
 > **Active milestone**: **M32 — UGC & Search Compliance** (planned 2026-10-03, plan in `docs/plans-m32-ugc-search-compliance.md`)
 
 ---
@@ -21,8 +21,8 @@ All gates run **inside the dev container** (`docker exec yotop10_dev`), which no
 | Frontend lint | ✅ 0 errors, 0 warnings |
 | Backend build (`tsc`) | ✅ 0 errors |
 | Frontend build (`next build`) | ✅ exit 0 (scratch-dir `NODE_ENV=production` build + `Dockerfile.frontend` prod image) |
-| Backend tests (vitest) | ✅ 53 files, 736 passed, 4 skipped |
-| Frontend tests (vitest) | ✅ 19 files, 136 passed |
+| Backend tests (vitest) | ✅ 55 files, 781 passed, 4 skipped |
+| Frontend tests (vitest) | ✅ 20 files, 156 passed |
 | Prod stack (compose `-p yotop10`) | ✅ 7/7 containers healthy |
 | Dev stack (compose `-p yotop10dev`) | ✅ `yotop10_dev` up, :3200 / :8200 200 |
 
@@ -65,8 +65,9 @@ Hardcoded JWT, orphaned setInterval, $regex injection, stub 200s, health check o
 | 2.10 | Non-null assertion after findById | `!` in posts.ts:488 |
 
 ### Unfinished features:
-- **M32** — UGC & Search Compliance: 9 tasks (M32.1–M32.9), approved 2026-10-03, 2 of 9 done
-  (M32.1 link qualification `cec40df`, M32.9 unique identity URLs `ee8da1d`)
+- **M32** — UGC & Search Compliance: 9 tasks (M32.1–M32.9), approved 2026-10-03, 3 of 9 done
+  (M32.1 link qualification `cec40df`, M32.9 unique identity URLs `ee8da1d`, M32.2 index
+  hygiene `61af11b` + `39a0546`)
 - **M5.6** — Counter-List System (The Arena): challenge/rebuttal, comparison engine, SEO governance
 - **M10.7** — Categories Management frontend: tree view, drag-drop, bulk ops, analytics
 - **M10.14** — Admin UI components: StatsChart, CategoryTree, UserBadge, SearchInput, DateRangePicker, ExportButton, ConfirmDialog
@@ -83,7 +84,8 @@ Hardcoded JWT, orphaned setInterval, $regex injection, stub 200s, health check o
 
 1. **M32 — UGC & Search Compliance** *(ACTIVE, approved 2026-10-03)* — 9 tasks, execute in
    this order: ~~`M32.1` link qualification~~ ✅ `cec40df` → ~~`M32.9` unique identity URLs~~
-   ✅ `ee8da1d` → `M32.2` index hygiene → `M32.3` authorship/structured data → `M32.4`
+   ✅ `ee8da1d` → ~~`M32.2` index hygiene~~ ✅ `61af11b` + `39a0546` → `M32.3`
+   authorship/structured data → `M32.4`
    guidelines + report flow → `M32.8` AI-assisted badge → `M32.5` discussion structured data →
    `M32.6` guard tests → `M32.7` Search Console verification + docs. Full plan:
    `docs/plans-m32-ugc-search-compliance.md`.
@@ -124,14 +126,37 @@ user-placed links `rel="ugc"`/`nofollow`.
 no `rel="ugc"` anywhere in the frontend (F1), all 17 profiles indexable with no `robots` meta
 and no sitemap filter (F2), and the noindex/sitemap rule mismatch (F3).
 
-**Status**: 2 of 9 tasks done — **M32.1** link qualification (`cec40df` + `a91c8fe` docs) and
-**M32.9** unique identity URLs (`ee8da1d`). Each task = one gated, pushed commit `[M32.n]`,
-docs synced per AGENTS.md §3.0. Next: `M32.2` index hygiene.
+**Status**: 3 of 9 tasks done — **M32.1** link qualification (`cec40df` + `a91c8fe` docs),
+**M32.9** unique identity URLs (`ee8da1d`), **M32.2** index hygiene (`61af11b` + `39a0546`,
+D4 extended to articles per `docs/product_spec.md` §22.2). Each task = one gated, pushed
+commit `[M32.n]`, docs synced per AGENTS.md §3.0. Next: `M32.3` authorship/structured data.
 
 ---
 
 ## Latest Verification
 
+- **M32.2 index hygiene (2026-10-03)** — commits `61af11b` (20 files, +1190) + `39a0546`
+  (D4 on articles). In-container gates: backend tsc 0 / lint 0-0 / **781 tests** (55 files,
+  4 skipped); frontend tsc 0 / lint 0-0 / **156 tests** (20 files); frontend production build
+  exit 0 (scratch-dir `NODE_ENV=production`), fast gate ~3.5 min. Rule engine consolidated:
+  `backend/src/lib/seoGuard.ts` (`shouldNoIndex` + `min_content_length` + `author_reputable` +
+  `profileRobots`) and new `backend/src/lib/reputation.ts` (D4: ≥1 approved post ∧ account age
+  ≥7d ∧ `trust_score` ≥1.0, batched by author, fail-closed when the author is unknown) drive
+  **both** `/posts/:idOrSlug` and `/articles/:slug` detail responses plus new
+  `GET /posts/sitemap`, `GET /articles/sitemap` and the `/users/:username` → `robots` field;
+  frontend `frontend/src/lib/seo/indexability.ts` mirrors the rules for every
+  `generateMetadata` and the posts/articles sitemap filters (F3 closed by construction).
+  Verified on a **production build + `next start` probe** (stale port-3999 server from a prior
+  session was killed first — it had been answering with an old build):
+  `/claim` and `/username-history` → `<meta name="robots" content="noindex, follow"/>`
+  (F4); thin profile `noindex` / `cyprianzube` `index, follow`; `sitemap-posts.xml` = 0 `<loc>`,
+  `sitemap-articles.xml` = 0 (4 of 5 pre-D4), `sitemap-profiles.xml` = only
+  `https://yotop10.com/a/cyprianzube`. Dev-stack re-verify after `pm2 restart frontend-dev`
+  (the dev Next data cache still held the pre-filter 17-profile list):
+  profile sitemap = 1, both other sitemaps = 0, article page `noindex, follow`.
+  **Live D4 impact (auto-lifts)**: the single content author account is 2 days old, so all 25
+  posts and all 5 articles are `noindex, follow` until **2026-10-08**; `trust_score` defaults
+  to 1.0 (range 0.1–2.0), so only the age gate currently blocks.
 - **M32.1 + M32.9 (2026-10-03)** — gates in-container: backend tsc 0 / lint 0-0 / **736 tests**;
   frontend tsc 0 / lint 0-0 / **136 tests**; frontend production build exit 0 (scratch-dir
   `NODE_ENV=production npx next build`, 3m32s). Live on the dev stack (same DB as prod):

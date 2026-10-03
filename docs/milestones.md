@@ -2040,11 +2040,12 @@ These features from the old social platform are NOT part of V1:
 
 ---
 
-## M32 — UGC & Search Compliance (IN PROGRESS — 2 of 9 done, 2026-10-03)
+## M32 — UGC & Search Compliance (IN PROGRESS — 3 of 9 done, 2026-10-03)
 
 > Research-backed plan for Google people-first / UGC / scaled-content compliance.
 > Full plan + audit evidence: `docs/plans-m32-ugc-search-compliance.md`.
-> Status: M32.1 (`cec40df`) + M32.9 (`ee8da1d`) shipped. One task = one gated commit `[M32.n]`.
+> Status: M32.1 (`cec40df`) + M32.9 (`ee8da1d`) + M32.2 (`61af11b` + `39a0546`) shipped.
+> One task = one gated commit `[M32.n]`.
 
 ### Decisions (locked — do not re-litigate)
 - [x] D1 Anonymous but accountable — no real-name rule; byline → permanent profile with history/approval-rate/trust tier is the "Who"
@@ -2068,11 +2069,12 @@ These features from the old social platform are NOT part of V1:
 - [x] Uniqueness unit test over ≥10k synthetic usernames
 
 ### M32.2 — Index hygiene
-- [ ] Single shared quality/noindex helper used by `generateMetadata` **and** every sitemap route
-- [ ] Profile `noindex` when bio empty ∧ 0 approved posts; those profiles dropped from `sitemap-profiles.xml` (backend `/users/sitemap` filter)
-- [ ] Post/article reputation gate (D4) — `noindex, follow` below threshold, auto-lift
-- [ ] `meta noindex` on `/claim` and `/username-history` (robots.txt disallow ≠ noindex)
-- [ ] Metadata + sitemap route tests (sitemaps contain only indexable URLs)
+- [x] Single shared quality/noindex helper used by `generateMetadata` **and** every sitemap route
+- [x] Profile `noindex` when bio empty ∧ 0 approved posts; those profiles dropped from `sitemap-profiles.xml` (backend `/users/sitemap` filter)
+- [x] Post/article reputation gate (D4) — `noindex, follow` below threshold, auto-lift
+- [x] `meta noindex` on `/claim` and `/username-history` (robots.txt disallow ≠ noindex)
+- [x] Metadata + sitemap route tests (sitemaps contain only indexable URLs)
+- [x] New `GET /posts/sitemap` + `GET /articles/sitemap` (also removes the 50-item cap the sitemaps inherited from `GET /posts?limit=…`)
 
 ### M32.3 — Authorship signals & structured data
 - [ ] `ProfilePage` + `Person` JSON-LD on `/a/[username]`

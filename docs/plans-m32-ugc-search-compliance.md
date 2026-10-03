@@ -1,7 +1,7 @@
 # M32 — UGC & Search Compliance Plan
 **Date**: 2026-10-03
-**Status**: 🔄 In progress — 2 of 9 tasks done
-**Milestone**: M32 (commits: `[M32.0]` docs, `[M32.1]`, `[M32.9]`; next free = `[M32.2]`)
+**Status**: 🔄 In progress — 3 of 9 tasks done
+**Milestone**: M32 (commits: `[M32.0]` docs, `[M32.1]`, `[M32.9]`, `[M32.2]`; next free = `[M32.3]`)
 **Supersedes**: nothing — new milestone
 **Decided by**: product owner, on 2026-10-03 (all four open questions answered: adopt the
 recommended option in every case)
@@ -91,7 +91,7 @@ One task = one commit = `[M32.n] Description`, gated and pushed per AGENTS.md §
 |------|--------|--------|
 | M32.1 Qualify user-placed links | ✅ done | `cec40df [M32.1]` |
 | M32.9 Unique identity URLs | ✅ done | `ee8da1d [M32.9]` |
-| M32.2 Index hygiene | ⏳ pending | — |
+| M32.2 Index hygiene | ✅ done | `61af11b [M32.2]` + `39a0546` (D4 on articles) |
 | M32.3 Authorship / structured data | ⏳ pending | — |
 | M32.4 Guidelines + public reporting | ⏳ pending | — |
 | M32.8 AI-assisted disclosure | ⏳ pending | — |
@@ -131,6 +131,26 @@ One task = one commit = `[M32.n] Description`, gated and pushed per AGENTS.md §
   present), profile matrix.
 - **Acceptance**: a thin profile and a 0-post author's page are `noindex`; sitemap outputs are
   a strict subset of indexable URLs; `/claim` + `/username-history` carry meta `noindex`.
+- **Status**: ✅ shipped `61af11b [M32.2]` + `39a0546` (D4 extended to articles, per
+  `docs/product_spec.md` §22.2 / milestones checklist which both say "post/article").
+  Implemented as: backend `lib/seoGuard.ts` (`shouldNoIndex` + `min_content_length` +
+  `author_reputable` + `profileRobots`) is the single rule engine; new `lib/reputation.ts`
+  (`evaluateAuthorReputation`, `fetchAuthorReputations` batched by author); new
+  `GET /posts/sitemap` + `GET /articles/sitemap` return `{slug, lastmod, robots}` per entry
+  (they also fix the old 50-item cap on `GET /posts?limit=…`/`GET /articles?limit=…` that the
+  sitemaps used); `GET /users/:username` returns `robots` + `stats.approved_posts`, and
+  `GET /users/sitemap` drops thin profiles server-side. Frontend `lib/seo/indexability.ts`
+  (`parseRobots`/`resolveRobots`/`isIndexable`/`resolveProfileRobots`) is used by post,
+  article and profile `generateMetadata` **and** by the posts/articles sitemap routes, so
+  F3 (sitemap ⊄ indexable) is closed by construction. `claim/layout.tsx` +
+  `username-history/page.tsx` export `robots: {index: false, follow: true}` (F4).
+  Verified on a production `next build` + `next start` probe: `/claim` and
+  `/username-history` emit `noindex, follow`, thin profile `noindex` / active profile `index`,
+  `sitemap-posts.xml` = 0 URLs while all 25 posts are `noindex, follow`,
+  `sitemap-articles.xml` = 0, `sitemap-profiles.xml` = only `cyprianzube`.
+  **Live D4 impact (expected, auto-lifts)**: the only content author account is 2 days old,
+  so every post and article is `noindex, follow` until the account reaches 7 days
+  (2026-10-08); profiles are unaffected (D7 only).
 
 ### M32.3 — "Who" signals / structured data (D1, F5)
 - **Change**: `ProfilePage` + `Person` JSON-LD on `/a/[username]`; `Article` JSON-LD with
