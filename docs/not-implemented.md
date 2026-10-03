@@ -116,6 +116,26 @@ Backend endpoints exist (17+ endpoints). Frontend needs:
 - Duplicate Detection — background utility for alternate spellings
 - Manual Trust Adjustment UI tied to reputation score ($R$)
 
+### 1.11 M32 — UGC & Search Compliance (Planned 2026-10-03)
+
+Source: `docs/plans-m32-ugc-search-compliance.md`, `docs/milestones.md` M32, `docs/product_spec.md` §22.
+
+- `/docs/guidelines` — community & anti-spam policy, moderation rules, anonymity policy,
+  AI-assisted disclosure, how to report content (M32.4)
+- **Public report flow** — `POST /api/reports` (Zod-validated, audit-logged) landing in the
+  existing admin flag queues (M32.4)
+- **AI-assisted badge** — optional author-toggled `Post.ai_assisted` flag + UI badge (M32.8)
+- **Reputation-based indexation** — shared quality/noindex helper: posts below
+  ≥1 approved post ∧ age ≥ 7d ∧ `trust_score` ≥ 1.0 are `noindex`; thin profiles
+  (empty bio ∧ 0 posts) `noindex` and dropped from `sitemap-profiles.xml` (M32.2)
+- **`meta robots: noindex`** on `/claim` and `/username-history` (M32.2)
+- **`rel="ugc nofollow noopener noreferrer"`** on all user-placed outbound links (M32.1)
+- **Authorship structured data** — `ProfilePage` + `Person` on `/a/[username]`,
+  `Article` + `author` on `/articles/[slug]`, `Comment`/`DiscussionForumPosting` on post
+  pages with comments (M32.3, M32.5)
+- **Unique profile slugs** — fix `toPublicSlug` 4-hex collision (M32.9)
+- **Synthetic-author guard test** — blocks `any_seed`/seed content from prod datasets (M32.6)
+
 ---
 
 ## 2. PARTIAL — Some Code Exists
@@ -218,6 +238,6 @@ unless explicit authorization to implement is given.
 | Email Notifications | product_spec.md |
 | Post Changelog content revision diffs | ram.md V2.x |
 | IndexNow API key hosting (`{KEY}.txt` at site root) + first live submission verification | docs/seo.md, backend/src/lib/indexnow.ts (code ready, key not yet generated) |
-| Google Search Console sitemap submission + URL Inspection validation | docs/seo.md (manual dashboard step, no code) |
-| Bing Webmaster Tools sitemap submission + IndexNow receipt check | docs/seo.md (manual dashboard step, no code) |
+| Google Search Console sitemap submission + URL Inspection validation | docs/seo.md (manual dashboard step, no code) — adopted into M32.7, still pending |
+| Bing Webmaster Tools sitemap submission + IndexNow receipt check | docs/seo.md (manual dashboard step, no code) — adopted into M32.7, still pending |
 | Disabled Features: registration, logins, OAuth, JWT for users, follow, connection, strike, report, communities, ephemeral threads, badges, multi-account, NextAuth, custom profiles | product_spec.md §14 |

@@ -406,6 +406,8 @@ Every user can view their exact rate limit status in real-time on their profile 
 /admin/search              → Search management
 /admin/settings            → Rate limits & trust scores
 /admin/users               → Users management
+/docs                      → Docs hub (terms, privacy, cookies, guides)
+/docs/guidelines           → Community guidelines & anti-spam policy (M32, planned)
 ```
 
 ---
@@ -851,3 +853,74 @@ All core platform features, admin dashboard, backend infrastructure, and fronten
 - Email notifications (post approval/rejection)
 - JSON identity file download
 - "This is your only key" warning UI
+
+---
+
+## 22. Search & UGC Compliance (M32 — Planned)
+
+> Added 2026-10-03 after research into Google's people-first content, UGC and
+> scaled-content-abuse policies. Full plan + audit evidence:
+> `docs/plans-m32-ugc-search-compliance.md`. Status: approved, not yet built.
+
+### 22.1 Content & identity policy (locked)
+
+- **Anonymous but accountable** — YoTop10 keeps anonymous handles. Google requires no
+  real-name; it requires a verifiable "Who". Every indexed post carries a byline →
+  permanent profile (`/a/{slug}`) showing member-since, post history, approval rate and
+  trust tier.
+- **No fabricated identity** — never AI headshots posing as a person, invented credentials,
+  or synthetic/seed authors (`any_seed`) in production.
+- **AI-assisted content is allowed and judged by quality, not provenance** — AI vs human is
+  never an indexation, ranking or moderation signal. Disclosure is **optional and
+  author-controlled** (§22.3).
+- **Spam containment** — thin/untrusted UGC is `noindex` until it earns reputation;
+  user-placed links are never treated as our endorsements.
+
+### 22.2 Indexation rules (planned)
+
+| Surface | Rule |
+|---|---|
+| Post / article | indexable only if author has **≥1 approved post ∧ account age ≥ 7 days ∧ `trust_score` ≥ 1.0**; otherwise `noindex, follow` (auto-lifts) |
+| Profile | `noindex` when bio is empty **and** 0 approved posts; excluded from `sitemap-profiles.xml` |
+| `/claim`, `/username-history` | `meta robots: noindex, follow` (robots.txt `disallow` alone is insufficient) |
+| Sitemaps | must be a strict subset of indexable URLs — produced from one shared quality helper |
+| Already noindex (unchanged) | `/search`, `/saved`, `/notifications`, `/pending` |
+
+### 22.3 AI-assisted disclosure (planned API/schema change)
+
+- `Post.ai_assisted: boolean` — default `false`, Zod-validated on create/edit, author-toggled
+  at submit time, rendered as a voluntary badge on post/article detail.
+- Surfaced in `/docs/guidelines` ("posts may be AI-assisted; moderation may be automated").
+- **Never** read by indexation, metadata or moderation logic.
+
+### 22.4 Link qualification (planned)
+
+- Every user-placed outbound link (list-item `source_url`, profile `links.medium|x|github`)
+  renders `rel="ugc nofollow noopener noreferrer"`.
+- Internal `<Link>` anchors are unaffected.
+
+### 22.5 Structured data (planned additions)
+
+| Surface | Markup |
+|---|---|
+| `/a/[username]` | `ProfilePage` + `Person` (bio, member-since, url) |
+| `/articles/[slug]` | `Article` with `author` → profile URL |
+| `/[slug]` with comments | `Comment` / `DiscussionForumPosting` (visible content only) |
+| existing (unchanged) | `Organization` + `WebSite` + `SearchAction`, `ItemList`, `BreadcrumbList` |
+
+### 22.6 Policy surface & reporting (planned)
+
+- **`/docs/guidelines`** — community/anti-spam policy, moderation rules, anonymity policy,
+  AI-assisted disclosure, how to report content. Linked from footer and submission flow.
+- **`POST /api/reports`** (planned, Zod `schemas/reports.ts`, audit-logged) — public
+  report action targeting a post or comment; lands in the existing admin flag queues
+  (`admin.ts` `POST /comments/:id/flag` and bulk flag).
+- **Identity URLs** — `toPublicSlug` must be collision-free so two anonymous accounts can
+  never share one profile URL.
+
+### 22.7 Guardrails
+
+- Guard test fails if a synthetic author (`any_seed`) or seed-script content appears in the
+  production dataset.
+- Documented rule: never bulk-publish AI-generated lists/facts (scaled content abuse is
+  method-agnostic).

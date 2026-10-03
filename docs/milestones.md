@@ -2037,3 +2037,68 @@ These features from the old social platform are NOT part of V1:
 - [x] `docs/plans-mod-system-flaws.md` — 11 flaw review
 - [x] `docs/milestones.md` — This section
 - [x] `docs/build-status.md` — Counts updated
+
+---
+
+## M32 — UGC & Search Compliance (PLANNED 2026-10-03)
+
+> Research-backed plan for Google people-first / UGC / scaled-content compliance.
+> Full plan + audit evidence: `docs/plans-m32-ugc-search-compliance.md`.
+> Status: approved, 0 of 9 tasks done. One task = one gated commit `[M32.n]`.
+
+### Decisions (locked — do not re-litigate)
+- [x] D1 Anonymous but accountable — no real-name rule; byline → permanent profile with history/approval-rate/trust tier is the "Who"
+- [x] D2 No fabricated identity — no AI headshots, fake credentials, or synthetic (`any_seed`) authors in prod
+- [x] D3 Judge the post, not the tool — AI vs human is never an index/rank/moderation signal
+- [x] D4 Reputation gate — indexable only if author has ≥1 approved post ∧ account age ≥ 7d ∧ `trust_score` ≥ 1.0, else `noindex` (auto-lifts)
+- [x] D5 Optional AI disclosure — author-toggled `Post.ai_assisted` badge + policy line in `/docs/guidelines`; never a signal
+- [x] D6 `rel="ugc nofollow noopener noreferrer"` on every user-placed outbound link
+- [x] D7 Thin profiles noindexed (empty bio ∧ 0 approved posts) and excluded from `sitemap-profiles.xml`
+- [x] D8 Keep the 14 machine-named anonymous profiles (real users) — contain via D7, no purge
+- [x] D9 Unique identity URLs — fix `toPublicSlug` 4-hex collision
+
+### M32.1 — Qualify user-placed links
+- [ ] `rel="ugc nofollow noopener noreferrer"` on list-item `source_url` anchors + profile external links
+- [ ] Internal `next/link` anchors unchanged (no `ugc`)
+- [ ] Component tests assert the exact `rel` value
+
+### M32.9 — Unique identity URLs
+- [ ] `toPublicSlug` collision-free for `a_xxxx_xxxx` accounts (unique, stable, resolvable)
+- [ ] Historical public slugs keep resolving (alias/redirect); `cyprianzube` unchanged
+- [ ] Uniqueness unit test over ≥10k synthetic usernames
+
+### M32.2 — Index hygiene
+- [ ] Single shared quality/noindex helper used by `generateMetadata` **and** every sitemap route
+- [ ] Profile `noindex` when bio empty ∧ 0 approved posts; those profiles dropped from `sitemap-profiles.xml` (backend `/users/sitemap` filter)
+- [ ] Post/article reputation gate (D4) — `noindex, follow` below threshold, auto-lift
+- [ ] `meta noindex` on `/claim` and `/username-history` (robots.txt disallow ≠ noindex)
+- [ ] Metadata + sitemap route tests (sitemaps contain only indexable URLs)
+
+### M32.3 — Authorship signals & structured data
+- [ ] `ProfilePage` + `Person` JSON-LD on `/a/[username]`
+- [ ] `Article` JSON-LD with `author` on `/articles/[slug]`
+- [ ] Standardized author card: byline → profile → member-since → history
+- [ ] JSON-LD mirrors visible content (structured-data general policy); Rich Results Test-clean
+
+### M32.4 — Abuse policy + public reporting
+- [ ] `/docs/guidelines` — anti-spam policy, moderation rules, anonymity policy, AI-assisted disclosure (D5), how to report
+- [ ] Public report action → existing admin flag endpoints (Zod-validated, audit-logged)
+- [ ] Linked from footer + submission flow
+
+### M32.8 — Optional AI-assisted disclosure
+- [ ] `Post.ai_assisted: boolean` (default `false`), Zod-validated on create/edit
+- [ ] Voluntary badge on post/article detail; policy text in `/docs/guidelines`
+- [ ] Test proving indexation/metadata ignore the field (D3)
+
+### M32.5 — Discussion structured data
+- [ ] `Comment`/`DiscussionForumPosting` JSON-LD on post pages with visible comments only
+
+### M32.6 — Anti-scaled-content guardrails
+- [ ] Guard test: no synthetic author (`any_seed`) / seed-script content in the prod dataset
+- [ ] Rule documented (`docs/seo.md` + guidelines): never bulk-publish AI-generated lists/facts
+- [ ] Audit: no user-visible AI text without the D5 disclosure
+
+### M32.7 — Verification & docs
+- [ ] Search Console property + sitemap submission, `site:` baseline, manual-actions check
+- [ ] `ram.md`, `docs/milestones.md`, `docs/product_spec.md` §22, `docs/rom.md`, `docs/seo.md`, `docs/not-implemented.md` all match reality
+- [ ] Gates green on every commit (typecheck/lint/test/build per AGENTS.md §2.1)

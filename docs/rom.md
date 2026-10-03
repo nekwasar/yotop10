@@ -1071,6 +1071,21 @@ This audit analyzed 39 source files:
 | NEW (2026-10-03) | `DesktopStats` fetched `/stats/platform` — a 404 since the route did not exist | ✅ New public `GET /api/stats/platform` (`routes/stats.ts`, Zod `schemas/stats.ts`, 60s Redis cache, 7 tests); rail validates all four counters before rendering |
 | NEW (2026-10-03) | `/c/[...slug]` called `notFound()` on *any* API failure — outages looked like dead categories | ✅ `ApiError` + `isNotFound` carry the HTTP status; only a real 404 404s, outages show a retry screen and `CategoryFeedClient` shows a feed-retry card instead of "No posts yet" |
 
+### New architectural decisions — M32 UGC & Search Compliance (2026-10-03)
+| ID | Decision | Why / source |
+|----|----------|--------------|
+| D1 | Anonymous-but-accountable: no real-name requirement; byline → permanent profile (history, approval rate, trust tier) is the authorship signal | Google people-first doc "Who"; Reddit-style pseudonyms are compliant |
+| D2 | No fabricated identity: never AI headshots, fake credentials, or synthetic (`any_seed`) authors in prod | QRG §4.5.3 "fake owner or content creator profiles" = Lowest quality |
+| D3 | AI vs human is never an index/rank/moderation signal — judge the content | Google: "appropriate use of AI or automation is not against our guidelines"; scaled-content abuse is method-agnostic |
+| D4 | Reputation-gated indexation: `noindex` unless author has ≥1 approved post ∧ age ≥ 7d ∧ `trust_score` ≥ 1.0 (auto-lift) | Google *Prevent user-generated spam*: "consider adding the noindex tag on posts that come from users that don't have any reputation" |
+| D5 | Optional author-toggled `Post.ai_assisted` badge + policy statement; never a signal | People-first doc "How": disclose automation where a reader would wonder |
+| D6 | `rel="ugc nofollow noopener noreferrer"` on every user-placed outbound link | Google *Qualify outbound links*; cheapest correct default |
+| D7 | Thin profiles `noindex` (empty bio ∧ 0 posts) and excluded from `sitemap-profiles.xml` | Google: index UGC by default only when you're happy with its quality |
+| D8 | Keep the 14 machine-named anonymous profiles — real users, contain via D7, do not purge | Purging destroys real users' identity/content (D1) |
+| D9 | Identity URLs must be unique — fix `toPublicSlug` 4-hex collision (`a_dbb4_aed5` → `/a/dbb4`) | A colliding byline breaks the "Who" signal and creates duplicate content |
+
+Full plan, audit findings F1–F10 and task breakdown: `docs/plans-m32-ugc-search-compliance.md`.
+
 ### Still Open ⏳
 | Section | Issue | Notes |
 |---------|-------|-------|

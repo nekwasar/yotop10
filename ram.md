@@ -3,7 +3,8 @@
 > **Last updated**: 2026-10-03
 > **Working tree**: Clean — committed and pushed (only untracked `ref-yotop10/` + `backend/uploads/migrations-backups/`, both intentionally not committed)
 > **Branch**: main → up to date with origin/main
-> **Latest commits**: `dabc49f [M31.16]`, `edf8041 [M31.15]`, `5a28578 [M31.14]`, `695aba6 [M31.13]`, `3ee1812 [M31.12]`
+> **Latest commits**: `989fa62 [M31.17]`, `dabc49f [M31.16]`, `edf8041 [M31.15]`, `5a28578 [M31.14]`, `695aba6 [M31.13]`
+> **Active milestone**: **M32 — UGC & Search Compliance** (planned 2026-10-03, plan in `docs/plans-m32-ugc-search-compliance.md`)
 
 ---
 
@@ -64,6 +65,7 @@ Hardcoded JWT, orphaned setInterval, $regex injection, stub 200s, health check o
 | 2.10 | Non-null assertion after findById | `!` in posts.ts:488 |
 
 ### Unfinished features:
+- **M32** — UGC & Search Compliance: 9 tasks (M32.1–M32.9), approved 2026-10-03, 0 of 9 done
 - **M5.6** — Counter-List System (The Arena): challenge/rebuttal, comparison engine, SEO governance
 - **M10.7** — Categories Management frontend: tree view, drag-drop, bulk ops, analytics
 - **M10.14** — Admin UI components: StatsChart, CategoryTree, UserBadge, SearchInput, DateRangePicker, ExportButton, ConfirmDialog
@@ -78,11 +80,50 @@ Hardcoded JWT, orphaned setInterval, $regex injection, stub 200s, health check o
 
 ## Next Steps (Priority Suggestion)
 
-1. **Lock in stability** — Fix 5 remaining ROM issues (crash/data integrity)
-2. **Complete admin UI** — Categories tree view, remaining components
-3. **Build the Arena** — M5.6 Counter-List System (major feature)
-4. **Deploy & verify** — Production deployment
-5. **Post-MVP** — V2 features, theming, notifications
+1. **M32 — UGC & Search Compliance** *(ACTIVE, approved 2026-10-03)* — 9 tasks, execute in
+   this order: `M32.1` link qualification → `M32.9` unique identity URLs → `M32.2` index
+   hygiene → `M32.3` authorship/structured data → `M32.4` guidelines + report flow →
+   `M32.8` AI-assisted badge → `M32.5` discussion structured data → `M32.6` guard tests →
+   `M32.7` Search Console verification + docs. Full plan: `docs/plans-m32-ugc-search-compliance.md`.
+2. **Lock in stability** — Fix 5 remaining ROM issues (crash/data integrity)
+3. **Complete admin UI** — Categories tree view, remaining components
+4. **Build the Arena** — M5.6 Counter-List System (major feature)
+5. **Deploy & verify** — Production deployment
+6. **Post-MVP** — V2 features, theming, notifications
+
+---
+
+## M32 — UGC & Search Compliance (planned 2026-10-03)
+
+**Research conclusion (Google primary sources)**: Google has **no real-name and no
+human-authorship requirement**. It requires content created for people (people-first doc,
+updated 2026-10-01), authored by a **genuine, non-fabricated source** (QRG §4.5.3 fails
+AI-generated/made-up author profiles), and **not mass-produced to manipulate rankings**
+(scaled-content-abuse policy — method-agnostic: automation, humans, or a combination). For
+UGC, Google's own position is "if you publish it, it's your content": publish an abuse policy,
+let users report, `noindex` posts from users with no reputation (lift later), and mark
+user-placed links `rel="ugc"`/`nofollow`.
+
+**Adopted decisions (D1–D9)** — full table in `docs/plans-m32-ugc-search-compliance.md` §2:
+
+| ID | Decision |
+|----|----------|
+| D1 | **Anonymous but accountable** — no real-name rule; byline → permanent profile with history/approval-rate/trust tier *is* the "Who" |
+| D2 | **No fabricated identity** — no AI headshots, fake credentials, or synthetic (`any_seed`) authors in prod |
+| D3 | **Judge the post, not the tool** — AI vs human is never an index/rank/moderation signal |
+| D4 | **Reputation gate** — indexable only if author has ≥1 approved post ∧ age ≥ 7d ∧ `trust_score` ≥ 1.0, else `noindex` (auto-lift) |
+| D5 | **Optional AI disclosure** — author-toggled `Post.ai_assisted` badge + policy line in `/docs/guidelines`; never a signal |
+| D6 | **`rel="ugc nofollow noopener noreferrer"`** on every user-placed outbound link |
+| D7 | **Thin profiles noindexed** — empty bio ∧ 0 approved posts, and excluded from `sitemap-profiles.xml` |
+| D8 | **Keep the 14 machine-named anonymous profiles** (real users) — contain via D7, do not purge |
+| D9 | **Unique identity URLs** — fix `toPublicSlug` 4-hex collision (`a_dbb4_aed5` → `/a/dbb4`) |
+
+**Audit findings F1–F10** (file-level evidence in the plan doc §3), the biggest being:
+no `rel="ugc"` anywhere in the frontend (F1), all 17 profiles indexable with no `robots` meta
+and no sitemap filter (F2), and the noindex/sitemap rule mismatch (F3).
+
+**Status**: plan approved, no code written yet. Each task = one gated, pushed commit
+`[M32.n]`, docs synced per AGENTS.md §3.0.
 
 ---
 
