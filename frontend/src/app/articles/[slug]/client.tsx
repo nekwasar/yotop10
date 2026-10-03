@@ -10,6 +10,7 @@ import { ShareButton } from '@/components/ShareButton';
 import { ReportButton } from '@/components/ReportButton';
 import { UserLink } from '@/components/UserLink';
 import { AuthorCard } from '@/components/AuthorCard';
+import { AssistedBadge } from '@/components/AssistedBadge';
 import { ArticleDetailSkeleton } from '@/components/ArticleDetailSkeleton';
 import { Icon } from '@/components/icons/Icon';
 import { relativeTime } from '@/lib/dates';
@@ -103,6 +104,7 @@ export default function ArticleDetailClient({ slug, initialArticle, authorMember
                 {factCheckLabels[article.fact_check_status]}
               </span>
             )}
+            <AssistedBadge aiAssisted={article.ai_assisted} />
           </div>
           {/* Bookmark + Share at top */}
           <div className="flex items-center gap-2">

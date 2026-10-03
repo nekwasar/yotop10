@@ -6,7 +6,7 @@ import { apiFetch } from '@/lib/api';
 import { toast } from '@/lib/toast';
 import { ImageUploader } from '@/components/ImageUploader';
 
-interface EditArticle { _id: string; title: string; body: string; category_slug: string; status: string; cover_image?: string | null; sources: Array<{ url: string; title: string }> }
+interface EditArticle { _id: string; title: string; body: string; category_slug: string; status: string; cover_image?: string | null; ai_assisted?: boolean; sources: Array<{ url: string; title: string }> }
 
 const EDIT_REASON_PRESETS = [
   'Fixed factual error',
@@ -24,6 +24,7 @@ export default function EditArticleClient() {
   const [title, setTitle] = useState(''); const [body, setBody] = useState('');
   const [categorySlug, setCategorySlug] = useState('');
   const [coverImage, setCoverImage] = useState('');
+  const [aiAssisted, setAiAssisted] = useState(false);
   const [sources, setSources] = useState<Array<{ url: string; title: string }>>([]);
   const [reasonPreset, setReasonPreset] = useState('');
   const [reasonCustom, setReasonCustom] = useState('');
@@ -36,6 +37,7 @@ export default function EditArticleClient() {
         const data = await apiFetch<{ article: EditArticle }>(`/admin/articles/${articleId}`);
         const a = data.article; setArticle(a); setTitle(a.title); setBody(a.body || '');
         setCategorySlug(a.category_slug || ''); setCoverImage(a.cover_image || '');
+        setAiAssisted(Boolean(a.ai_assisted));
         setSources((a.sources || []).map(s => ({ url: s.url, title: s.title || '' })));
       } catch { setError('Failed to load article.'); }
       finally { setLoading(false); }
@@ -54,7 +56,7 @@ export default function EditArticleClient() {
     try {
       await apiFetch(`/admin/articles/${articleId}`, {
         method: 'PATCH',
-        body: JSON.stringify({ title, body, category_slug: categorySlug, cover_image: coverImage || null, sources, edit_reason: editReason }),
+        body: JSON.stringify({ title, body, category_slug: categorySlug, cover_image: coverImage || null, ai_assisted: aiAssisted, sources, edit_reason: editReason }),
       });
       toast.success('Article updated. Author notified.');
       router.push('/admin/posts?tab=articles');
@@ -79,6 +81,13 @@ export default function EditArticleClient() {
     </div>
     <div style={{ marginBottom: '12px' }}>
       <ImageUploader currentUrl={coverImage || null} onUpload={(url) => setCoverImage(url)} label="Cover Image" />
+    </div>
+    <div style={{ marginBottom: '12px' }}>
+      <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '4px' }}>
+        <input type="checkbox" checked={aiAssisted} onChange={e => setAiAssisted(e.target.checked)} style={{ marginRight: '6px' }} />
+        AI-assisted content
+      </label>
+      <p style={{ fontSize: '11px', color: '#999', margin: 0 }}>Voluntary author disclosure — shows an AI-assisted badge on the article. Never affects ranking or indexation.</p>
     </div>
     <div style={{ marginBottom: '12px' }}>
       <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '4px' }}>Body (markdown)</label>

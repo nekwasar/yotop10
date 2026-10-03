@@ -13,6 +13,7 @@ export default function FactClient() {
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [sourceUrl, setSourceUrl] = useState('');
+  const [aiAssisted, setAiAssisted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -26,6 +27,7 @@ export default function FactClient() {
           if (d.title) setTitle(d.title);
           if (d.body) setBody(d.body);
           if (d.sourceUrl) setSourceUrl(d.sourceUrl);
+          if (d.aiAssisted !== undefined) setAiAssisted(Boolean(d.aiAssisted));
         } else {
           localStorage.removeItem(FACT_DRAFT_KEY);
         }
@@ -36,11 +38,11 @@ export default function FactClient() {
   // Save draft on change
   useEffect(() => {
     const timeout = setTimeout(() => {
-      const data = { title, body, sourceUrl, savedAt: Date.now() };
+      const data = { title, body, sourceUrl, aiAssisted, savedAt: Date.now() };
       localStorage.setItem(FACT_DRAFT_KEY, JSON.stringify(data));
     }, 800);
     return () => clearTimeout(timeout);
-  }, [title, body, sourceUrl]);
+  }, [title, body, sourceUrl, aiAssisted]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,6 +63,7 @@ export default function FactClient() {
         post_type: 'fact_drop',
         intro: body,
         category_slug: 'education',
+        ai_assisted: aiAssisted,
         items: [{ rank: 1, title: title, justification: body, source_url: sourceUrl }],
       }) as { post?: { id: string; title: string; status: string; slug?: string } };
 
@@ -145,6 +148,18 @@ export default function FactClient() {
 
         {/* Error */}
         {error && <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-400">{error}</div>}
+
+        <label className="flex cursor-pointer items-start gap-2.5 rounded-xl border border-white/10 bg-white/5 p-3.5">
+          <input
+            type="checkbox"
+            checked={aiAssisted}
+            onChange={e => setAiAssisted(e.target.checked)}
+            className="mt-0.5 h-4 w-4 rounded border-white/20 bg-white/5"
+          />
+          <span className="text-xs leading-relaxed text-zinc-400">
+            <span className="font-medium text-zinc-200">AI-assisted content</span> — I used AI tools to draft or research this. Readers will see an AI-assisted badge on your post.
+          </span>
+        </label>
 
         {/* Submit */}
         <button type="submit" disabled={submitting || !title || !body || !sourceUrl}

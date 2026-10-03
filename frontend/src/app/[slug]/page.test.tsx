@@ -16,7 +16,7 @@ vi.mock('./client', () => ({
   default: () => null,
 }));
 
-import PostDetailPage from './page';
+import PostDetailPage, { generateMetadata } from './page';
 
 const basePost = {
   id: '64b000000000000000000001',
@@ -103,5 +103,35 @@ describe('post page discussion structured data', () => {
       'Reply body',
     ]);
     expect(parsed.commentCount).toBe(2);
+  });
+});
+
+describe('ai_assisted disclosure (D3)', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('post metadata is identical with and without ai_assisted', async () => {
+    const params = () => Promise.resolve({ slug: basePost.slug });
+
+    mockGetPost.mockResolvedValue({ post: { ...basePost, ai_assisted: true }, items: [] });
+    const withFlag = await generateMetadata({ params: params() });
+
+    mockGetPost.mockResolvedValue({ post: { ...basePost, ai_assisted: false }, items: [] });
+    const withoutFlag = await generateMetadata({ params: params() });
+
+    expect(withFlag).toEqual(withoutFlag);
+  });
+
+  it('metadata is identical for legacy posts that predate the field', async () => {
+    const params = () => Promise.resolve({ slug: basePost.slug });
+
+    mockGetPost.mockResolvedValue({ post: { ...basePost, ai_assisted: true }, items: [] });
+    const withFlag = await generateMetadata({ params: params() });
+
+    mockGetPost.mockResolvedValue({ post: basePost, items: [] });
+    const legacy = await generateMetadata({ params: params() });
+
+    expect(withFlag).toEqual(legacy);
   });
 });

@@ -37,6 +37,7 @@ export interface IPost extends Document {
   ai_flags?: string[];
   ai_model?: string;
   ai_prompt_tokens?: number;
+  ai_assisted: boolean;
   votes_a: number;
   votes_b: number;
   bookmark_count: number;
@@ -184,6 +185,7 @@ const postSchema = new Schema<IPost>(
     ai_flags: { type: [String], default: [] },
     ai_model: { type: String, default: null },
     ai_prompt_tokens: { type: Number, default: 0 },
+    ai_assisted: { type: Boolean, default: false },
     votes_a: { type: Number, default: 0 },
     votes_b: { type: Number, default: 0 },
     bookmark_count: { type: Number, default: 0 },

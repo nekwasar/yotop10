@@ -179,6 +179,31 @@ describe('seoGuard', () => {
       expect(shouldNoIndex(signals)).toBe(false);
     });
 
+    it('reaches an identical indexable decision regardless of ai_assisted (D3)', () => {
+      const base: SeoSignals = {
+        comment_count: 5,
+        view_count: 100,
+        content_length: 500,
+        status: 'approved',
+        age_hours: 72,
+      };
+      expect(shouldNoIndex({ ...base, ai_assisted: true })).toBe(shouldNoIndex(base));
+      expect(shouldNoIndex({ ...base, ai_assisted: false })).toBe(shouldNoIndex(base));
+    });
+
+    it('reaches an identical noindex decision regardless of ai_assisted (D3)', () => {
+      const base: SeoSignals = {
+        comment_count: 0,
+        view_count: 0,
+        content_length: 50,
+        status: 'pending_review',
+        age_hours: 100,
+      };
+      expect(shouldNoIndex({ ...base, ai_assisted: true })).toBe(
+        shouldNoIndex({ ...base, ai_assisted: false }),
+      );
+    });
+
     it('uses the article content threshold when provided', () => {
       const signals: SeoSignals = {
         comment_count: 1,

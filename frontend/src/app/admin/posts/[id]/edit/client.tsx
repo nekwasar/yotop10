@@ -6,7 +6,7 @@ import { apiFetch } from '@/lib/api';
 import { toast } from '@/lib/toast';
 import { ImageUploader } from '@/components/ImageUploader';
 
-interface EditPost { _id: string; title: string; intro: string; post_type: string; category_slug: string; status: string; version: number; hero_image_url?: string | null; items: Array<{ _id: string; rank: number; title: string; justification: string; image_url?: string | null; source_url?: string | null }> }
+interface EditPost { _id: string; title: string; intro: string; post_type: string; category_slug: string; status: string; version: number; hero_image_url?: string | null; ai_assisted?: boolean; items: Array<{ _id: string; rank: number; title: string; justification: string; image_url?: string | null; source_url?: string | null }> }
 
 interface EditItem { _id?: string; rank: number; title: string; justification: string; image_url: string; source_url: string }
 
@@ -26,6 +26,7 @@ export default function EditPostClient() {
   const [title, setTitle] = useState(''); const [intro, setIntro] = useState('');
   const [categorySlug, setCategorySlug] = useState('');
   const [heroImageUrl, setHeroImageUrl] = useState('');
+  const [aiAssisted, setAiAssisted] = useState(false);
   const [items, setItems] = useState<EditItem[]>([]);
   const [reasonPreset, setReasonPreset] = useState('');
   const [reasonCustom, setReasonCustom] = useState('');
@@ -35,9 +36,10 @@ export default function EditPostClient() {
   useEffect(() => {
     (async () => {
       try {
-        const data = await apiFetch<{ post: EditPost & { items?: Array<{ id: string; _id?: string; rank: number; title: string; justification: string; image_url?: string | null; source_url?: string | null }> } }>(`/admin/posts/${postId}?fields=title,intro,post_type,category_slug,status,version,hero_image_url`);
+        const data = await apiFetch<{ post: EditPost & { items?: Array<{ id: string; _id?: string; rank: number; title: string; justification: string; image_url?: string | null; source_url?: string | null }> } }>(`/admin/posts/${postId}?fields=title,intro,post_type,category_slug,status,version,hero_image_url,ai_assisted`);
         const p = data.post; setPost(p); setTitle(p.title); setIntro(p.intro || ''); setCategorySlug(p.category_slug);
         setHeroImageUrl(p.hero_image_url || '');
+        setAiAssisted(Boolean(p.ai_assisted));
         setItems((p.items || []).map(i => ({ _id: (i._id ?? (i as { id?: string }).id) as string, rank: i.rank, title: i.title, justification: i.justification || '', image_url: i.image_url || '', source_url: i.source_url || '' })));
       } catch { setError('Failed to load post.'); }
       finally { setLoading(false); }
@@ -56,7 +58,7 @@ export default function EditPostClient() {
     try {
       await apiFetch(`/admin/posts/${postId}`, {
         method: 'PATCH',
-        body: JSON.stringify({ title, intro, category_slug: categorySlug, hero_image_url: heroImageUrl || null, items: items.map(i => ({ rank: i.rank, title: i.title, justification: i.justification, image_url: i.image_url || null, source_url: i.source_url || null })), edit_reason: editReason, version: post?.version }),
+        body: JSON.stringify({ title, intro, category_slug: categorySlug, hero_image_url: heroImageUrl || null, ai_assisted: aiAssisted, items: items.map(i => ({ rank: i.rank, title: i.title, justification: i.justification, image_url: i.image_url || null, source_url: i.source_url || null })), edit_reason: editReason, version: post?.version }),
       });
       toast.success('Post updated. Author notified.');
       router.push('/admin/posts');
@@ -86,6 +88,13 @@ export default function EditPostClient() {
     </div>
     <div style={{ marginBottom: '12px' }}>
       <ImageUploader currentUrl={heroImageUrl || null} onUpload={(url) => setHeroImageUrl(url)} label="Hero Image" />
+    </div>
+    <div style={{ marginBottom: '12px' }}>
+      <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '4px' }}>
+        <input type="checkbox" checked={aiAssisted} onChange={e => setAiAssisted(e.target.checked)} style={{ marginRight: '6px' }} />
+        AI-assisted content
+      </label>
+      <p style={{ fontSize: '11px', color: '#999', margin: 0 }}>Voluntary author disclosure — shows an AI-assisted badge on the post. Never affects ranking or indexation.</p>
     </div>
     <div style={{ marginBottom: '12px' }}>
       <h4>Items ({items.length})</h4>

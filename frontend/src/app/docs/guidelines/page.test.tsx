@@ -43,6 +43,8 @@ describe('Community Guidelines page', () => {
     expect(screen.getByText(/Reporters stay confidential/)).toBeInTheDocument();
     expect(screen.getByText(/you cannot report your own content/)).toBeInTheDocument();
     expect(screen.getByText(/must mark AI-assisted content/)).toBeInTheDocument();
+    expect(screen.getByText(/AI-assisted checkbox when you submit/)).toBeInTheDocument();
+    expect(screen.getByText(/AI-assisted badge/)).toBeInTheDocument();
   });
 
   it('cross-links the Terms of Use and Privacy Policy', () => {

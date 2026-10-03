@@ -24,6 +24,7 @@ import { computeSparkScore, getThresholds } from '../lib/sparkScore';
 import { orderItemsForDisplay } from '../lib/listOrder';
 import { indexComment, indexPost } from '../elasticsearch/lib/indexWriter';
 import { queuePostForAiReview } from '../lib/aiModerationWorker';
+import { parseAiAssistedCreate } from '../schemas/content';
 
 const router: Router = Router();
 
@@ -576,6 +577,11 @@ router.post('/', ...validatePostSubmission as any[], async (req, res) => {
       return res.status(400).json({ errors: errors.array() });
     }
 
+    const aiParsed = parseAiAssistedCreate(req.body);
+    if (!aiParsed.ok) {
+      return res.status(400).json({ error: aiParsed.error });
+    }
+
     const {
       title,
       post_type,
@@ -701,6 +707,7 @@ router.post('/', ...validatePostSubmission as any[], async (req, res) => {
       view_count: 0,
       format: req.body.format || 'list_only',
       hero_image_url: req.body.hero_image_url || null,
+      ai_assisted: aiParsed.ai_assisted,
       slug: `temp-${crypto.randomBytes(8).toString('hex')}`,
     });
 
@@ -1118,6 +1125,11 @@ router.post('/:slug/counter', async (req, res) => {
       return res.status(400).json({ error: 'Title and at least 3 items are required' });
     }
 
+    const counterAiParsed = parseAiAssistedCreate(req.body);
+    if (!counterAiParsed.ok) {
+      return res.status(400).json({ error: counterAiParsed.error });
+    }
+
     // Create counter post linked to parent
     const counter = await Post.create({
       author_id: user.user_id,
@@ -1132,6 +1144,7 @@ router.post('/:slug/counter', async (req, res) => {
       status: 'pending_review',
       slug: `${slug}-counter-${Date.now().toString(36)}`,
       meta_robots: 'noindex, follow',
+      ai_assisted: counterAiParsed.ai_assisted,
       fire_count: 0,
       comment_count: 0,
       view_count: 0,

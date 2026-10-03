@@ -26,6 +26,7 @@ import { PageVisit } from '../models/PageVisit';
 import { Comment } from '../models/Comment';
 import { Report } from '../models/Report';
 import { reportListQuerySchema, updateReportSchema } from '../schemas/report';
+import { parseAiAssistedPatch } from '../schemas/content';
 import { AlertThreshold } from '../models/AlertThreshold';
 import { AlertHistory } from '../models/AlertHistory';
 import { AlertNotificationModel } from '../models/AlertNotification';
@@ -835,6 +836,12 @@ router.patch('/articles/:id', async (req, res) => {
       return res.status(400).json({ code: 'VALIDATION', error: 'An edit reason is required (pick a preset or write a custom reason, max 500 chars).' });
     }
 
+    if ('ai_assisted' in req.body) {
+      const aiParsed = parseAiAssistedPatch(req.body);
+      if (!aiParsed.ok) return res.status(400).json({ code: 'VALIDATION', error: aiParsed.error });
+      article.ai_assisted = aiParsed.ai_assisted;
+    }
+
     if (req.body.title) { article.title = req.body.title; article.slug = generateUniqueSlug(req.body.title, (article._id as { toString(): string }).toString()); }
     if (req.body.body !== undefined) article.body = req.body.body;
     if (req.body.category_slug) { const cat = await Category.findOne({ slug: req.body.category_slug }); if (!cat) return res.status(400).json({ code: 'NOT_FOUND', error: 'Category not found' }); article.category_slug = req.body.category_slug; }
@@ -1144,6 +1151,12 @@ router.patch('/posts/:id', async (req, res) => {
     const editReason = normalizeEditReason(req.body.edit_reason);
     if (!editReason) {
       return res.status(400).json({ code: 'VALIDATION', error: 'An edit reason is required (pick a preset or write a custom reason, max 500 chars).' });
+    }
+
+    if ('ai_assisted' in req.body) {
+      const aiParsed = parseAiAssistedPatch(req.body);
+      if (!aiParsed.ok) return res.status(400).json({ code: 'VALIDATION', error: aiParsed.error });
+      post.ai_assisted = aiParsed.ai_assisted;
     }
 
     if (req.body.title) { post.title = req.body.title; post.slug = generateUniqueSlug(post.title, (post._id as { toString(): string }).toString()); }

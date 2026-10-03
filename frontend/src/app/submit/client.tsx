@@ -52,6 +52,7 @@ interface DraftData {
   category_slug?: string;
   title?: string;
   intro?: string;
+  ai_assisted?: boolean;
   items?: Array<{ title: string; justification: string; source_url: string; image_url: string }>;
   savedAt: number;
 }
@@ -80,14 +81,15 @@ export default function SubmitClient({ initialType, parentSlug }: { initialType?
   const [categorySlug, setCategorySlug] = useState('');
   const [title, setTitle] = useState(getDefaultTitle(initialType || 'top_list'));
   const [intro, setIntro] = useState('');
+  const [aiAssisted, setAiAssisted] = useState(false);
   const [items, setItems] = useState<ListItem[]>([
     { id: generateId(), rank: 1, title: '', justification: '', source_url: '', image_url: '' },
     { id: generateId(), rank: 2, title: '', justification: '', source_url: '', image_url: '' },
     { id: generateId(), rank: 3, title: '', justification: '', source_url: '', image_url: '' },
   ]);
 
-  const formDataRef = useRef({ postType, categorySlug, title, intro, items });
-  formDataRef.current = { postType, categorySlug, title, intro, items };
+  const formDataRef = useRef({ postType, categorySlug, title, intro, items, aiAssisted });
+  formDataRef.current = { postType, categorySlug, title, intro, items, aiAssisted };
 
   const saveTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
@@ -125,6 +127,7 @@ export default function SubmitClient({ initialType, parentSlug }: { initialType?
           if (data.category_slug) { setCategorySlug(data.category_slug); }
           if (data.title) setTitle(data.title);
           if (data.intro) setIntro(data.intro);
+          if (data.ai_assisted !== undefined) setAiAssisted(Boolean(data.ai_assisted));
           if (data.items && data.items.length > 0) {
             const restored = data.items.map((item, idx) => ({
               id: generateId(), rank: idx + 1, title: item.title || '', justification: item.justification || '',
@@ -146,10 +149,11 @@ export default function SubmitClient({ initialType, parentSlug }: { initialType?
   const saveDraft = useCallback(() => {
     clearTimeout(saveTimeoutRef.current);
     saveTimeoutRef.current = setTimeout(() => {
-      const { categorySlug: cat, title: t, intro: i, items: it } = formDataRef.current;
+      const { categorySlug: cat, title: t, intro: i, items: it, aiAssisted: aa } = formDataRef.current;
       if (!t && !i && !it.some(item => item.title || item.justification)) return;
       const draft: DraftData = {
         category_slug: cat || undefined, title: t || undefined, intro: i || undefined,
+        ai_assisted: aa || undefined,
         items: it.map(({ title, justification, source_url, image_url }) => ({ title, justification, source_url, image_url })),
         savedAt: Date.now(),
       };
@@ -157,14 +161,15 @@ export default function SubmitClient({ initialType, parentSlug }: { initialType?
     }, 1000);
   }, []);
 
-  useEffect(() => { saveDraft(); }, [categorySlug, title, intro, items, saveDraft]);
+  useEffect(() => { saveDraft(); }, [categorySlug, title, intro, items, aiAssisted, saveDraft]);
 
   useEffect(() => {
     const flush = () => {
-      const { categorySlug: cat, title: t, intro: i, items: it } = formDataRef.current;
+      const { categorySlug: cat, title: t, intro: i, items: it, aiAssisted: aa } = formDataRef.current;
       if (!t && !i && !it.some(item => item.title || item.justification)) return;
       localStorage.setItem(DRAFT_KEY, JSON.stringify({
         category_slug: cat || undefined, title: t || undefined, intro: i || undefined,
+        ai_assisted: aa || undefined,
         items: it.map(({ title, justification, source_url, image_url }) => ({ title, justification, source_url, image_url })),
         savedAt: Date.now(),
       }));
@@ -288,12 +293,14 @@ export default function SubmitClient({ initialType, parentSlug }: { initialType?
           body: JSON.stringify({
             title,
             intro,
+            ai_assisted: aiAssisted,
             items: items.map((item, idx) => ({ rank: idx + 1, title: item.title, justification: item.justification })),
           }),
         });
       } else {
         const submission: PostSubmission = {
           title, post_type: postType, intro, category_slug: categorySlug,
+          ai_assisted: aiAssisted,
           items: items.map((item, idx) => ({ rank: idx + 1, title: item.title, justification: item.justification, image_url: item.image_url || undefined, source_url: item.source_url || undefined })),
         };
         response = await API.addPost(submission) as PostSubmissionResponse & { post?: { title: string; id: string; status: string }; items?: Array<{ id: string }> };
@@ -496,6 +503,18 @@ export default function SubmitClient({ initialType, parentSlug }: { initialType?
             </div>
           );
         })()}
+
+        <label className="flex cursor-pointer items-start gap-2.5 rounded-xl border border-white/10 bg-white/5 p-3.5">
+          <input
+            type="checkbox"
+            checked={aiAssisted}
+            onChange={e => setAiAssisted(e.target.checked)}
+            className="mt-0.5 h-4 w-4 rounded border-white/20 bg-white/5"
+          />
+          <span className="text-xs leading-relaxed text-zinc-400">
+            <span className="font-medium text-zinc-200">AI-assisted content</span> — I used AI tools to draft or research this. Readers will see an AI-assisted badge on your post.
+          </span>
+        </label>
 
         {/* Submit */}
         <button type="submit" disabled={submitting || !categorySlug || !title || !intro || items.some(i => !i.title || !i.justification)}

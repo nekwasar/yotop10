@@ -29,6 +29,7 @@ interface ArticleDraftData {
   title?: string;
   body?: string;
   cover_image?: string;
+  ai_assisted?: boolean;
   sources?: Array<{ title: string; url: string }>;
   savedAt: number;
 }
@@ -45,12 +46,13 @@ export default function SubmitArticleClient() {
   const [pickerOpen, setPickerOpen] = useState(false);
   const [coverImage, setCoverImage] = useState('');
   const [sources, setSources] = useState<SourceField[]>([]);
+  const [aiAssisted, setAiAssisted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [errors, setErrors] = useState<FormErrors>({});
 
-  const formDataRef = useRef({ title, body, categorySlug, coverImage, sources });
-  formDataRef.current = { title, body, categorySlug, coverImage, sources };
+  const formDataRef = useRef({ title, body, categorySlug, coverImage, sources, aiAssisted });
+  formDataRef.current = { title, body, categorySlug, coverImage, sources, aiAssisted };
 
   const saveTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
   const validate = useCallback((): boolean => {
@@ -87,6 +89,7 @@ export default function SubmitArticleClient() {
           if (data.title) setTitle(data.title);
           if (data.body) setBody(data.body);
           if (data.cover_image) setCoverImage(data.cover_image);
+          if (data.ai_assisted !== undefined) setAiAssisted(Boolean(data.ai_assisted));
           if (data.sources && data.sources.length > 0) {
             setSources(data.sources.map((s) => ({ id: generateId(), title: s.title || '', url: s.url || '' })));
           }
@@ -103,11 +106,12 @@ export default function SubmitArticleClient() {
   const saveDraft = useCallback(() => {
     clearTimeout(saveTimeoutRef.current);
     saveTimeoutRef.current = setTimeout(() => {
-      const { title: t, body: b, categorySlug: cat, coverImage: cover, sources: src } = formDataRef.current;
-      if (!t && !b && !cat && !cover && !src.some((s) => s.title || s.url)) return;
+      const { title: t, body: b, categorySlug: cat, coverImage: cover, sources: src, aiAssisted: aa } = formDataRef.current;
+      if (!t && !b && !cat && !cover && !aa && !src.some((s) => s.title || s.url)) return;
       const draft: ArticleDraftData = {
         category_slug: cat || undefined, title: t || undefined, body: b || undefined,
         cover_image: cover || undefined,
+        ai_assisted: aa || undefined,
         sources: src.map(({ title, url }) => ({ title, url })),
         savedAt: Date.now(),
       };
@@ -117,16 +121,17 @@ export default function SubmitArticleClient() {
     }, 1000);
   }, []);
 
-  useEffect(() => { saveDraft(); }, [title, body, categorySlug, coverImage, sources, saveDraft]);
+  useEffect(() => { saveDraft(); }, [title, body, categorySlug, coverImage, sources, aiAssisted, saveDraft]);
 
   useEffect(() => {
     const flush = () => {
-      const { title: t, body: b, categorySlug: cat, coverImage: cover, sources: src } = formDataRef.current;
-      if (!t && !b && !cat && !cover && !src.some((s) => s.title || s.url)) return;
+      const { title: t, body: b, categorySlug: cat, coverImage: cover, sources: src, aiAssisted: aa } = formDataRef.current;
+      if (!t && !b && !cat && !cover && !aa && !src.some((s) => s.title || s.url)) return;
       try {
         localStorage.setItem(DRAFT_KEY, JSON.stringify({
           category_slug: cat || undefined, title: t || undefined, body: b || undefined,
           cover_image: cover || undefined,
+          ai_assisted: aa || undefined,
           sources: src.map(({ title, url }) => ({ title, url })),
           savedAt: Date.now(),
         }));
@@ -161,6 +166,7 @@ export default function SubmitArticleClient() {
       title: title.trim(),
       body: body.trim(),
       category_slug: categorySlug,
+      ai_assisted: aiAssisted,
     };
 
     if (coverImage.trim()) {
@@ -350,6 +356,18 @@ export default function SubmitArticleClient() {
             ))}
           </div>
         </div>
+
+        <label className="flex cursor-pointer items-start gap-2.5 rounded-xl border border-white/10 bg-white/5 p-3.5">
+          <input
+            type="checkbox"
+            checked={aiAssisted}
+            onChange={(e) => setAiAssisted(e.target.checked)}
+            className="mt-0.5 h-4 w-4 rounded border-white/20 bg-white/5"
+          />
+          <span className="text-xs leading-relaxed text-zinc-400">
+            <span className="font-medium text-zinc-200">AI-assisted content</span> — I used AI tools to draft or research this. Readers will see an AI-assisted badge on your article.
+          </span>
+        </label>
 
         {/* Submit */}
         <button

@@ -18,6 +18,7 @@ import { ThisVsThatView } from '@/components/ThisVsThatView';
 import { BattleView } from '@/components/BattleView';
 import { CounterListSection } from '@/components/CounterListSection';
 import { AuthorityFlipBanner } from '@/components/AuthorityFlipBanner';
+import { AssistedBadge } from '@/components/AssistedBadge';
 import { RESERVED_ROUTES } from '@/lib/reservedRoutes';
 import { toPublicSlug } from '@/lib/username';
 
@@ -44,6 +45,7 @@ interface Post {
   category_name?: string;
   format?: 'list_only' | 'hero_list' | 'full_list';
   hero_image_url?: string | null;
+  ai_assisted?: boolean;
   created_at: string;
 }
 
@@ -459,6 +461,7 @@ export default function PostDetailClient({
                 </Link>
               </span>
               <span className="text-xs text-zinc-600">{post.view_count} views</span>
+              <AssistedBadge aiAssisted={post.ai_assisted} />
             </div>
             <div className="flex items-center gap-3">
               <BookmarkButton postId={post.id} />

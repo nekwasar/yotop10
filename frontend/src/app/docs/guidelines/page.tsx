@@ -118,7 +118,8 @@ export default function CommunityGuidelinesPage() {
             <p>
               Publishing unreviewed AI output that repeats misinformation, fabricates sources, or
               mass-produces near-duplicate lists is a violation of these guidelines. Disclose
-              AI-assisted content using the AI disclosure setting in the post editor.
+              AI-assisted content with the AI-assisted checkbox when you submit — readers will
+              see an AI-assisted badge on your post or article.
             </p>
           </section>
 

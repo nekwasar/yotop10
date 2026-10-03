@@ -42,6 +42,7 @@ export interface Post {
   category_name?: string;
   status?: string;
   robots?: string | null;
+  ai_assisted?: boolean;
   format?: 'list_only' | 'hero_list' | 'full_list';
   hero_image_url?: string | null;
   topItems?: Array<{ rank: number; title: string }>;
@@ -97,6 +98,7 @@ export interface PostSubmission {
   author_display_name?: string;
   format?: 'list_only' | 'hero_list' | 'full_list';
   hero_image_url?: string;
+  ai_assisted?: boolean;
 }
 
 export interface TitleCheckResponse {
@@ -137,6 +139,7 @@ export interface Article {
   category_slug: string;
   category_name?: string;
   robots?: string | null;
+  ai_assisted?: boolean;
   created_at: string;
   updated_at: string;
   published_at?: string;
@@ -153,6 +156,7 @@ export interface ArticleSubmission {
   category_slug: string;
   cover_image?: string;
   sources?: Array<{ url: string; title: string }>;
+  ai_assisted?: boolean;
 }
 
 export interface ExplorePost {

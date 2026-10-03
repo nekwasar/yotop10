@@ -17,6 +17,7 @@ export interface IArticle extends Document {
   view_count: number;
   comment_count: number;
   bookmark_count: number;
+  ai_assisted: boolean;
   category_slug: string;
   created_at: Date;
   updated_at: Date;
@@ -44,6 +45,7 @@ const articleSchema = new Schema<IArticle>(
     view_count: { type: Number, default: 0 },
     comment_count: { type: Number, default: 0 },
     bookmark_count: { type: Number, default: 0 },
+    ai_assisted: { type: Boolean, default: false },
     category_slug: { type: String, required: true, index: true },
     rejection_reason: { type: String },
   },

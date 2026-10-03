@@ -10,6 +10,7 @@ import { logAudit } from '../lib/auditWriter';
 import { getClientIp, getFingerprintIdentity } from '../middleware/fingerprint';
 import { shouldCountView } from '../lib/viewCounting';
 import { isAcceptedImageUrl } from '../lib/uploadUrl';
+import { parseAiAssistedCreate } from '../schemas/content';
 
 const router: Router = Router();
 
@@ -255,6 +256,11 @@ router.post('/', ...validateArticleSubmission as any[], async (req, res) => {
       return res.status(400).json({ errors: errors.array() });
     }
 
+    const aiParsed = parseAiAssistedCreate(req.body);
+    if (!aiParsed.ok) {
+      return res.status(400).json({ error: aiParsed.error });
+    }
+
     const { title, body: articleBody, category_slug, cover_image, sources } = req.body;
 
     // Fingerprint auth required
@@ -294,6 +300,7 @@ router.post('/', ...validateArticleSubmission as any[], async (req, res) => {
       sources: mappedSources,
       category_slug,
       status: 'pending_review',
+      ai_assisted: aiParsed.ai_assisted,
       view_count: 0,
       comment_count: 0,
       bookmark_count: 0,

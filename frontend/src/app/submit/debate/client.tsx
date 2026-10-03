@@ -21,6 +21,7 @@ export default function DebateClient() {
   const [sideB, setSideB] = useState('');
   const [sideBJustification, setSideBJustification] = useState('');
   const [sideBSource, setSideBSource] = useState('');
+  const [aiAssisted, setAiAssisted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -41,6 +42,7 @@ export default function DebateClient() {
           if (d.sideB) setSideB(d.sideB);
           if (d.sideBJustification) setSideBJustification(d.sideBJustification);
           if (d.sideBSource) setSideBSource(d.sideBSource);
+          if (d.aiAssisted !== undefined) setAiAssisted(Boolean(d.aiAssisted));
         } else {
           localStorage.removeItem(DEBATE_DRAFT_KEY);
         }
@@ -51,11 +53,11 @@ export default function DebateClient() {
   // Save draft on change
   useEffect(() => {
     const timeout = setTimeout(() => {
-      const data = { title, categorySlug, sideA, sideAJustification, sideASource, sideB, sideBJustification, sideBSource, savedAt: Date.now() };
+      const data = { title, categorySlug, sideA, sideAJustification, sideASource, sideB, sideBJustification, sideBSource, aiAssisted, savedAt: Date.now() };
       localStorage.setItem(DEBATE_DRAFT_KEY, JSON.stringify(data));
     }, 800);
     return () => clearTimeout(timeout);
-  }, [title, categorySlug, sideA, sideAJustification, sideASource, sideB, sideBJustification, sideBSource]);
+  }, [title, categorySlug, sideA, sideAJustification, sideASource, sideB, sideBJustification, sideBSource, aiAssisted]);
 
   useEffect(() => {
     API.getCategories()
@@ -81,6 +83,7 @@ export default function DebateClient() {
         post_type: 'this_vs_that',
         intro: `${sideA} vs ${sideB}`,
         category_slug: categorySlug,
+        ai_assisted: aiAssisted,
         items: [
           { rank: 1, title: sideA, justification: sideAJustification, source_url: sideASource || undefined },
           { rank: 2, title: sideB, justification: sideBJustification, source_url: sideBSource || undefined },
@@ -208,6 +211,18 @@ export default function DebateClient() {
         {error && <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-400">{error}</div>}
 
         {/* Submit */}
+        <label className="flex cursor-pointer items-start gap-2.5 rounded-xl border border-white/10 bg-white/5 p-3.5">
+          <input
+            type="checkbox"
+            checked={aiAssisted}
+            onChange={e => setAiAssisted(e.target.checked)}
+            className="mt-0.5 h-4 w-4 rounded border-white/20 bg-white/5"
+          />
+          <span className="text-xs leading-relaxed text-zinc-400">
+            <span className="font-medium text-zinc-200">AI-assisted content</span> — I used AI tools to draft or research this. Readers will see an AI-assisted badge on your post.
+          </span>
+        </label>
+
         <button type="submit" disabled={submitting || !categorySlug || !title || !sideA || !sideB}
           className="w-full rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 py-3.5 text-sm font-bold text-white shadow-lg shadow-purple-500/25 transition hover:shadow-xl active:scale-[0.98] disabled:opacity-60"
         >
