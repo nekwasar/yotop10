@@ -856,14 +856,15 @@ All core platform features, admin dashboard, backend infrastructure, and fronten
 
 ---
 
-## 22. Search & UGC Compliance (M32 — In progress, 5/9)
+## 22. Search & UGC Compliance (M32 — In progress, 6/9, M32.8 deferred)
 
 > Added 2026-10-03 after research into Google's people-first content, UGC and
 > scaled-content-abuse policies. Full plan + audit evidence:
 > `docs/plans-m32-ugc-search-compliance.md`. Status: §22.4 (link qualification, `cec40df`),
 > the identity-URL rule in §22.6 (`ee8da1d`), the §22.2 indexation rules (`61af11b` +
-> `39a0546`), the §22.5 profile/article structured data (`f36dfbd`) and the §22.6 policy
-> surface + reporting (`af5c1ed`) are shipped; everything else is planned.
+> `39a0546`), the §22.5 profile/article **and discussion** structured data (`f36dfbd`,
+> `e791134`) and the §22.6 policy surface + reporting (`af5c1ed`) are shipped; §22.3
+> (M32.8) is deferred by the product owner, §22.7 is planned.
 
 ### 22.1 Content & identity policy (locked)
 
@@ -909,7 +910,7 @@ Implemented in one rule engine: `backend/src/lib/seoGuard.ts` (`shouldNoIndex` +
   `frontend/src/components/UserLink.tsx` (`UGC_LINK_REL`).
 - Internal `<Link>` anchors are unaffected.
 
-### 22.5 Structured data (profile/article shipped — `f36dfbd`; comments → M32.5)
+### 22.5 Structured data (shipped — profile/article `f36dfbd`, discussion `e791134`)
 
 Builders live in `frontend/src/lib/seo/structuredData.ts`; every field mirrors visible
 content (Google structured-data general policy).
@@ -919,8 +920,13 @@ content (Google structured-data general policy).
 | `/a/[username]` | `ProfilePage` + `Person` (name, url, bio, image, `sameAs` from the visible links, member-since as `OrganizationMembership.startDate`) | ✅ shipped `f36dfbd` |
 | `/articles/[slug]` | `Article` with `author` → profile URL (headline, description, dates, image, `articleSection`) | ✅ shipped `f36dfbd` |
 | author byline (article) | standardized `AuthorCard`: byline → profile link → member-since → history (`/a/{slug}#post-history`) | ✅ shipped `f36dfbd` |
-| `/[slug]` with comments | `Comment` / `DiscussionForumPosting` (visible content only) | planned → M32.5 |
+| `/[slug]` with visible comments | `DiscussionForumPosting` + `comment: [Comment]` — `headline`, visible `intro` as `text`, `datePublished`, `author` Person, `commentCount` (the visible `Comments (N)` heading, floored by the marked-up count), per-comment `author.name`/`author.url`/`datePublished`/`text` | ✅ shipped `e791134` |
 | existing (unchanged) | `Organization` + `WebSite` + `SearchAction`, `ItemList`, `BreadcrumbList` | ✅ |
+
+- **Visibility rule** — the discussion markup covers exactly the comments the client
+  renders: depth-0 roots flattened parent-then-replies, orphaned replies the client skips
+  are excluded, blank bodies are skipped, and no markup at all is emitted when there is no
+  visible intro (Google requires `text`) or no visible comment.
 
 ### 22.6 Policy surface & reporting (shipped — `af5c1ed`; identity URLs shipped `ee8da1d`)
 

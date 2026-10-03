@@ -1,7 +1,7 @@
 # M32 — UGC & Search Compliance Plan
 **Date**: 2026-10-03
-**Status**: 🔄 In progress — 5 of 9 tasks done
-**Milestone**: M32 (commits: `[M32.0]` docs, `[M32.1]`, `[M32.9]`, `[M32.2]`, `[M32.3]`, `[M32.4]`; next free = `[M32.8]`)
+**Status**: 🔄 In progress — 6 of 9 tasks done (M32.8 deferred by product owner 2026-10-03)
+**Milestone**: M32 (commits: `[M32.0]` docs, `[M32.1]`, `[M32.9]`, `[M32.2]`, `[M32.3]`, `[M32.4]`, `[M32.5]`; next free = `[M32.6]`)
 **Supersedes**: nothing — new milestone
 **Decided by**: product owner, on 2026-10-03 (all four open questions answered: adopt the
 recommended option in every case)
@@ -82,7 +82,9 @@ heuristic on posts/articles, noindex on `/search`, `/saved`, `/notifications`, `
 
 ## 4. Tasks
 
-Execution order: **M32.1 → M32.9 → M32.2 → M32.3 → M32.4 → M32.8 → M32.5 → M32.6 → M32.7**.
+Execution order: **M32.1 → M32.9 → M32.2 → M32.3 → M32.4 → M32.5 → M32.6 → M32.7**, with
+**M32.8 deferred** (product owner, 2026-10-03: skip the AI-assisted badge for now — it stays
+planned, not in the active queue).
 One task = one commit = `[M32.n] Description`, gated and pushed per AGENTS.md §3.0.
 
 **Progress**
@@ -94,8 +96,8 @@ One task = one commit = `[M32.n] Description`, gated and pushed per AGENTS.md §
 | M32.2 Index hygiene | ✅ done | `61af11b [M32.2]` + `39a0546` (D4 on articles) |
 | M32.3 Authorship / structured data | ✅ done | `f36dfbd [M32.3]` |
 | M32.4 Guidelines + public reporting | ✅ done | `af5c1ed [M32.4]` |
-| M32.8 AI-assisted disclosure | ⏳ pending | — |
-| M32.5 Discussion structured data | ⏳ pending | — |
+| M32.5 Discussion structured data | ✅ done | `e791134 [M32.5]` |
+| M32.8 AI-assisted disclosure | ⏸ deferred (kept planned) | — |
 | M32.6 Anti-scaled-content guardrails | ⏳ pending | — |
 | M32.7 Search Console + docs | ⏳ pending | — |
 
@@ -225,6 +227,22 @@ One task = one commit = `[M32.n] Description`, gated and pushed per AGENTS.md §
 - **Files**: `frontend/src/app/[slug]/page.tsx`, new small JSON-LD component.
 - **Tests**: JSON-LD validity, only emitted when comments exist and are visible.
 - **Acceptance**: Rich Results Test-clean; absent on comment-less posts.
+- **Status**: ✅ shipped `e791134 [M32.5]`. Frontend-only: `buildDiscussionForumPostingJsonLd`
+  + `visibleComments` added to `frontend/src/lib/seo/structuredData.ts` (the plan's "new
+  small JSON-LD component" was already covered by the existing `components/JsonLd.tsx`
+  reused from M32.3 — no new component). The post server component already fetched
+  comments, so `app/[slug]/page.tsx` just feeds them to the builder and renders
+  `<JsonLd>` **only when the builder returns an object**. Mirror rules: markup covers the
+  same set the client renders (depth-0 roots flattened parent-then-replies, orphans the
+  client never renders are excluded, blank bodies skipped), `text` is the visible intro
+  (no intro → no markup, since `text` is required), `commentCount` is the visible
+  `Comments (N)` heading floored by the marked-up count, `author`/`datePublished`/`text`
+  present on the post and every `Comment` (Google required props), `author.url` points at
+  the D1 profile URL. Tests: `structuredData.test.ts` +11 (24 total) and new
+  `app/[slug]/page.test.tsx` (4: emits with comments, absent when comment-less, absent
+  when every body is blank, marks up only the rendered thread). Live on a production
+  build: the one commented post emits all three JSON-LD blocks with no required property
+  missing; a comment-less post emits zero `DiscussionForumPosting`.
 
 ### M32.6 — Anti-scaled-content guardrails (D2, F10)
 - **Change**: test/script asserting the production dataset contains no synthetic author

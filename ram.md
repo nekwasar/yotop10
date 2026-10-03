@@ -3,7 +3,7 @@
 > **Last updated**: 2026-10-03
 > **Working tree**: Clean — committed and pushed (only untracked `ref-yotop10/` + `backend/uploads/migrations-backups/`, both intentionally not committed)
 > **Branch**: main → up to date with origin/main
-> **Latest commits**: `af5c1ed [M32.4]`, `522d53a [M32.3 docs]`, `f36dfbd [M32.3]`, `ad93544 [M32.2 docs]`, `39a0546 [M32.2]`
+> **Latest commits**: `e791134 [M32.5]`, `0f6e63d [M32.4 docs]`, `af5c1ed [M32.4]`, `522d53a [M32.3 docs]`, `f36dfbd [M32.3]`
 > **Active milestone**: **M32 — UGC & Search Compliance** (planned 2026-10-03, plan in `docs/plans-m32-ugc-search-compliance.md`)
 
 ---
@@ -22,7 +22,7 @@ All gates run **inside the dev container** (`docker exec yotop10_dev`), which no
 | Backend build (`tsc`) | ✅ 0 errors |
 | Frontend build (`next build`) | ✅ exit 0 (scratch-dir `NODE_ENV=production` build + `Dockerfile.frontend` prod image) |
 | Backend tests (vitest) | ✅ 57 files (56 passed, 1 skipped), 798 passed, 4 skipped |
-| Frontend tests (vitest) | ✅ 24 files, 188 passed |
+| Frontend tests (vitest) | ✅ 25 files, 203 passed |
 | Prod stack (compose `-p yotop10`) | ✅ 7/7 containers healthy |
 | Dev stack (compose `-p yotop10dev`) | ✅ `yotop10_dev` up, :3200 / :8200 200 |
 
@@ -65,10 +65,11 @@ Hardcoded JWT, orphaned setInterval, $regex injection, stub 200s, health check o
 | 2.10 | Non-null assertion after findById | `!` in posts.ts:488 |
 
 ### Unfinished features:
-- **M32** — UGC & Search Compliance: 9 tasks (M32.1–M32.9), approved 2026-10-03, 5 of 9 done
+- **M32** — UGC & Search Compliance: 9 tasks (M32.1–M32.9), approved 2026-10-03, 6 of 9 done
   (M32.1 link qualification `cec40df`, M32.9 unique identity URLs `ee8da1d`, M32.2 index
   hygiene `61af11b` + `39a0546`, M32.3 authorship structured data `f36dfbd`, M32.4
-  guidelines + reporting `af5c1ed`)
+  guidelines + reporting `af5c1ed`, M32.5 discussion structured data `e791134`);
+  **M32.8 deferred** by the product owner 2026-10-03 (stays planned, not in the queue)
 - **M5.6** — Counter-List System (The Arena): challenge/rebuttal, comparison engine, SEO governance
 - **M10.7** — Categories Management frontend: tree view, drag-drop, bulk ops, analytics
 - **M10.14** — Admin UI components: StatsChart, CategoryTree, UserBadge, SearchInput, DateRangePicker, ExportButton, ConfirmDialog
@@ -87,8 +88,9 @@ Hardcoded JWT, orphaned setInterval, $regex injection, stub 200s, health check o
    this order: ~~`M32.1` link qualification~~ ✅ `cec40df` → ~~`M32.9` unique identity URLs~~
    ✅ `ee8da1d` → ~~`M32.2` index hygiene~~ ✅ `61af11b` + `39a0546` → ~~`M32.3`
    authorship/structured data~~ ✅ `f36dfbd` → ~~`M32.4` guidelines + report flow~~ ✅
-   `af5c1ed` → `M32.8` AI-assisted badge → `M32.5` discussion structured data →
-   `M32.6` guard tests → `M32.7` Search Console verification + docs. Full plan:
+   `af5c1ed` → ~~`M32.5` discussion structured data~~ ✅ `e791134` → `M32.6` guard tests →
+   `M32.7` Search Console verification + docs. **`M32.8` deferred** (product owner,
+   2026-10-03 — skip the AI-assisted badge for now). Full plan:
    `docs/plans-m32-ugc-search-compliance.md`.
 2. **Lock in stability** — Fix 5 remaining ROM issues (crash/data integrity)
 3. **Complete admin UI** — Categories tree view, remaining components
@@ -127,16 +129,39 @@ user-placed links `rel="ugc"`/`nofollow`.
 no `rel="ugc"` anywhere in the frontend (F1), all 17 profiles indexable with no `robots` meta
 and no sitemap filter (F2), and the noindex/sitemap rule mismatch (F3).
 
-**Status**: 5 of 9 tasks done — **M32.1** link qualification (`cec40df` + `a91c8fe` docs),
+**Status**: 6 of 9 tasks done — **M32.1** link qualification (`cec40df` + `a91c8fe` docs),
 **M32.9** unique identity URLs (`ee8da1d`), **M32.2** index hygiene (`61af11b` + `39a0546`,
 D4 extended to articles per `docs/product_spec.md` §22.2), **M32.3** authorship structured
 data (`f36dfbd`), **M32.4** abuse policy + public reporting (`af5c1ed`, endpoint docs in
-`docs/product_spec.md` §22.6). Each task = one gated, pushed commit `[M32.n]`, docs synced
-per AGENTS.md §3.0. Next: `M32.8` AI-assisted badge.
+`docs/product_spec.md` §22.6), **M32.5** discussion structured data (`e791134`). Each task
+= one gated, pushed commit `[M32.n]`, docs synced per AGENTS.md §3.0. **M32.8 deferred**
+by the product owner 2026-10-03 (stays planned, not in the queue). Next: `M32.6`
+anti-scaled-content guard tests.
 
 ---
 
 ## Latest Verification
+
+- **M32.5 discussion structured data (2026-10-03)** — commit `e791134` (4 files, +346).
+  Frontend-only: `buildDiscussionForumPostingJsonLd` + `visibleComments` in
+  `frontend/src/lib/seo/structuredData.ts`; `app/[slug]/page.tsx` feeds its already-fetched
+  comments to the builder and renders `<JsonLd>` only when non-null (the plan's "new
+  component" was already covered by the existing `components/JsonLd.tsx`). Gates: frontend
+  tsc 0 / lint 0-0 / **203 tests** (25 files); backend re-run tsc 0 / lint 0-0 / **798
+  tests** (57 files, 4 skipped); scratch-dir production `next build` exit 0. Markup mirrors
+  visible content: depth-0 roots flattened parent-then-replies, orphaned replies and blank
+  bodies skipped, no markup without a visible intro (Google requires `text`),
+  `commentCount = max(comment_count, marked-up)`, `author`/`datePublished`/`text` on post
+  and every `Comment`, `author.url` → D1 profile URL. Live on the production build:
+  commented post `top-5-breakthrough-technologies-2026-f8588a` emits 3 JSON-LD blocks
+  (Organization/WebSite, ItemList/BreadcrumbList, **DiscussionForumPosting** with
+  `commentCount: 1`, required props all present, comment text with emoji intact);
+  comment-less post `worst-of-london-restaurants-ranked-f390f5` emits zero
+  `DiscussionForumPosting`. **Stale-server trap recurred**: the M32.4 probe server
+  (`next-server`, cwd `/tmp/febuild (deleted)`) had survived the earlier
+  `pkill -f "next start -p 3999"` (its cmdline never matches that pattern) and still held
+  port 3999, so the first probe hit the old build and showed no discussion markup — fixed
+  by killing `next-server` processes by cwd containing `febuild` before restarting.
 
 - **M32.4 abuse policy + public reporting (2026-10-03)** — commit `af5c1ed` (23 files).
   Gates: backend tsc 0 / lint 0-0 / **798 tests** (57 files, 4 skipped); frontend tsc 0 /
