@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Icon, type LucideIconName } from '@/components/icons/Icon';
 import { CategoriesSkeleton } from '@/components/CategoriesSkeleton';
+import { apiFetch } from '@/lib/api/client';
 
 interface Category {
   id: string;
@@ -16,17 +17,42 @@ interface Category {
   children: Array<{ id: string; name: string; slug: string; post_count: number }>;
 }
 
+const LOAD_ERROR = 'Failed to load categories';
+
 export default function CategoriesClient() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
-    fetch('/api/categories')
-      .then(r => r.json())
-      .then(d => { setCategories(d.categories || []); setLoading(false); })
-      .catch(() => { setError('Failed to load categories'); setLoading(false); });
-  }, []);
+    let cancelled = false;
+
+    const load = async () => {
+      setLoading(true);
+      try {
+        const d = await apiFetch<{ categories?: Category[] }>('/categories');
+        // A 200 that isn't the documented shape is a failure, not an empty list.
+        if (!Array.isArray(d.categories)) throw new Error('Unexpected /api/categories response');
+        if (cancelled) return;
+        setCategories(d.categories);
+        setError(null);
+      } catch {
+        if (cancelled) return;
+        setCategories([]);
+        setError(LOAD_ERROR);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    void load();
+    return () => {
+      cancelled = true;
+    };
+  }, [attempt]);
+
+  const retry = useCallback(() => setAttempt((value) => value + 1), []);
 
   if (loading) return <CategoriesSkeleton />;
 
@@ -40,10 +66,18 @@ export default function CategoriesClient() {
         <main className="mx-auto max-w-6xl">
           <div className="rounded-2xl border border-orange-500/20 bg-orange-500/5 p-6 backdrop-blur-sm sm:p-8">
             <div className="mb-3 flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-orange-400"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+              <Icon name="TriangleAlert" size={20} className="text-orange-400" />
               <h2 className="text-lg font-bold text-orange-400">Error Loading Categories</h2>
             </div>
             <p className="mb-1 text-sm text-zinc-400"><strong className="text-zinc-300">Message:</strong> {error}</p>
+            <button
+              type="button"
+              onClick={retry}
+              className="mt-4 inline-flex items-center gap-2 rounded-xl border border-orange-500/30 bg-orange-500/10 px-5 py-2 text-sm text-orange-300 transition hover:bg-orange-500/20"
+            >
+              <Icon name="RefreshCw" size={14} />
+              Try again
+            </button>
           </div>
         </main>
       </div>
