@@ -123,3 +123,78 @@ export function buildArticleJsonLd(article: ArticleSource): Record<string, unkno
   }
   return ld;
 }
+
+export interface CommentSource {
+  id: string;
+  content: string;
+  depth: number;
+  author_username: string;
+  author_display_name: string;
+  created_at: string;
+  replies?: CommentSource[];
+}
+
+export interface DiscussionSource {
+  slug: string;
+  title: string;
+  intro?: string | null;
+  comment_count?: number | null;
+  created_at: string;
+  author: AuthorRef;
+}
+
+function visibleCommentName(comment: CommentSource): string {
+  const stripped = (comment.author_display_name || '').replace(/^a_/, '').trim();
+  return stripped || toPublicSlug(comment.author_username);
+}
+
+export function visibleComments(comments: CommentSource[]): CommentSource[] {
+  const roots = (comments || []).filter((comment) => comment.depth === 0);
+  const flat: CommentSource[] = [];
+  const visit = (nodes: CommentSource[]) => {
+    for (const node of nodes) {
+      flat.push(node);
+      if (node.replies && node.replies.length > 0) {
+        visit(node.replies);
+      }
+    }
+  };
+  visit(roots);
+  return flat;
+}
+
+export function buildDiscussionForumPostingJsonLd(
+  post: DiscussionSource,
+  comments: CommentSource[],
+): Record<string, unknown> | null {
+  const text = (post.intro || '').trim();
+  const visible = visibleComments(comments).filter(
+    (comment) => (comment.content || '').trim().length > 0,
+  );
+  if (!text || visible.length === 0) {
+    return null;
+  }
+
+  const url = absoluteUrl(`/${post.slug}`);
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'DiscussionForumPosting',
+    '@id': `${url}#discussion`,
+    mainEntityOfPage: url,
+    headline: post.title,
+    text,
+    datePublished: post.created_at,
+    author: buildAuthorPerson(post.author),
+    commentCount: Math.max(post.comment_count ?? 0, visible.length),
+    comment: visible.map((comment) => ({
+      '@type': 'Comment',
+      datePublished: comment.created_at,
+      text: comment.content,
+      author: {
+        '@type': 'Person',
+        name: visibleCommentName(comment),
+        url: absoluteUrl(profilePath(comment.author_username)),
+      },
+    })),
+  };
+}

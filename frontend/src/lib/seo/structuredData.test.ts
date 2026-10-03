@@ -2,9 +2,12 @@ import { describe, it, expect } from 'vitest';
 import {
   buildArticleJsonLd,
   buildAuthorPerson,
+  buildDiscussionForumPostingJsonLd,
   buildProfilePageJsonLd,
   profilePath,
   visibleAuthorName,
+  visibleComments,
+  type CommentSource,
 } from './structuredData';
 
 const SITE = 'https://yotop10.com';
@@ -172,3 +175,151 @@ describe('buildArticleJsonLd', () => {
     expect(ld.interactionStatistic).toBeUndefined();
   });
 });
+
+describe('visibleComments', () => {
+  it('keeps only depth-0 roots, flattened in render order (parent then replies)', () => {
+    const reply = makeComment({ id: 'c2', depth: 1 });
+    const roots = [makeComment({ id: 'c1', replies: [reply] }), makeComment({ id: 'c3' })];
+
+    expect(visibleComments(roots).map((c) => c.id)).toEqual(['c1', 'c2', 'c3']);
+  });
+
+  it('drops orphaned replies the client never renders', () => {
+    expect(visibleComments([makeComment({ id: 'c9', depth: 1 })]).map((c) => c.id)).toEqual([]);
+  });
+
+  it('returns an empty list for missing input', () => {
+    expect(visibleComments([])).toEqual([]);
+    expect(visibleComments(undefined as never)).toEqual([]);
+  });
+});
+
+describe('buildDiscussionForumPostingJsonLd', () => {
+  const post = {
+    slug: 'top-10-coffee-shops',
+    title: 'Top 10 Coffee Shops',
+    intro: 'Ranked after 40 visits across three cities.',
+    comment_count: 3,
+    created_at: '2026-10-01T00:00:00.000Z',
+    author: { username: 'a_cyprianzube', displayName: 'Cyprian' },
+  };
+
+  it('returns null on a comment-less post so no markup is emitted', () => {
+    expect(buildDiscussionForumPostingJsonLd(post, [])).toBeNull();
+  });
+
+  it('returns null when the visible intro is empty (text is a required property)', () => {
+    expect(buildDiscussionForumPostingJsonLd({ ...post, intro: '   ' }, [makeComment({})])).toBeNull();
+  });
+
+  it('emits the required DiscussionForumPosting properties', () => {
+    const ld = buildDiscussionForumPostingJsonLd(post, [makeComment({})]);
+
+    expect(ld).not.toBeNull();
+    expect(ld!['@context']).toBe('https://schema.org');
+    expect(ld!['@type']).toBe('DiscussionForumPosting');
+    expect(ld!.headline).toBe('Top 10 Coffee Shops');
+    expect(ld!.text).toBe('Ranked after 40 visits across three cities.');
+    expect(ld!.datePublished).toBe('2026-10-01T00:00:00.000Z');
+    expect(ld!.mainEntityOfPage).toBe(`${SITE}/top-10-coffee-shops`);
+    expect(ld!.author).toEqual({
+      '@type': 'Person',
+      name: 'Cyprian',
+      url: `${SITE}/a/cyprianzube`,
+    });
+  });
+
+  it('marks up each visible comment with Google-required properties, in page order', () => {
+    const reply = makeComment({
+      id: 'c2',
+      depth: 1,
+      content: 'Agreed.',
+      author_username: 'a_ee51_ff30',
+      author_display_name: 'a_ee51_ff30',
+    });
+    const ld = buildDiscussionForumPostingJsonLd(post, [
+      makeComment({ id: 'c1' }),
+      makeComment({ id: 'c0', depth: 1 }),
+      makeComment({
+        id: 'c3',
+        content: 'Second root',
+        author_username: 'cyprianzube',
+        author_display_name: 'Cyprian Zube',
+        replies: [reply],
+      }),
+    ]);
+
+    const comments = ld!.comment as Array<Record<string, unknown>>;
+    expect(comments).toHaveLength(3);
+    expect(comments.map((c) => c.text)).toEqual(['Great list!', 'Second root', 'Agreed.']);
+    expect(comments[0]).toEqual({
+      '@type': 'Comment',
+      datePublished: '2026-10-02T00:00:00.000Z',
+      text: 'Great list!',
+      author: {
+        '@type': 'Person',
+        name: 'dbb4_aed5',
+        url: `${SITE}/a/dbb4_aed5`,
+      },
+    });
+    expect(comments[1].author).toEqual({
+      '@type': 'Person',
+      name: 'Cyprian Zube',
+      url: `${SITE}/a/cyprianzube`,
+    });
+    expect(comments[2].author).toEqual({
+      '@type': 'Person',
+      name: 'ee51_ff30',
+      url: `${SITE}/a/ee51_ff30`,
+    });
+  });
+
+  it('shows the count from the visible Comments (N) heading', () => {
+    const ld = buildDiscussionForumPostingJsonLd(post, [makeComment({})]);
+    expect(ld!.commentCount).toBe(3);
+  });
+
+  it('never reports fewer comments than it marks up when the counter lags', () => {
+    const ld = buildDiscussionForumPostingJsonLd(
+      { ...post, comment_count: 1 },
+      [makeComment({ id: 'c1' }), makeComment({ id: 'c2' })],
+    );
+    expect(ld!.commentCount).toBe(2);
+  });
+
+  it('skips blank comment bodies instead of emitting empty required text', () => {
+    const ld = buildDiscussionForumPostingJsonLd(post, [
+      makeComment({ content: '   ' }),
+      makeComment({ id: 'c2', content: 'Kept' }),
+    ]);
+
+    const comments = ld!.comment as Array<Record<string, unknown>>;
+    expect(comments).toHaveLength(1);
+    expect(comments[0].text).toBe('Kept');
+  });
+
+  it('round-trips through JSON without undefined or unsupported values', () => {
+    const ld = buildDiscussionForumPostingJsonLd(post, [
+      makeComment({
+        replies: [makeComment({ id: 'c2', depth: 1, content: '<script></script>' })],
+      }),
+    ]);
+
+    const parsed = JSON.parse(JSON.stringify(ld));
+    expect(parsed['@type']).toBe('DiscussionForumPosting');
+    expect(parsed.comment).toHaveLength(2);
+    expect(parsed.comment[1].text).toBe('<script></script>');
+  });
+});
+
+function makeComment(over: Partial<CommentSource> = {}): CommentSource {
+  return {
+    id: 'c1',
+    content: 'Great list!',
+    depth: 0,
+    author_username: 'a_dbb4_aed5',
+    author_display_name: 'a_dbb4_aed5',
+    created_at: '2026-10-02T00:00:00.000Z',
+    ...over,
+  };
+}

@@ -7,6 +7,8 @@ import { absoluteUrl } from '@/lib/urls';
 import { toPublicSlug } from '@/lib/username';
 import { buildArticleMetadata, OG_IMAGE_HEIGHT, OG_IMAGE_WIDTH } from '@/lib/seo/metadata';
 import { resolveRobots } from '@/lib/seo/indexability';
+import { buildDiscussionForumPostingJsonLd } from '@/lib/seo/structuredData';
+import { JsonLd } from '@/components/JsonLd';
 
 export const runtime = 'nodejs';
 
@@ -84,6 +86,18 @@ export default async function PostDetailPage({ params }: PageProps) {
     const { post, items } = postData;
     const { comments } = commentsData;
 
+    const discussion = buildDiscussionForumPostingJsonLd(
+      {
+        slug,
+        title: post.title,
+        intro: post.intro,
+        comment_count: post.comment_count,
+        created_at: post.created_at,
+        author: { username: post.author_username, displayName: post.author_display_name },
+      },
+      comments,
+    );
+
     const ld = items.length > 0 ? {
       "@context": "https://schema.org",
       "@graph": [
@@ -125,6 +139,7 @@ export default async function PostDetailPage({ params }: PageProps) {
             dangerouslySetInnerHTML={{ __html: JSON.stringify(ld).replace(/<\//gi, '<\\/') }}
           />
         )}
+        {discussion && <JsonLd data={discussion} />}
         <PostDetailClient
           slug={slug}
           initialPost={post}
